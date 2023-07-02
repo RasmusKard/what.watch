@@ -7,7 +7,7 @@ class RandomizationParameters:
     data = []
 
     def __init__(self,
-                 content_types=["movie", "tvSeries", "tvMovie", "tvMovie", "tvSpecial", "video", "short", "tvShort"],
+                 content_types=["movie", "tvSeries", "tvMovie", "tvSpecial", "video", "short", "tvShort"],
                  min_rating=0, max_rating=10, min_votes=0,
                  genres=['Action', 'Adventure', 'Adult', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama',
                          'Fantasy', 'Family',
