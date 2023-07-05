@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Randomized Content</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Randomized Content</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Content Type</th>
+                <th>Year</th>
+                <th>IMDb ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index, row in data.iterrows() %}
+            <tr>
+                <td>{{ row['primaryTitle'] }}</td>
+                <td>{{ row['titleType'] }}</td>
+                <td>{{ row['startYear'] }}</td>
+                <td>{{ row['tconst'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
