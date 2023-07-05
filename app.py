@@ -49,11 +49,11 @@ def get_sorted_data():
 
     sorted_data = sorted_data.sample()
 
-    poster_url = get_poster_url(sorted_data['tconst'].values[0])
+    # Retrieve the sorted data and poster URL with overview
+    poster_url, overview = get_poster_url(sorted_data['tconst'].values[0])
     print(poster_url)
-
-    # Pass the data and poster URL to the template
-    return render_template("randomized_content.html", sorted_data=sorted_data, poster_url=poster_url)
+    # Pass the data, poster URL, and overview to the template
+    return render_template("randomized_content.html", sorted_data=sorted_data, poster_url=poster_url, overview=overview)
 
 
 def get_poster_url(imdb_id):
@@ -73,20 +73,23 @@ def get_poster_url(imdb_id):
         # Print the JSON response for debugging
         print(json_response)
 
-        # Extract the poster_path attribute
+        # Extract the poster_path and overview attributes
         if 'movie_results' in json_response and json_response['movie_results']:
             poster_path = json_response['movie_results'][0]['poster_path']
+            overview = json_response['movie_results'][0]['overview']
             # Construct the complete poster URL
-            poster_url = f"http://image.tmdb.org/t/p/original{poster_path}"
+            poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
 
-            # Print the poster URL for debugging
+            # Print the poster URL and overview for debugging
             print(poster_url)
+            print(overview)
 
-            # Return the poster URL
-            return poster_url
+            # Return the poster URL and overview
+            return poster_url, overview
 
-    # Return None if the poster URL cannot be retrieved
-    return None
+    # Return None if the poster URL and overview cannot be retrieved
+    return None, None
+
 
 
 
