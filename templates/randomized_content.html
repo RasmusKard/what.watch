@@ -2,27 +2,112 @@
 <html>
 <head>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
         .content-box {
-            border: 1px solid #000;
-            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: url("{{ poster_url }}");
             background-repeat: no-repeat;
             background-size: cover;
+            background-position: center;
         }
-        .content-box h2 {
+        .content-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7); /* Adjust the opacity as needed */
+            padding: 20px;
+            border: 2px solid #FFF; /* Border style and color */
+            box-sizing: border-box;
+            text-align: center;
+            color: #FFF; /* Default text color */
+            font-size: 3vw; /* Adjust the scaling factor as needed */
+        }
+        .content-overlay h2 {
             margin-top: 0;
+            font-size: 4vw; /* Adjust the scaling factor as needed */
         }
     </style>
+    <script>
+        function getContrastingTextColor(color) {
+            // Convert color to RGB
+            var hex = color.replace('#', '');
+            var r = parseInt(hex.substring(0, 2), 16);
+            var g = parseInt(hex.substring(2, 4), 16);
+            var b = parseInt(hex.substring(4, 6), 16);
+
+            // Calculate the luminance
+            var luminance = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+
+            // Choose black or white text color based on the luminance
+            return (luminance > 0.5) ? '#000' : '#FFF';
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var image = new Image();
+            image.src = "{{ poster_url }}";
+
+            image.onload = function() {
+                var canvas = document.createElement("canvas");
+                canvas.width = image.width;
+                canvas.height = image.height;
+
+                var context = canvas.getContext("2d");
+                context.drawImage(image, 0, 0);
+
+                var pixelData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+                var colorSum = [0, 0, 0]; // RGB color sum
+
+                for (var i = 0; i < pixelData.length; i += 4) {
+                    colorSum[0] += pixelData[i];         // Red
+                    colorSum[1] += pixelData[i + 1];     // Green
+                    colorSum[2] += pixelData[i + 2];     // Blue
+                }
+
+                var colorAvg = colorSum.map(function(sum) {
+                    return Math.round(sum / (pixelData.length / 4));
+                });
+
+                var posterColor = "#" + colorAvg.map(function(color) {
+                    return ("0" + color.toString(16)).slice(-2);
+                }).join("");
+
+                var textColor = getContrastingTextColor(posterColor);
+                var contentOverlay = document.querySelector(".content-overlay");
+                var h2 = contentOverlay.querySelector("h2");
+
+                contentOverlay.style.color = textColor;
+                h2.style.color = textColor;
+            };
+        });
+    </script>
 </head>
 <body>
     <div class="content-box">
-        <h2>{{ sorted_data.primaryTitle.values[0] }}</h2>
-        <p><strong>Rating:</strong> {{ sorted_data.averageRating.values[0] }}</p>
-        <p><strong>Genre:</strong> {{ sorted_data.genres.values[0] }}</p>
-        <p><strong>Year:</strong> {{ sorted_data.startYear.values[0] }}</p>
+        <div class="content-overlay">
+            <h2>{{ sorted_data.iloc[0]['primaryTitle'] }}</h2>
+            <p><strong>Rating:</strong> {{ sorted_data.iloc[0]['averageRating'] }}</p>
+            <p><strong>Genre:</strong> {{ sorted_data.iloc[0]['genres'] }}</p>
+            <p><strong>Year:</strong> {{ sorted_data.iloc[0]['startYear'] }}</p>
+        </div>
     </div>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
