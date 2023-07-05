@@ -1,42 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Randomized Content</title>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
+        .content-box {
+            border: 1px solid #000;
+            padding: 20px;
+            background-image: url("{{ poster_url }}");
+            background-repeat: no-repeat;
+            background-size: cover;
         }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
+        .content-box h2 {
+            margin-top: 0;
         }
     </style>
 </head>
 <body>
-    <h1>Randomized Content</h1>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Content Type</th>
-                <th>Year</th>
-                <th>IMDb ID</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for index, row in data.iterrows() %}
-            <tr>
-                <td>{{ row['primaryTitle'] }}</td>
-                <td>{{ row['titleType'] }}</td>
-                <td>{{ row['startYear'] }}</td>
-                <td>{{ row['tconst'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="content-box">
+        <h2>{{ sorted_data.primaryTitle.values[0] }}</h2>
+        <p><strong>Rating:</strong> {{ sorted_data.averageRating.values[0] }}</p>
+        <p><strong>Genre:</strong> {{ sorted_data.genres.values[0] }}</p>
+        <p><strong>Year:</strong> {{ sorted_data.startYear.values[0] }}</p>
+    </div>
 </body>
 </html>
+
+
 

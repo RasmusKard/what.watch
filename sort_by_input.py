@@ -26,23 +26,17 @@ class RandomizationParameters:
         dataframe_by_types = [pd.read_table(f'{content_type}_data.tsv', sep='\t') for content_type in
                               self.content_types]
         RandomizationParameters.data = pd.concat(dataframe_by_types)
-        print("content",RandomizationParameters.data)
 
     def data_sort_by_rating(self):
-        if self.min_rating > 0 or self.max_rating < 10 or self.min_votes > 0:
-            df = RandomizationParameters.data
-            RandomizationParameters.data = df.loc[
-                (df['averageRating'] >= self.min_rating) &
-                (df['averageRating'] <= self.max_rating) &
-                (df['numVotes'] >= self.min_votes)]
-        else:
-            pass
-        print('rating',RandomizationParameters.data)
+        df = RandomizationParameters.data
+        RandomizationParameters.data = df.loc[
+            (df['averageRating'] >= self.min_rating) &
+            (df['averageRating'] <= self.max_rating) &
+            (df['numVotes'] >= self.min_votes)]
 
     def data_sort_by_genres(self):
         df = RandomizationParameters.data
         RandomizationParameters.data = df[df['genres'].apply(lambda x: any(genre in x for genre in self.genres))]
-        print('genre',RandomizationParameters.data)
 
     def data_sort_by_year(self):
         df = RandomizationParameters.data
@@ -52,4 +46,3 @@ class RandomizationParameters:
         RandomizationParameters.data = df.loc[
             (df['startYear'] >= self.min_year) &
             (df['startYear'] <= self.max_year)]
-        print('year',RandomizationParameters.data)
