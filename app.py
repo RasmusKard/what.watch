@@ -3,6 +3,7 @@ import requests
 import sort_by_input as sbi
 
 app = Flask(__name__)
+app.debug = False
 
 
 
@@ -34,7 +35,7 @@ def get_sorted_data():
     max_year = int(request.form.get('max_year')) if request.form.get('max_year') else 2023
 
     # Create an instance of RandomizationParameters
-    randomization_params = sbi.RandomizationParameters(content_types=content_types, min_rating=min_rating,
+    randomization_params = sbi.Randomizationparameters(content_types=content_types, min_rating=min_rating,
                                                        max_rating=max_rating, min_votes=min_votes,
                                                        genres=genres, min_year=min_year, max_year=max_year)
 
@@ -94,6 +95,6 @@ def get_poster_url(imdb_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
 
 
