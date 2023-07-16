@@ -21,38 +21,49 @@
             background-position: center;
         }
         .content-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
-            color: #FFF;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: hidden;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background-color: rgba(0, 0, 0, 0.7);
+          padding: 20px;
+          box-sizing: border-box;
+          text-align: center;
+          color: #FFF;
+          max-width: 90%;
+          max-height: 90%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
         }
+
         .content-overlay h2 {
-            margin-top: 0;
-            font-size: 36px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
+          margin-top: 0;
+          font-size: 36px;
+          margin-bottom: 20px;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          font-weight: bold;
         }
+
         .content-overlay p {
-            margin: 10px 0;
+          margin: 10px 0;
         }
+
         .button-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: flex-end;
+          margin-top: auto;
         }
+
         .button-container .button {
-            margin: 0 10px;
-            cursor: pointer;
+          margin: 0 10px;
+          cursor: pointer;
+        }
+
+        .button-container img {
+          max-height: 100px;
         }
     </style>
 </head>
@@ -74,8 +85,11 @@
                 <a href="http://torrentgalaxy.to/torrents.php?search={{ sorted_data.tconst.values[0] }}#results" target="_blank" class="button">
                     <img src="/static/torrentgalaxy_logo.png" alt="Button 2" style="width: 200px; height: 50px;">
                 </a>
-                <a href="https://1337x.to/search/{{ sorted_data.primaryTitle.values[0] }}/1/" target="_blank" class="button">
+                <a href="https://x1337x.ws/search/{{ sorted_data.primaryTitle.values[0] }}+{{ sorted_data.startYear.values[0] }}/1/" target="_blank" class="button">
                     <img src="/static/1337x_logo.png" alt="Button 3" style="width: 100px; height: 50px;">
+                </a>
+                <a href="https://thepiratebay.org/search.php?q={{ sorted_data.primaryTitle.values[0] }}+{{ sorted_data.startYear.values[0] }}" target="_blank" class="button">
+                    <img src="/static/thepiratebay_logo.png" alt="Button 4" style="width: 100px; height: 100px;">
                 </a>
             </div>
         </div>
