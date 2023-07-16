@@ -115,6 +115,26 @@ body {
   }
 }
 
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 30px;
+}
+.submit-btn {
+  background-color: #4CAF50; /* Set the background color */
+  border: none; /* Remove the border */
+  color: white; /* Set the text color */
+  padding: 10px 20px; /* Add padding around the text */
+  font-size: 16px; /* Set the font size */
+  cursor: pointer; /* Add a pointer cursor on hover */
+  border-radius: 4px; /* Add rounded corners */
+}
+
+.submit-btn:hover {
+  background-color: #45a049; /* Change the background color on hover */
+}
+
 
 
 
