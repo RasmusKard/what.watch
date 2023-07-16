@@ -5,6 +5,7 @@ $(document).ready(function() {
       return $(this).val();
     }).get();
     console.log("Selected content types:", selectedContentTypes);
+    updateMultiSelect("#contentTypeMultiSelect", selectedContentTypes);
   });
 
   // Initialize genres checkboxes
@@ -13,9 +14,62 @@ $(document).ready(function() {
       return $(this).val();
     }).get();
     console.log("Selected genres:", selectedGenres);
+    updateMultiSelect("#genreMultiSelect", selectedGenres);
+  });
+  function updateMultiSelect(containerId, selectedItems) {
+  var container = $(containerId);
+  container.empty();
+
+  selectedItems.forEach(function(item) {
+    var chip = $('<div class="chip"><span class="chip-label">' + item + '</span></div>');
+    container.append(chip);
+  });
+}
+
+  // Dropdown checkboxes
+  $(".dropdown-checkbox .dropdown-toggle").on("click", function(e) {
+    e.stopPropagation();
+    $(this).siblings(".dropdown-menu").toggle();
   });
 
-  // Rating Range Slider
+  $(".dropdown-checkbox .dropdown-item input[type='checkbox']").on("change", function() {
+    var selectedGenres = $(this).closest(".dropdown-checkbox").find("input:checked").map(function() {
+      return $(this).val();
+    }).get();
+    console.log("Selected genres:", selectedGenres);
+  });
+
+  $(document).on("click", function() {
+    $(".dropdown-checkbox .dropdown-menu").hide();
+  });
+    $(".dropdown-checkbox .dropdown-toggle").click(function(e) {
+    e.stopPropagation();
+    $(this).parent().toggleClass("show");
+    $(this).attr("aria-expanded", $(this).parent().hasClass("show"));
+  });
+
+  $(".dropdown-checkbox .dropdown-item").click(function(e) {
+    e.stopPropagation();
+    $(this).find("input[type='checkbox']").trigger("click");
+  });
+
+  $(document).click(function() {
+    $(".dropdown-checkbox").removeClass("show");
+    $(".dropdown-checkbox .dropdown-toggle").attr("aria-expanded", false);
+  });
+
+  // Handle checkbox selection behavior
+  $(".dropdown-checkbox input[type='checkbox']").change(function(e) {
+    e.stopPropagation();
+    var selectedItems = $(this).closest(".dropdown-menu").find("input[type='checkbox']:checked");
+    var selectedValues = selectedItems.map(function() {
+      return $(this).val();
+    }).get();
+    var multiSelectContainer = $(this).closest(".form-group").find(".multi-select-input");
+    multiSelectContainer.text(selectedValues.join(", "));
+  });
+
+ // Rating Range Slider
   var ratingRangeSlider = document.getElementById('ratingRangeSliderContainer');
   var ratingRangeValue = document.getElementById('ratingRangeValue');
   var minRatingInput = document.getElementById('minRatingInput');
@@ -40,7 +94,6 @@ $(document).ready(function() {
     maxRatingInput.value = maxValue.toFixed(1);
   });
 
-
   // Minimum Amount of Votes Slider
   var minVotesSlider = document.getElementById('minVotesSlider');
   var minVotesValue = document.getElementById('minVotesValue');
@@ -54,31 +107,21 @@ $(document).ready(function() {
     step: 25,
     start: 0,
     format: {
-      to: function (value) {
+      to: function(value) {
         return value.toString();
       },
-      from: function (value) {
+      from: function(value) {
         return Number(value.replace(/,/g, ''));
       }
     }
   });
 
-
-  minVotesSlider.noUiSlider.on('update', function (values, handle) {
+  minVotesSlider.noUiSlider.on('update', function(values, handle) {
     var floatValue = parseFloat(values[handle]);
     var formattedValue = floatValue.toLocaleString(undefined, { maximumFractionDigits: 0 });
     minVotesValue.textContent = formattedValue;
     minVotesInput.value = floatValue;
   });
-
-
-
-
-
-
-
-
-
 
   // Release Year Range Slider
   var yearSlider = document.getElementById('yearSlider');
@@ -103,9 +146,5 @@ $(document).ready(function() {
     yearRangeValue.textContent = minYear + ' - ' + maxYear;
     minYearInput.value = minYear;
     maxYearInput.value = maxYear;
-  });
-})
-
-
-
-
+      });
+});

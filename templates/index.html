@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!--suppress XmlInvalidId -->
 <html>
 <head>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -16,171 +15,187 @@
       font-size: 24px;
       text-transform: uppercase;
     }
+    .slider-container {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="title">IMDB RECOMMENDATION</div>
-
-
-    <form action="/run_script" method="post">
-      <div class="contentType-group form-group">
-        <label>Content Types:</label>
-        <!-- Content Types checkboxes -->
-        <div class="checkbox-container">
-          <div class="checkbox-group">
-            <input type="checkbox" id="contentTypeMovie" name="contentTypes" value="movie">
-            <label for="contentTypeMovie">Movie</label>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="contentTypeTVSeries" name="contentTypes" value="tvSeries">
-            <label for="contentTypeTVSeries">TV Series</label>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="contentTypeTVMovie" name="contentTypes" value="tvMovie">
-            <label for="contentTypeTVMovie">TV Movie</label>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="contentTypeTVSpecial" name="contentTypes" value="tvSpecial">
-            <label for="contentTypeTVSpecial">TV Special</label>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="contentTypeVideo" name="contentTypes" value="video">
-            <label for="contentTypeVideo">Video</label>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="contentTypeShort" name="contentTypes" value="short">
-            <label for="contentTypeShort">Short</label>
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="contentTypeTVShort" name="contentTypes" value="tvShort">
-            <label for="contentTypeTVShort">TV Short</label>
-          </div>
+<form action="/run_script" method="post">
+  <div class="contentType-group form-group">
+    <div class="dropdown-checkbox">
+      <button class="dropdown-toggle" type="button" id="contentTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Select Content Types
+      </button>
+      <div class="dropdown-menu" aria-labelledby="contentTypeDropdown">
+        <div class="dropdown-item">
+          <input type="checkbox" id="contentTypeMovie" name="contentTypes" value="movie">
+          <label for="contentTypeMovie">Movie</label>
+        </div>
+        <div class="dropdown-item">
+          <input type="checkbox" id="contentTypeTVSeries" name="contentTypes" value="tvSeries">
+          <label for="contentTypeTVSeries">TV Series</label>
+        </div>
+        <div class="dropdown-item">
+          <input type="checkbox" id="contentTypeTVMovie" name="contentTypes" value="tvMovie">
+          <label for="contentTypeTVMovie">TV Movie</label>
+        </div>
+        <div class="dropdown-item">
+          <input type="checkbox" id="contentTypeTVSpecial" name="contentTypes" value="tvSpecial">
+          <label for="contentTypeTVSpecial">TV Special</label>
+        </div>
+        <div class="dropdown-item">
+          <input type="checkbox" id="contentTypeVideo" name="contentTypes" value="video">
+          <label for="contentTypeVideo">Video</label>
+        </div>
+        <div class="dropdown-item">
+          <input type="checkbox" id="contentTypeShort" name="contentTypes" value="short">
+          <label for="contentTypeShort">Short</label>
+        </div>
+        <div class="dropdown-item">
+          <input type="checkbox" id="contentTypeTVShort" name="contentTypes" value="tvShort">
+          <label for="contentTypeTVShort">TV Short</label>
+        </div>
         <!-- Add more content type checkboxes here -->
       </div>
-         </div>
-        <label><b>Genres:</b></label>
-      <div class="genre-group form-group">
-        <!-- Genres checkboxes -->
-        <div class="checkbox-group">
+    </div>
+    <div class="multi-select-input" id="contentTypeMultiSelect"></div>
+  </div>
+
+  <div class="genre-group form-group">
+    <div class="dropdown-checkbox">
+      <button class="dropdown-toggle" type="button" id="genreDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Select Genres
+      </button>
+      <div class="dropdown-menu" aria-labelledby="genreDropdown">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreAction" name="genres" value="Action">
           <label for="genreAction">Action</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreAdventure" name="genres" value="Adventure">
           <label for="genreAdventure">Adventure</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreAnimation" name="genres" value="Animation">
           <label for="genreAnimation">Animation</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreComedy" name="genres" value="Comedy">
           <label for="genreComedy">Comedy</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreCrime" name="genres" value="Crime">
           <label for="genreCrime">Crime</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreDocumentary" name="genres" value="Documentary">
           <label for="genreDocumentary">Documentary</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreDrama" name="genres" value="Drama">
           <label for="genreDrama">Drama</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreFantasy" name="genres" value="Fantasy">
           <label for="genreFantasy">Fantasy</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreFamily" name="genres" value="Family">
           <label for="genreFamily">Family</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreFilmNoir" name="genres" value="Film-Noir">
           <label for="genreFilmNoir">Film-Noir</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreHorror" name="genres" value="Horror">
           <label for="genreHorror">Horror</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreMusical" name="genres" value="Musical">
           <label for="genreMusical">Musical</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreMystery" name="genres" value="Mystery">
           <label for="genreMystery">Mystery</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreRomance" name="genres" value="Romance">
           <label for="genreRomance">Romance</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreSciFi" name="genres" value="Sci-Fi">
           <label for="genreSciFi">Sci-Fi</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreShort" name="genres" value="Short">
           <label for="genreShort">Short</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreThriller" name="genres" value="Thriller">
           <label for="genreThriller">Thriller</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreWar" name="genres" value="War">
           <label for="genreWar">War</label>
         </div>
-        <div class="checkbox-group">
+        <div class="dropdown-item">
           <input type="checkbox" id="genreWestern" name="genres" value="Western">
           <label for="genreWestern">Western</label>
         </div>
         <!-- Add more genre checkboxes here -->
       </div>
-
-      <div class="ratingRange-group form-group">
-        <label for="ratingRangeSlider">Average Rating Range:</label>
-        <div id="ratingRangeSliderContainer" class="slider"></div>
-        <div class="slider-value-container">
-          <div class="slider-value" id="ratingRangeValue"></div>
-        </div>
-        <input type="hidden" id="minRatingInput" name="min_rating">
-        <input type="hidden" id="maxRatingInput" name="max_rating">
-      </div>
-
-
-      <div class="minVotes-group form-group">
-        <label for="minVotesSlider">Minimum Amount of Votes:</label>
-        <div id="minVotesSlider" class="slider"></div>
-        <div class="slider-value-container">
-          <div class="slider-value" id="minVotesValue"></div>
-        </div>
-        <input type="hidden" id="minVotesInput" name="min_votes">
-      </div>
-
-      <div class="yearRange-group form-group">
-        <label for="yearSlider">Release Year Range:</label>
-        <div id="yearSlider" class="slider"></div>
-        <div class="slider-value-container">
-          <div class="slider-value" id="yearRangeValue"></div>
-        </div>
-        <input type="hidden" id="minYearInput" name="min_year">
-        <input type="hidden" id="maxYearInput" name="max_year">
-      </div>
-
-      <div class="button-container">
-      <button type="submit" class="submit-btn">&#x1F3B2; Randomize &#x1F3B2;</button>
-      </div>
-    </form>
-  </div>
     </div>
+    <div class="multi-select-input" id="genreMultiSelect"></div>
+  </div>
+
+  <div class="slider-container">
+    <div class="ratingRange-group form-group">
+      <label for="ratingRangeSlider">Average Rating Range:</label>
+      <div id="ratingRangeSliderContainer" class="slider"></div>
+      <div class="slider-value-container">
+        <div class="slider-value" id="ratingRangeValue"></div>
+      </div>
+      <input type="hidden" id="minRatingInput" name="min_rating">
+      <input type="hidden" id="maxRatingInput" name="max_rating">
+    </div>
+  </div>
+
+  <div class="slider-container">
+    <div class="minVotes-group form-group">
+      <label for="minVotesSlider">Minimum Amount of Votes:</label>
+      <div id="minVotesSlider" class="slider"></div>
+      <div class="slider-value-container">
+        <div class="slider-value" id="minVotesValue"></div>
+      </div>
+      <input type="hidden" id="minVotesInput" name="min_votes">
+    </div>
+  </div>
+
+  <div class="slider-container">
+    <div class="yearRange-group form-group">
+      <label for="yearSlider">Release Year Range:</label>
+      <div id="yearSlider" class="slider"></div>
+      <div class="slider-value-container">
+        <div class="slider-value" id="yearRangeValue"></div>
+      </div>
+      <input type="hidden" id="minYearInput" name="min_year">
+      <input type="hidden" id="maxYearInput" name="max_year">
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button type="submit" class="submit-btn">&#x1F3B2; Randomize &#x1F3B2;</button>
+  </div>
+</form>
+
+  </div>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="../static/script.js"></script>
 </body>
 </html>
-
