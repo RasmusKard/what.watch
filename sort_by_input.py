@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 
@@ -6,7 +5,7 @@ class Randomizationparameters:
     """ Class for applying user input to sort .tsv files based on parameters"""
     data = []
 
-    def __init__(self, content_types, min_rating, max_rating, min_votes, genres, min_year, max_year):
+    def __init__(self, content_types, min_rating, max_rating, min_votes, genres, min_year, max_year, watched_content=0):
         self.content_types = content_types
         self.min_rating = min_rating
         self.max_rating = max_rating
@@ -14,6 +13,7 @@ class Randomizationparameters:
         self.genres = genres
         self.min_year = min_year
         self.max_year = max_year
+        self.watched_content = watched_content
 
     def data_sort_by_content_types(self):
         dataframe_by_types = [pd.read_table(f'{content_type}_data.tsv', sep='\t') for content_type in
@@ -39,3 +39,8 @@ class Randomizationparameters:
         Randomizationparameters.data = df.loc[
             (df['startYear'] >= self.min_year) &
             (df['startYear'] <= self.max_year)]
+
+    def data_remove_watched(self):
+        df = Randomizationparameters.data
+        df = df[~df["tconst"].isin(self.watched_content)]
+        Randomizationparameters.data = df

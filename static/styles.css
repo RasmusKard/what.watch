@@ -194,8 +194,51 @@ body {
 .chip .chip-label {
   margin-right: 4px;
 }
+.dropdown-textbox {
+  margin-bottom: 10px;
+}
+.dropdown-textbox .dropdown-toggle {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
+.dropdown-textbox.show .dropdown-menu {
+  display: block;
+}
+.dropdown-textbox .dropdown-item {
+  display: flex;
+  margin-bottom: 4px;
+}
+.dropdown-textbox .dropdown-item input[type="text"] {
+  margin-right: 8px;
+}
+.dropdown-textbox .dropdown-item label {
+  font-size: 14px;
+}
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-transform: uppercase;
+}
+.slider-container {
+  margin-bottom: 20px;
+}
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
 
-
+.logo img {
+  max-width: 100%;
+}
+.dropdown-textbox .dropdown-toggle {
+  color: #333333; /* Change the color code to the desired color */
+}
 
 
 

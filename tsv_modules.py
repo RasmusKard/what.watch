@@ -51,9 +51,6 @@ def titletype_split():
         df = pd.read_table('title_ratings_merged.tsv', sep='\t')
         df = df[df["titleType"] == f"{titletype}"]
         df.to_csv(f'{titletype}_data.tsv', sep="\t", index=False)
-    # for titletype in titletypes:
-    #     df = pd.read_table(f'{titletype}_data.tsv', sep='\t')
-    #     df.to_csv(f'{titletype}_data.tsv', sep="\t", index=True)
     try:
         os.remove('title_ratings_merged.tsv')
     except OSError:

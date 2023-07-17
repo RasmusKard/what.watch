@@ -1,4 +1,5 @@
 import json
+import math
 
 import requests
 from bs4 import BeautifulSoup
@@ -20,25 +21,32 @@ def get_sorted_data():
     content_types = request.form.getlist('contentTypes') or default_content_types
     min_rating = float(request.form.get('min_rating')) if request.form.get('min_rating') else default_min_rating
     max_rating = float(request.form.get('max_rating')) if request.form.get('max_rating') else default_max_rating
-    min_votes = int(request.form.get('min_votes')) if request.form.get('min_votes') else default_min_votes
+    min_votes = int(math.floor(float(request.form.get('min_votes')))) if request.form.get('min_votes') else default_min_votes
     genres = request.form.getlist('genres') or default_genres
     min_year = int(request.form.get('min_year')) if request.form.get('min_year') else 0
     max_year = int(request.form.get('max_year')) if request.form.get('max_year') else 2023
+    watched_content = str(request.form.get('watchedContent')).splitlines() if request.form.get('watchedContent') else []
+
+    print(watched_content)
 
     # Create an instance of RandomizationParameters
     randomization_params = sbi.Randomizationparameters(content_types=content_types, min_rating=min_rating,
                                                        max_rating=max_rating, min_votes=min_votes,
-                                                       genres=genres, min_year=min_year, max_year=max_year)
+                                                       genres=genres, min_year=min_year, max_year=max_year,
+                                                       watched_content=watched_content)
 
     # Apply the sorting methods
     randomization_params.data_sort_by_content_types()
     randomization_params.data_sort_by_rating()
     randomization_params.data_sort_by_genres()
     randomization_params.data_sort_by_year()
+    print(randomization_params.data)
+    if len(watched_content) > 0:
+        randomization_params.data_remove_watched()
 
     # Retrieve the sorted data
     sorted_data = randomization_params.data
-
+    print(sorted_data)
     sorted_data = sorted_data.sample()
 
     # Retrieve the sorted data and poster URL with overview
@@ -64,13 +72,20 @@ def get_poster_url(imdb_id):
     print(json_response)
     if all(len(value) == 0 for value in json_response.values()):
         return imdb_scrape(imdb_id)
+    if len(json_response['movie_results']) > 0:
+        poster_path = json_response['movie_results'][0]['poster_path']
+        overview = json_response['movie_results'][0]['overview']
+        # Construct the complete poster URL
+        poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
 
-    poster_path = json_response['movie_results'][0]['poster_path']
-    overview = json_response['movie_results'][0]['overview']
-    # Construct the complete poster URL
-    poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
+        return poster_url, overview
+    if len(json_response['tv_results']) > 0:
+        poster_path = json_response['tv_results'][0]['poster_path']
+        overview = json_response['tv_results'][0]['overview']
+        # Construct the complete poster URL
+        poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
 
-    return poster_url, overview
+        return poster_url, overview
 
 
 def imdb_scrape(imdb_id):

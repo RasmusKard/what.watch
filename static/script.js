@@ -16,15 +16,16 @@ $(document).ready(function() {
     console.log("Selected genres:", selectedGenres);
     updateMultiSelect("#genreMultiSelect", selectedGenres);
   });
-  function updateMultiSelect(containerId, selectedItems) {
-  var container = $(containerId);
-  container.empty();
 
-  selectedItems.forEach(function(item) {
-    var chip = $('<div class="chip"><span class="chip-label">' + item + '</span></div>');
-    container.append(chip);
-  });
-}
+  function updateMultiSelect(containerId, selectedItems) {
+    var container = $(containerId);
+    container.empty();
+
+    selectedItems.forEach(function(item) {
+      var chip = $('<div class="chip"><span class="chip-label">' + item + '</span></div>');
+      container.append(chip);
+    });
+  }
 
   // Dropdown checkboxes
   $(".dropdown-checkbox .dropdown-toggle").on("click", function(e) {
@@ -42,7 +43,8 @@ $(document).ready(function() {
   $(document).on("click", function() {
     $(".dropdown-checkbox .dropdown-menu").hide();
   });
-    $(".dropdown-checkbox .dropdown-toggle").click(function(e) {
+
+  $(".dropdown-checkbox .dropdown-toggle").click(function(e) {
     e.stopPropagation();
     $(this).parent().toggleClass("show");
     $(this).attr("aria-expanded", $(this).parent().hasClass("show"));
@@ -69,7 +71,7 @@ $(document).ready(function() {
     multiSelectContainer.text(selectedValues.join(", "));
   });
 
- // Rating Range Slider
+  // Rating Range Slider
   var ratingRangeSlider = document.getElementById('ratingRangeSliderContainer');
   var ratingRangeValue = document.getElementById('ratingRangeValue');
   var minRatingInput = document.getElementById('minRatingInput');
@@ -117,10 +119,10 @@ $(document).ready(function() {
   });
 
   minVotesSlider.noUiSlider.on('update', function(values, handle) {
-    var floatValue = parseFloat(values[handle]);
-    var formattedValue = floatValue.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    var integerValue = Math.floor(parseFloat(values[handle]) / 25) * 25;
+    var formattedValue = integerValue.toLocaleString(undefined, { maximumFractionDigits: 0 });
     minVotesValue.textContent = formattedValue;
-    minVotesInput.value = floatValue;
+    minVotesInput.value = integerValue;
   });
 
   // Release Year Range Slider
@@ -146,5 +148,45 @@ $(document).ready(function() {
     yearRangeValue.textContent = minYear + ' - ' + maxYear;
     minYearInput.value = minYear;
     maxYearInput.value = maxYear;
-      });
+  });
+
+  // Open dropdown text box for already watched content
+  $("#watchedContentButton").on("click", function(e) {
+    e.stopPropagation();
+    var dropdownMenu = $("#watchedContentFormContainer");
+    dropdownMenu.toggle();
+
+    // Scroll to the dropdown menu if it is not in view
+    if (!isElementInViewport(dropdownMenu[0])) {
+      $('html, body').animate({
+        scrollTop: dropdownMenu.offset().top
+      }, 500);
+    }
+  });
+
+  // Randomize button click
+  $("#randomizeBtn").click(function(e) {
+    e.preventDefault();
+    $("form").attr("action", "/run_script").submit();
+  });
+
+  function isElementInViewport(el) {
+  var rect = el.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+}
+  var savedValue = Cookies.get('watchedContentCookie');
+  if (savedValue) {
+    // Set the input value from the saved cookie value
+    $("#watchedContentInput").val(savedValue);
+  }
+  $("#watchedContentInput").on("change", function() {
+  var inputValue = $(this).val();
+  Cookies.set('watchedContentCookie', inputValue, { expires: 7 }); // Cookie expires in 7 days
+});
+
 });

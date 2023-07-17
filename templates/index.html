@@ -1,28 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="/static/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="/static/node_modules/nouislider/dist/nouislider.min.css">
-  <script src="/static/node_modules/nouislider/dist/nouislider.min.js"></script>
-  <link rel="stylesheet" href="/static/node_modules/jquery-ui-dist/jquery-ui.min.css">
-  <script src="/static/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="../static/styles.css">
-  <style>
-    .title {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 24px;
-      text-transform: uppercase;
-    }
-    .slider-container {
-      margin-bottom: 20px;
-    }
-  </style>
+  <script src="{{ url_for('static', filename='jquery/dist/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='@popperjs/core/dist/umd/popper.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='jquery-ui-dist/jquery-ui.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='nouislider/dist/nouislider.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js-cookie/dist/js.cookie.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="title">IMDB RECOMMENDATION</div>
+<div class="container">
+  <div class="logo">
+    <img src="/static/popcorn.png" alt="Logo">
+  </div>
 <form action="/run_script" method="post">
   <div class="contentType-group form-group">
     <div class="dropdown-checkbox">
@@ -187,6 +178,21 @@
     </div>
   </div>
 
+  <div class="dropdown-textbox">
+    <button type="button" class="btn btn-secondary dropdown-toggle" id="watchedContentButton">
+      Click here to filter content by IMDb ID
+    </button>
+    <div id="watchedContentFormContainer" class="dropdown-menu">
+      <div class="dropdown-item">
+        <label for="watchedContentInput">Enter IMDb IDs (one ID per line):</label>
+        <textarea id="watchedContentInput" name="watchedContent"></textarea>
+      </div>
+    </div>
+  </div>
+
+
+
+
   <div class="button-container">
     <button type="submit" class="submit-btn">&#x1F3B2; Randomize &#x1F3B2;</button>
   </div>
@@ -194,8 +200,10 @@
 
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="../static/script.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='nouislider/dist/nouislider.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui-dist/jquery-ui.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
 </body>
 </html>
