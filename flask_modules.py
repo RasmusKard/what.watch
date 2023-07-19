@@ -27,7 +27,8 @@ def get_sorted_data():
     max_year = int(request.form.get('max_year')) if request.form.get('max_year') else 2023
     watched_content = str(request.form.get('watchedContent')).splitlines() if request.form.get('watchedContent') else []
 
-    print(watched_content)
+
+
 
     # Create an instance of RandomizationParameters
     randomization_params = sbi.Randomizationparameters(content_types=content_types, min_rating=min_rating,
@@ -40,18 +41,15 @@ def get_sorted_data():
     randomization_params.data_sort_by_rating()
     randomization_params.data_sort_by_genres()
     randomization_params.data_sort_by_year()
-    print(randomization_params.data)
     if len(watched_content) > 0:
         randomization_params.data_remove_watched()
 
     # Retrieve the sorted data
     sorted_data = randomization_params.data
-    print(sorted_data)
     sorted_data = sorted_data.sample()
 
     # Retrieve the sorted data and poster URL with overview
     poster_url, overview = get_poster_url(sorted_data['tconst'].values[0])
-
     # Pass the data, poster URL, and overview to the template
     return render_template("randomized_content.html", sorted_data=sorted_data, poster_url=poster_url, overview=overview)
 
@@ -69,7 +67,6 @@ def get_poster_url(imdb_id):
         json_response = response.json()
     else:
         return imdb_scrape(imdb_id)
-    print(json_response)
     if all(len(value) == 0 for value in json_response.values()):
         return imdb_scrape(imdb_id)
     if len(json_response['movie_results']) > 0:
@@ -97,7 +94,7 @@ def imdb_scrape(imdb_id):
     try:
         poster_url = json_response['image']
     except KeyError:
-        poster_url = "/static/image-not-found-scaled.png"
+        poster_url = None
         pass
     try:
         overview = json_response['overview']

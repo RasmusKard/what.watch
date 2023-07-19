@@ -27,40 +27,22 @@ $(document).ready(function() {
     });
   }
 
-  // Dropdown checkboxes
+  // Handle dropdown-toggle click to show/hide dropdown-menu
   $(".dropdown-checkbox .dropdown-toggle").on("click", function(e) {
     e.stopPropagation();
     $(this).siblings(".dropdown-menu").toggle();
-  });
-
-  $(".dropdown-checkbox .dropdown-item input[type='checkbox']").on("change", function() {
-    var selectedGenres = $(this).closest(".dropdown-checkbox").find("input:checked").map(function() {
-      return $(this).val();
-    }).get();
-    console.log("Selected genres:", selectedGenres);
-  });
-
-  $(document).on("click", function() {
-    $(".dropdown-checkbox .dropdown-menu").hide();
-  });
-
-  $(".dropdown-checkbox .dropdown-toggle").click(function(e) {
-    e.stopPropagation();
     $(this).parent().toggleClass("show");
     $(this).attr("aria-expanded", $(this).parent().hasClass("show"));
   });
 
-  $(".dropdown-checkbox .dropdown-item").click(function(e) {
+  // Handle checkbox selection behavior and click event for the whole dropdown item
+  $(".dropdown-checkbox .dropdown-item").on("click", function(e) {
     e.stopPropagation();
-    $(this).find("input[type='checkbox']").trigger("click");
+    var checkbox = $(this).find("input[type='checkbox']");
+    checkbox.prop("checked", !checkbox.prop("checked")).change();
   });
 
-  $(document).click(function() {
-    $(".dropdown-checkbox").removeClass("show");
-    $(".dropdown-checkbox .dropdown-toggle").attr("aria-expanded", false);
-  });
-
-  // Handle checkbox selection behavior
+  // Handle checkbox change event
   $(".dropdown-checkbox input[type='checkbox']").change(function(e) {
     e.stopPropagation();
     var selectedItems = $(this).closest(".dropdown-menu").find("input[type='checkbox']:checked");
@@ -70,6 +52,14 @@ $(document).ready(function() {
     var multiSelectContainer = $(this).closest(".form-group").find(".multi-select-input");
     multiSelectContainer.text(selectedValues.join(", "));
   });
+
+  // Close the dropdown when clicking outside
+  $(document).on("click", function() {
+    $(".dropdown-checkbox .dropdown-menu").hide();
+    $(".dropdown-checkbox").removeClass("show");
+    $(".dropdown-checkbox .dropdown-toggle").attr("aria-expanded", false);
+  });
+
 
   // Rating Range Slider
   var ratingRangeSlider = document.getElementById('ratingRangeSliderContainer');
@@ -188,5 +178,4 @@ $(document).ready(function() {
   var inputValue = $(this).val();
   Cookies.set('watchedContentCookie', inputValue, { expires: 7 }); // Cookie expires in 7 days
 });
-
 });

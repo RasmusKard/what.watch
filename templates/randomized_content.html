@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
             margin: 0;
@@ -15,61 +16,26 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url("{{ poster_url }}"), url("/static/image-not-found-scaled.png");
-            background-repeat: no-repeat;
-            background-size: cover;
+            background-image: url("{{ poster_url }}"), url("/static/background.png");
+            background-repeat: no-repeat, no-repeat;
+            background-size: contain, cover;
             background-position: center;
         }
-        .content-overlay {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background-color: rgba(0, 0, 0, 0.7);
-          padding: 20px;
-          box-sizing: border-box;
-          text-align: center;
-          color: #FFF;
-          max-width: 90%;
-          max-height: 90%;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-end;
-        }
 
-        .content-overlay h2 {
-          margin-top: 0;
-          font-size: 36px;
-          margin-bottom: 20px;
-          text-transform: uppercase;
-          letter-spacing: 2px;
-          font-weight: bold;
-        }
 
-        .content-overlay p {
-          margin: 10px 0;
-        }
 
-        .button-container {
-          display: flex;
-          justify-content: center;
-          align-items: flex-end;
-          margin-top: auto;
-        }
 
-        .button-container .button {
-          margin: 0 10px;
-          cursor: pointer;
-        }
 
-        .button-container img {
-          max-height: 100px;
-        }
+
     </style>
 </head>
 <body>
+
     <div class="content-box">
         <div class="content-overlay">
+            <div class="button-container button-container-top">
+            <a href="{{ url_for('index') }}" class="btn btn-primary go-back-button">&#x21A9;Go back to filters&#x21A9;</a>
+            </div>
             <h2 id="title">{{ sorted_data.primaryTitle.values[0] }}</h2>
             {% if overview %}
             <p><strong>Overview:</strong> {{ overview }}</p>
@@ -77,6 +43,7 @@
             <p><strong>Rating:</strong> {{ sorted_data.averageRating.values[0] }}</p>
             <p><strong>Genre:</strong> {{ sorted_data.genres.values[0] }}</p>
             <p><strong>Year:</strong> {{ sorted_data.startYear.values[0] }}</p>
+
 
             <div class="button-container">
                 <a href="http://www.imdb.com/title/{{ sorted_data.tconst.values[0] }}" target="_blank" class="button">
@@ -91,6 +58,13 @@
                 <a href="https://thepiratebay.org/search.php?q={{ sorted_data.primaryTitle.values[0] }}+{{ sorted_data.startYear.values[0] }}" target="_blank" class="button">
                     <img src="/static/thepiratebay_logo.png" alt="Button 4" style="width: 100px; height: 100px;">
                 </a>
+            </div>
+
+            <div class="button-container button-container-bottom">
+                <!-- "Randomize again" button -->
+                <form action="{{ url_for('run_script') }}" method="post">
+                    <button type="submit" class="submit-btn">&#x1F37F; Randomize again &#x1F37F;</button>
+                </form>
             </div>
         </div>
     </div>
@@ -113,23 +87,6 @@
         // Initial call to scale the text size
         scaleTextSize();
     </script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

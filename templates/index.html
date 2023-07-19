@@ -9,11 +9,49 @@
   <script src="{{ url_for('static', filename='js-cookie/dist/js.cookie.min.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
+<script>
+    function resetFilters() {
+    // Reset the checkboxes
+    $("input[type='checkbox']").prop('checked', false);
+
+    // Reset the sliders
+    $("#ratingRangeSliderContainer .slider").val([0, 10]);
+    $("#ratingRangeValue").text("0 - 10");
+    $("#minVotesSlider").val(0);
+    $("#minVotesValue").text("0");
+    $("#yearSlider").val([1900, new Date().getFullYear()]);
+    $("#yearRangeValue").text("1900 - " + new Date().getFullYear());
+
+    document.getElementById("genreMultiSelect").innerHTML = "";
+    document.getElementById("contentTypeMultiSelect").innerHTML = "";
+
+    // Reset rating slider
+    const ratingSlider = document.getElementById("ratingRangeSliderContainer");
+    const ratingRangeValue = document.getElementById("ratingRangeValue");
+    ratingSlider.noUiSlider.reset();
+    ratingRangeValue.innerHTML = "0 - 10"; // Reset the displayed value
+
+    // Reset minVotes slider
+    const minVotesSlider = document.getElementById("minVotesSlider");
+    const minVotesValue = document.getElementById("minVotesValue");
+    minVotesSlider.noUiSlider.reset();
+    minVotesValue.innerHTML = "0"; // Reset the displayed value
+
+    // Reset year slider
+    const yearSlider = document.getElementById("yearSlider");
+    const yearRangeValue = document.getElementById("yearRangeValue");
+    yearSlider.noUiSlider.reset();
+    yearRangeValue.innerHTML = "1900 - 2023"; // Reset the displayed value
+
+
+  }
+</script>
 <body>
 <div class="container">
   <div class="logo">
-    <img src="/static/popcorn.png" alt="Logo">
+    <img src="/static/imdb_randomizer.png" alt="Logo">
   </div>
+   <hr style="height:1px;border:none;color:#333;background-color:#333;">
 <form action="/run_script" method="post">
   <div class="contentType-group form-group">
     <div class="dropdown-checkbox">
@@ -178,7 +216,20 @@
     </div>
   </div>
 
-  <div class="dropdown-textbox">
+
+
+
+
+
+
+  <div class="box2">
+        <button type="submit" class="submit-btn">&#x1F37F; Randomize &#x1F37F;</button>
+  </div>
+ <hr style="height:1px;border:none;color:#333;background-color:#333;">
+  <div class="box1">
+      <button type="button" class="btn btn-primary reset-btn" onclick="resetFilters()">Reset Filters</button>
+  </div>
+      <div class="dropdown-textbox">
     <button type="button" class="btn btn-secondary dropdown-toggle" id="watchedContentButton">
       Click here to filter content by IMDb ID
     </button>
@@ -188,14 +239,7 @@
         <textarea id="watchedContentInput" name="watchedContent"></textarea>
       </div>
     </div>
-  </div>
-
-
-
-
-  <div class="button-container">
-    <button type="submit" class="submit-btn">&#x1F3B2; Randomize &#x1F3B2;</button>
-  </div>
+</div>
 </form>
 
   </div>

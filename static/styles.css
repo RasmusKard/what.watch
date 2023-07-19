@@ -31,6 +31,8 @@ body {
 
 .form-group .slider {
   margin-top: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .form-group .slider-data {
@@ -195,11 +197,11 @@ body {
   margin-right: 4px;
 }
 .dropdown-textbox {
-  margin-bottom: 10px;
+  padding-top: 10px;
+  display: inline-block;
 }
 .dropdown-textbox .dropdown-toggle {
-  padding: 8px 12px;
-  font-size: 14px;
+  font-size: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
@@ -239,6 +241,95 @@ body {
 .dropdown-textbox .dropdown-toggle {
   color: #333333; /* Change the color code to the desired color */
 }
+.content-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+  color: #FFF;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
 
+.content-overlay h2 {
+  margin-top: 0;
+  font-size: 36px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.content-overlay p {
+  margin: 10px 0;
+}
+
+.button-container .button {
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.button-container img {
+  max-height: 100px;
+}
+
+/* Added styles */
+.button-container-bottom {
+  display: flex;
+  justify-content: center; /* Align items with space between them */
+  padding-top: 20px;
+}
+.button-container-top {
+  justify-content: left;
+  margin:-40px -15px 0;
+  padding-bottom: 30px;
+}
+/* Add the textured effect using a CSS pseudo-element */
+.go-back-button {
+  position: relative; /* Set position to relative to allow pseudo-element positioning */
+  color: #FFF; /* Set the text color of the button to white */
+  text-transform: uppercase; /* Make the button text uppercase */
+  overflow: hidden; /* Hide overflowing pseudo-element content */
+  font-size: 12px;
+  font-family: "Segoe UI Emoji", sans-serif;
+  text-decoration: none;
+  background-color: #4e555b;
+}
+
+.go-back-button::before {
+  content: ""; /* Required for the pseudo-element to appear */
+  position: absolute;
+  top: -10px; /* Adjust the positioning of the pseudo-element */
+  left: -10px;
+  transform: translate(-50%, -50%);
+  width: calc(100% + 20px); /* Extend the width to cover the button */
+  height: calc(100% + 20px); /* Extend the height to cover the button */
+  z-index: -1; /* Set a negative z-index to position the pseudo-element behind the button content */
+}
+
+
+.box1 {
+  padding-top: 15px;
+  display: inline-block;
+  float: right;
+}
+
+.box2 {
+  padding-top: 40px;
+  text-align: center;
+  flex: 1; /* Take up available space */
+}
+.reset-btn {
+  overflow: hidden;
+  font-size: 10px;
+  padding-right: -20px;
+}
 
 
