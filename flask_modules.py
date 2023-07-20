@@ -2,7 +2,7 @@ import json
 import math
 import requests
 from bs4 import BeautifulSoup
-from flask import render_template, request
+from flask import request
 
 import sort_by_input as sbi
 
@@ -37,7 +37,6 @@ def get_sorted_data():
     min_year = int(request.form.get('min_year', 0))
     max_year = int(request.form.get('max_year', 2023))
     watched_content = str(request.form.get('watchedContent', '')).splitlines()
-
     # Create an instance of RandomizationParameters
     randomization_params = sbi.Randomizationparameters(content_types=content_types, min_rating=min_rating,
                                                        max_rating=max_rating, min_votes=min_votes,
@@ -55,14 +54,7 @@ def get_sorted_data():
     if len(watched_content) > 0:
         randomization_params.data_remove_watched()
 
-    # Retrieve the sorted data
-    sorted_data = randomization_params.data.sample()
-
-    # Retrieve the sorted data and poster URL with overview
-    poster_url, overview = get_poster_url(sorted_data['tconst'].values[0])
-
-    # Pass the data, poster URL, and overview to the template
-    return render_template("randomized_content.html", sorted_data=sorted_data, poster_url=poster_url, overview=overview)
+    return randomization_params.data
 
 
 def get_poster_url(imdb_id):

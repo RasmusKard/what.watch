@@ -1,12 +1,11 @@
 from flask import Flask, render_template, send_from_directory
 import os
-from flask_modules import get_sorted_data
+from flask_modules import get_sorted_data, get_poster_url
 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 
 # Default values for empty inputs
-
 
 
 # Render the main HTML page
@@ -32,7 +31,19 @@ def serve_static(filename):
 
 @app.route('/run_script', methods=['POST'])
 def run_script():
-    return get_sorted_data()
+    global sorted_data
+    sorted_data = get_sorted_data()
+    randomized_data = sorted_data.sample()
+    poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
+    
+    return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url, overview=overview)
+
+@app.route('/reroll', methods=['POST'])
+def reroll():
+    randomized_data = sorted_data.sample()
+    poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
+    return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url, overview=overview)
+    
 
 
 

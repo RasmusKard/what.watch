@@ -24,13 +24,16 @@ class Randomizationparameters:
         Randomizationparameters.data = pd.concat(dataframe_by_types)
 
     def data_sort_by_rating(self):
-        self.data = self.data[
-            (self.data['averageRating'].between(self.min_rating, self.max_rating)) &
-            (self.data['numVotes'] >= self.min_votes)
+        Randomizationparameters.data = Randomizationparameters.data[
+            (Randomizationparameters.data['averageRating'].between(self.min_rating, self.max_rating)) &
+            (Randomizationparameters.data['numVotes'] >= self.min_votes)
         ]
 
     def data_sort_by_genres(self):
-        Randomizationparameters.data = Randomizationparameters.data[Randomizationparameters.data['genres'].isin(self.genres)]
+        Randomizationparameters.data = Randomizationparameters.data[
+            Randomizationparameters.data['genres'].apply(lambda x: any(genre in x for genre in self.genres))
+        ]
+
 
 
     def data_sort_by_year(self):
@@ -41,5 +44,7 @@ class Randomizationparameters:
 
 
     def data_remove_watched(self):
-        Randomizationparameters.data = Randomizationparameters.data[~Randomizationparameters.data['tconst'].isin(self.watched_content)]
+       watched_content_set = set(self.watched_content)
+       Randomizationparameters.data = Randomizationparameters.data[~Randomizationparameters.data['tconst'].isin(watched_content_set)]
+
 
