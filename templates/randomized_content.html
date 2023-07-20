@@ -34,7 +34,7 @@
     <div class="content-box">
         <div class="content-overlay">
             <div class="button-container button-container-top">
-                <a href="{{ url_for('index', preserve_data=True) }}" class="btn btn-primary go-back-button">&#x21A9;Go back to filters&#x21A9;</a>
+                <a href="{{ url_for('index') }}" class="btn btn-primary go-back-button">&#x21A9;Go back to filters&#x21A9;</a>
             </div>            
             <h2 id="title">{{ sorted_data.primaryTitle.values[0] }}</h2>
             {% if overview %}

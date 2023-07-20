@@ -25,26 +25,21 @@ class Randomizationparameters:
 
     def data_sort_by_rating(self):
         self.data = self.data[
-            (self.data['averageRating'] >= self.min_rating) &
-            (self.data['averageRating'] <= self.max_rating) &
+            (self.data['averageRating'].between(self.min_rating, self.max_rating)) &
             (self.data['numVotes'] >= self.min_votes)
         ]
 
     def data_sort_by_genres(self):
-        df = Randomizationparameters.data
-        Randomizationparameters.data = df[df['genres'].str.contains('|'.join(self.genres))]
+        Randomizationparameters.data = Randomizationparameters.data[Randomizationparameters.data['genres'].isin(self.genres)]
+
 
     def data_sort_by_year(self):
         df = Randomizationparameters.data
-        df['startYear'] = df['startYear'].replace('\\N', 0)
-        df = df[df['startYear'] != 0]
-        df['startYear'] = df['startYear'].astype(int)
-        Randomizationparameters.data = df[
-            (df['startYear'] >= self.min_year) &
-            (df['startYear'] <= self.max_year)
-        ]
+        df['startYear'] = pd.to_numeric(df['startYear'], errors='coerce').astype('Int64')
+        df = df[(df['startYear'].between(self.min_year, self.max_year))]
+        Randomizationparameters.data = df
+
 
     def data_remove_watched(self):
-        df = Randomizationparameters.data
-        df = df[~df["tconst"].isin(self.watched_content)]
-        Randomizationparameters.data = df
+        Randomizationparameters.data = Randomizationparameters.data[~Randomizationparameters.data['tconst'].isin(self.watched_content)]
+

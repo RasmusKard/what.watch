@@ -46,7 +46,7 @@ def get_sorted_data():
 
     # Apply the sorting methods
     randomization_params.data_sort_by_content_types()
-    if min_rating != default_min_rating or max_rating != default_max_rating:
+    if min_rating != default_min_rating or max_rating != default_max_rating or min_votes != default_min_votes:
         randomization_params.data_sort_by_rating()
     if genres != default_genres:
         randomization_params.data_sort_by_genres()
