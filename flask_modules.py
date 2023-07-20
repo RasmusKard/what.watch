@@ -65,6 +65,9 @@ def get_poster_url(imdb_id):
     # Construct the API URL with the IMDb ID
     url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={api_key}&external_source=imdb_id"
 
+    if not is_valid_url(url):
+        return "Invalid URL", 400
+
     # Send a GET request to the API
     response = requests.get(url)
 
