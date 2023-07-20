@@ -16,29 +16,33 @@ class Randomizationparameters:
         self.watched_content = watched_content
 
     def data_sort_by_content_types(self):
-        dataframe_by_types = [pd.read_table(f'{content_type}_data.tsv', sep='\t') for content_type in
-                              self.content_types]
+        dataframe_by_types = []
+        for content_type in self.content_types:
+            file_path = f'{content_type}_data.tsv'
+            dataframe = pd.read_table(file_path, sep='\t')
+            dataframe_by_types.append(dataframe)
         Randomizationparameters.data = pd.concat(dataframe_by_types)
 
     def data_sort_by_rating(self):
-        df = Randomizationparameters.data
-        Randomizationparameters.data = df.loc[
-            (df['averageRating'] >= self.min_rating) &
-            (df['averageRating'] <= self.max_rating) &
-            (df['numVotes'] >= self.min_votes)]
+        self.data = self.data[
+            (self.data['averageRating'] >= self.min_rating) &
+            (self.data['averageRating'] <= self.max_rating) &
+            (self.data['numVotes'] >= self.min_votes)
+        ]
 
     def data_sort_by_genres(self):
         df = Randomizationparameters.data
-        Randomizationparameters.data = df[df['genres'].apply(lambda x: any(genre in x for genre in self.genres))]
+        Randomizationparameters.data = df[df['genres'].str.contains('|'.join(self.genres))]
 
     def data_sort_by_year(self):
         df = Randomizationparameters.data
         df['startYear'] = df['startYear'].replace('\\N', 0)
         df = df[df['startYear'] != 0]
-        df = df.astype({'startYear': 'int'})
-        Randomizationparameters.data = df.loc[
+        df['startYear'] = df['startYear'].astype(int)
+        Randomizationparameters.data = df[
             (df['startYear'] >= self.min_year) &
-            (df['startYear'] <= self.max_year)]
+            (df['startYear'] <= self.max_year)
+        ]
 
     def data_remove_watched(self):
         df = Randomizationparameters.data

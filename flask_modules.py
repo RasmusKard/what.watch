@@ -12,10 +12,14 @@ ALLOWED_DOMAINS = ['api.themoviedb.org', 'www.imdb.com']
 
 def is_valid_url(url):
     # Check if the URL's hostname is in the allowed domains
-    return any(url.lower().startswith(domain.lower()) for domain in ALLOWED_DOMAINS)
+    return any(domain.lower() in url.lower() for domain in ALLOWED_DOMAINS)
 
 
 def get_sorted_data():
+    """
+    Retrieves sorted data based on user input from a form and returns it along with a poster URL and overview.
+    """
+    # Define default values
     default_content_types = ["movie", "tvSeries", "tvMovie", "tvMovie", "tvSpecial", "video", "short", "tvShort"]
     default_min_rating = 0
     default_max_rating = 10
@@ -26,14 +30,13 @@ def get_sorted_data():
 
     # Get the user input from the form
     content_types = request.form.getlist('contentTypes') or default_content_types
-    min_rating = float(request.form.get('min_rating')) if request.form.get('min_rating') else default_min_rating
-    max_rating = float(request.form.get('max_rating')) if request.form.get('max_rating') else default_max_rating
-    min_votes = int(math.floor(float(request.form.get('min_votes')))) if request.form.get(
-        'min_votes') else default_min_votes
+    min_rating = float(request.form.get('min_rating', default_min_rating))
+    max_rating = float(request.form.get('max_rating', default_max_rating))
+    min_votes = int(math.floor(float(request.form.get('min_votes', default_min_votes))))
     genres = request.form.getlist('genres') or default_genres
-    min_year = int(request.form.get('min_year')) if request.form.get('min_year') else 0
-    max_year = int(request.form.get('max_year')) if request.form.get('max_year') else 2023
-    watched_content = str(request.form.get('watchedContent')).splitlines() if request.form.get('watchedContent') else []
+    min_year = int(request.form.get('min_year', 0))
+    max_year = int(request.form.get('max_year', 2023))
+    watched_content = str(request.form.get('watchedContent', '')).splitlines()
 
     # Create an instance of RandomizationParameters
     randomization_params = sbi.Randomizationparameters(content_types=content_types, min_rating=min_rating,
@@ -43,72 +46,88 @@ def get_sorted_data():
 
     # Apply the sorting methods
     randomization_params.data_sort_by_content_types()
-    randomization_params.data_sort_by_rating()
-    randomization_params.data_sort_by_genres()
-    randomization_params.data_sort_by_year()
+    if min_rating != default_min_rating or max_rating != default_max_rating:
+        randomization_params.data_sort_by_rating()
+    if genres != default_genres:
+        randomization_params.data_sort_by_genres()
+    if min_year != 0 or max_year != 2023:
+        randomization_params.data_sort_by_year()
     if len(watched_content) > 0:
         randomization_params.data_remove_watched()
 
     # Retrieve the sorted data
-    sorted_data = randomization_params.data
-    sorted_data = sorted_data.sample()
+    sorted_data = randomization_params.data.sample()
 
     # Retrieve the sorted data and poster URL with overview
     poster_url, overview = get_poster_url(sorted_data['tconst'].values[0])
+
     # Pass the data, poster URL, and overview to the template
     return render_template("randomized_content.html", sorted_data=sorted_data, poster_url=poster_url, overview=overview)
 
 
 def get_poster_url(imdb_id):
-    api_key = "1ba8a8216959c0bd30febe36bbafa2b8"
+    """
+    Retrieves the poster URL and overview for a movie or TV show based on its IMDb ID.
 
-    # Construct the API URL with the IMDb ID
+    Args:
+        imdb_id (str): The IMDb ID of the movie or TV show.
+
+    Returns:
+        tuple: A tuple containing the poster URL (str) and overview (str) of the movie or TV show.
+
+    Raises:
+        ValueError: If the provided IMDb ID is not a valid URL or if the API response is not successful.
+
+    Notes:
+        If the API request fails, the function falls back to the 'imdb_scrape' function.
+    """
+    api_key = "1ba8a8216959c0bd30febe36bbafa2b8"
     url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={api_key}&external_source=imdb_id"
 
     if not is_valid_url(url):
         return "Invalid URL", 400
 
-    # Send a GET request to the API
     response = requests.get(url)
 
     if response.ok:
         json_response = response.json()
+        if json_response['movie_results']:
+            poster_path = json_response['movie_results'][0]['poster_path']
+            overview = json_response['movie_results'][0]['overview']
+        elif json_response['tv_results']:
+            poster_path = json_response['tv_results'][0]['poster_path']
+            overview = json_response['tv_results'][0]['overview']
+        else:
+            return imdb_scrape(imdb_id)
+
+        poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
+        return poster_url, overview
     else:
         return imdb_scrape(imdb_id)
-    if all(len(value) == 0 for value in json_response.values()):
-        return imdb_scrape(imdb_id)
-    if len(json_response['movie_results']) > 0:
-        poster_path = json_response['movie_results'][0]['poster_path']
-        overview = json_response['movie_results'][0]['overview']
-        # Construct the complete poster URL
-        poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
 
-        return poster_url, overview
-    if len(json_response['tv_results']) > 0:
-        poster_path = json_response['tv_results'][0]['poster_path']
-        overview = json_response['tv_results'][0]['overview']
-        # Construct the complete poster URL
-        poster_url = f"https://image.tmdb.org/t/p/original{poster_path}"
-
-        return poster_url, overview
 
 
 def imdb_scrape(imdb_id):
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0'}
+    """
+    Scrapes IMDb for information about a movie or TV show using the IMDb ID.
+
+    Parameters:
+        imdb_id (str): The IMDb ID of the movie or TV show.
+
+    Returns:
+        tuple: A tuple containing the poster URL (str) and the overview (str) of the movie or TV show.
+               If the URL is invalid, it returns "Invalid URL" and a status code of 400.
+    """
     url = f"https://www.imdb.com/title/{imdb_id}"
     if not is_valid_url(url):
         return "Invalid URL", 400
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0'}
     req = requests.get(url, headers=headers).content
     soup = BeautifulSoup(req, 'html.parser')
     json_response = json.loads(str(soup.find('script', {'type': 'application/ld+json'}).text))
-    try:
-        poster_url = json_response['image']
-    except KeyError:
-        poster_url = None
-        pass
-    try:
-        overview = json_response['overview']
-    except KeyError:
-        overview = None
-        pass
+
+    poster_url = json_response.get('image')
+    overview = json_response.get('description')
+
     return poster_url, overview
