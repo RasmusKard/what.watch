@@ -1,11 +1,18 @@
 import json
 import math
-
 import requests
 from bs4 import BeautifulSoup
 from flask import render_template, request
 
 import sort_by_input as sbi
+
+# Define a whitelist of allowed domains for SSRF protection
+ALLOWED_DOMAINS = ['api.themoviedb.org', 'www.imdb.com']
+
+
+def is_valid_url(url):
+    # Check if the URL's hostname is in the allowed domains
+    return any(url.lower().startswith(domain.lower()) for domain in ALLOWED_DOMAINS)
 
 
 def get_sorted_data():
@@ -21,14 +28,12 @@ def get_sorted_data():
     content_types = request.form.getlist('contentTypes') or default_content_types
     min_rating = float(request.form.get('min_rating')) if request.form.get('min_rating') else default_min_rating
     max_rating = float(request.form.get('max_rating')) if request.form.get('max_rating') else default_max_rating
-    min_votes = int(math.floor(float(request.form.get('min_votes')))) if request.form.get('min_votes') else default_min_votes
+    min_votes = int(math.floor(float(request.form.get('min_votes')))) if request.form.get(
+        'min_votes') else default_min_votes
     genres = request.form.getlist('genres') or default_genres
     min_year = int(request.form.get('min_year')) if request.form.get('min_year') else 0
     max_year = int(request.form.get('max_year')) if request.form.get('max_year') else 2023
     watched_content = str(request.form.get('watchedContent')).splitlines() if request.form.get('watchedContent') else []
-
-
-
 
     # Create an instance of RandomizationParameters
     randomization_params = sbi.Randomizationparameters(content_types=content_types, min_rating=min_rating,
@@ -88,6 +93,8 @@ def get_poster_url(imdb_id):
 def imdb_scrape(imdb_id):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0'}
     url = f"https://www.imdb.com/title/{imdb_id}"
+    if not is_valid_url(url):
+        return "Invalid URL", 400
     req = requests.get(url, headers=headers).content
     soup = BeautifulSoup(req, 'html.parser')
     json_response = json.loads(str(soup.find('script', {'type': 'application/ld+json'}).text))
