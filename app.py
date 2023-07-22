@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, request
 import os
 from flask_modules import get_sorted_data, get_poster_url
 
@@ -31,8 +31,14 @@ def serve_static(filename):
 
 @app.route('/run_script', methods=['POST'])
 def run_script():
+    
     global sorted_data
     sorted_data = get_sorted_data()
+    
+    if len(sorted_data) == 0:
+        # If the sorted data is empty, return an error
+        error_message = "Error: No results found, please widen search parameters."
+        return render_template("index.html", error_message=error_message), 400
     randomized_data = sorted_data.sample()
     poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
     

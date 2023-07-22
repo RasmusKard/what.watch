@@ -43,8 +43,15 @@
     yearSlider.noUiSlider.reset();
     yearRangeValue.innerHTML = "1900 - 2023"; // Reset the displayed value
 
-
   }
+<style>
+  @media (prefers-color-scheme: dark) {
+  body {
+    background-color: #222222;
+    color: #ffffff;
+  }
+}
+</style>
 
 </script>
 <body>
@@ -62,12 +69,12 @@
 <div class="dropdown-menu" aria-labelledby="contentTypeDropdown">
   {% set contentTypes = [
     "Movie",
-    "TV Series",
-    "TV Movie",
-    "TV Special",
+    "TVSeries",
+    "TVMovie",
+    "TVSpecial",
     "Video",
     "Short",
-    "TV Short"
+    "TVShort"
   ] %}
 
   {% for contentType in contentTypes %}
@@ -156,6 +163,14 @@
   </div>
   <div class="box2">
         <button type="submit" class="submit-btn">&#x1F37F; Randomize &#x1F37F;</button>
+        {% if error_message %}
+        <div class="error">
+            <div class="message">
+                <p>{{ error_message }}</p>
+                <span class="close">X</span>
+            </div>
+        </div>
+        {% endif %}
   </div>
  <hr style="height:1px;border:none;color:#333;background-color:#333;">
   <div class="box1">
