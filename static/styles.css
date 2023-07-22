@@ -1,20 +1,18 @@
 body {
-  background-color: transparent;
   font-family: 'Roboto', Arial, sans-serif;
-  background-image: url("background.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
+  background-color: #121212;
   height: 100vh;
   margin: 0;
   padding: 0;
+  color: #FFFFFF;
 }
 
 .container {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #fff;
+  color: #FFFFFF;
+  background-color: #2d2d2d;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
@@ -44,17 +42,14 @@ body {
 
 .form-group .rating-data {
   background-color: #4285F4;
-  color: #fff;
 }
 
 .form-group .votes-data {
   background-color: #DB4437;
-  color: #fff;
 }
 
 .form-group .year-data {
   background-color: #F4B400;
-  color: #fff;
 }
 
 
@@ -70,16 +65,15 @@ body {
 }
 
 .slider-value-container {
+  padding-top: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .slider-value {
-  font-size: 16px;
-  font-weight: bold;
-  background-color: #337ab7;
-  color: #fff;
+  font-size: 14px;
+  background-color: #007bff;
   padding: 4px 8px;
   border-radius: 4px;
 }
@@ -136,12 +130,13 @@ body {
 }
 
 .dropdown-toggle {
+  color: #FFFFFF;
   display: inline-block;
   padding: 8px 12px;
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: #181818;
   cursor: pointer;
 }
 
@@ -153,7 +148,7 @@ body {
   left: 0;
   display: none;
   padding: 8px;
-  background-color: #fff;
+  background-color: #2d2d2d;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -161,9 +156,11 @@ body {
 }
 .checkbox-menu {
   column-count: 4;
+  background-color: #2d2d2d;
 }
 
 .dropdown-item {
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   box-sizing: border-box;
@@ -187,7 +184,7 @@ body {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: #2d2d2d;
 }
 
 .chip {
@@ -197,7 +194,7 @@ body {
   margin-right: 8px;
   font-size: 14px;
   border-radius: 4px;
-  background-color: #f2f2f2;
+  background-color: #2d2d2d;
 }
 
 .chip .chip-label {
@@ -211,10 +208,11 @@ body {
   font-size: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: #2d2d2d;
   cursor: pointer;
 }
 .dropdown-textbox.show .dropdown-menu {
+  background-color: #2d2d2d;
   display: block;
 }
 .dropdown-textbox .dropdown-item {
@@ -244,9 +242,9 @@ body {
 
 .logo img {
   max-width: 100%;
+  filter: invert(1);
 }
 .dropdown-textbox .dropdown-toggle {
-  color: #333333; /* Change the color code to the desired color */
 }
 .content-overlay {
   position: absolute;
@@ -307,7 +305,7 @@ body {
   font-size: 12px;
   font-family: "Segoe UI Emoji", sans-serif;
   text-decoration: none;
-  background-color: #4e555b;
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 .go-back-button::before {
@@ -331,7 +329,7 @@ body {
 .box2 {
   padding-top: 40px;
   text-align: center;
-  flex: 1; 
+  flex: 1;
 }
 .reset-btn {
   overflow: hidden;
@@ -376,7 +374,7 @@ body {
 .info-popup {
   display: none;
   position: absolute;
-  background-color: #fff;
+  background-color: #2d2d2d;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 10px;
@@ -392,6 +390,6 @@ body {
 }
 
 .info-button img {
-  width: 30px; /* Adjust the width to your desired size */
-  height: 30px; /* Adjust the height to your desired size */
+  width: 20px; /* Adjust the width to your desired size */
+  height: 20px; /* Adjust the height to your desired size */
 }

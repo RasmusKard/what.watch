@@ -44,14 +44,7 @@
     yearRangeValue.innerHTML = "1900 - 2023"; // Reset the displayed value
 
   }
-<style>
-  @media (prefers-color-scheme: dark) {
-  body {
-    background-color: #222222;
-    color: #ffffff;
-  }
-}
-</style>
+
 
 </script>
 <body>
@@ -59,7 +52,7 @@
   <div class="logo">
     <img src="/static/imdb_randomizer.png" alt="Logo">
   </div>
-   <hr style="height:1px;border:none;color:#333;background-color:#333;">
+   <hr style="height:1px;border:none;color:#FFFFFF;background-color:#FFFFFF;">
 <form action="/run_script" method="post">
   <div class="contentType-group form-group">
     <div class="dropdown-checkbox">
@@ -165,7 +158,7 @@
   <div class="box2">
         <button type="submit" class="submit-btn">&#x1F37F; Randomize &#x1F37F;</button>
         <label for="info-checkbox1" class="info-button">
-          <img src="/static/information.png" alt="Info" />
+          <img src="/static/information.png" style="filter: invert(1);" alt="Info" />
         </label>
         <input type="checkbox" id="info-checkbox1" class="info-checkbox" />
         <div class="info-popup">
@@ -180,7 +173,7 @@
         </div>
         {% endif %}
   </div>
- <hr style="height:1px;border:none;color:#333;background-color:#333;">
+ <hr style="height:1px;border:none;color:#FFFFFF;background-color:#FFFFFF;">
   <div class="box1">
       <button type="button" class="btn btn-primary reset-btn" onclick="resetFilters()">Reset Filters</button>
   </div>
