@@ -145,24 +145,31 @@ body {
   cursor: pointer;
 }
 
+
 .dropdown-menu {
   z-index: 9999;
   position: absolute;
   top: 100%;
   left: 0;
   display: none;
-  min-width: 200px;
   padding: 8px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+}
+.checkbox-menu {
+  column-count: 4;
 }
 
 .dropdown-item {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  box-sizing: border-box;
+  padding: 8px;
+  break-inside: avoid;
+  word-break: break-word;
 }
 
 .dropdown-item input[type="checkbox"] {
@@ -354,3 +361,37 @@ body {
   font-weight: bold;
 }
 
+.info-button {
+  cursor: pointer;
+}
+
+.info-checkbox {
+  display: none;
+}
+
+.info-checkbox:checked + .info-popup {
+  display: block;
+}
+
+.info-popup {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  transform: translateX(350px);
+  max-width: 300px; /* Adjust the maximum width as desired */
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.info-popup p {
+  margin: 0; /* Remove the default margin */
+}
+
+.info-button img {
+  width: 30px; /* Adjust the width to your desired size */
+  height: 30px; /* Adjust the height to your desired size */
+}

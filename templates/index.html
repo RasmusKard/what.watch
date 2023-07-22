@@ -66,7 +66,7 @@
       <button class="dropdown-toggle" type="button" id="contentTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Select Content Types
       </button>
-<div class="dropdown-menu" aria-labelledby="contentTypeDropdown">
+<div class="dropdown-menu checkbox-menu" aria-labelledby="contentTypeDropdown">
   {% set contentTypes = [
     "Movie",
     "TVSeries",
@@ -93,7 +93,7 @@
     <button class="dropdown-toggle" type="button" id="genreDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Select Genres
     </button>
-    <div class="dropdown-menu" aria-labelledby="genreDropdown">
+    <div class="dropdown-menu checkbox-menu" aria-labelledby="genreDropdown">
       {% set genres = [
         "Action",
         "Adventure",
@@ -161,8 +161,16 @@
       <input type="hidden" id="maxYearInput" name="max_year">
     </div>
   </div>
+
   <div class="box2">
         <button type="submit" class="submit-btn">&#x1F37F; Randomize &#x1F37F;</button>
+        <label for="info-checkbox1" class="info-button">
+          <img src="/static/information.png" alt="Info" />
+        </label>
+        <input type="checkbox" id="info-checkbox1" class="info-checkbox" />
+        <div class="info-popup">
+          <p>If filters are left unchanged, all checkboxes will be treated as active (selected), and all sliders will be set to their widest range, resulting in the broadest selection of content in the results.</p>
+        </div>
         {% if error_message %}
         <div class="error">
             <div class="message">
@@ -182,8 +190,13 @@
     </button>
     <div id="watchedContentFormContainer" class="dropdown-menu">
       <div class="dropdown-item">
-        <label for="watchedContentInput">Enter IMDb IDs (one ID per line):</label>
-        <textarea id="watchedContentInput" name="watchedContent"></textarea>
+        <label for="watchedContentInput"><p>Enter IMDb IDs (one ID per line):<br>
+          1. Go to https://www.imdb.com/list/ratings<br>
+          2. Click on the three bubbles and choose "Export"<br>
+          3. Open the file and copy-paste the IDs from the "Const" column here
+            </p>
+        </label>
+        <textarea id="watchedContentInput" name="watchedContent" style="width: 200px;"></textarea>
       </div>
     </div>
 </div>

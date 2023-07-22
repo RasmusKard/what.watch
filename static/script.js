@@ -184,31 +184,25 @@ $(document).ready(function() {
   closeButton.addEventListener('click', () => {
       errorBox.style.display = 'none';
   });
-  function runScript() {
-    fetch('/run_script', {
-      method: 'POST'
-    })
-    .then(function(response) {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('Error: ' + response.statusText);
-      }
-    })
-    .then(function(data) {
-      // Handle the successful response and update the page
-      const randomizedData = data.sorted_data;
-      const posterUrl = data.poster_url;
-      const overview = data.overview;
-      // Update the page with the randomized content
-      // ...
-    })
-    .catch(function(error) {
-      // Handle the error response and update the error message
-      const errorMessage = error.message;
-      const errorElement = document.querySelector('.error');
-      errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
-    });
+
+  // Get the elements
+  const infoButton = document.querySelector('.info-button');
+  const popup = document.querySelector('.info-popup');
+
+  // Function to handle the toggle and closing of the popup
+  function togglePopup() {
+    popup.classList.toggle('show');
   }
+
+  // Close the popup when clicking outside
+  window.addEventListener('click', (event) => {
+    if (!popup.contains(event.target) && event.target !== infoButton) {
+      popup.classList.remove('show');
+    }
+  });
+
+  // Add click event listener to the info button
+  infoButton.addEventListener('click', togglePopup);
+
+  
 });
