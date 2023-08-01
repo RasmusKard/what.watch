@@ -20,7 +20,7 @@ def get_sorted_data():
     Retrieves sorted data based on user input from a form and returns it along with a poster URL and overview.
     """
     # Define default values
-    default_content_types = ["movie", "tvSeries", "tvMovie", "tvMovie", "tvSpecial", "video", "short", "tvShort"]
+    default_content_types = ["movie", "tvSeries", "tvMovie", "tvSpecial", "video", "short", "tvShort"]
     default_min_rating = 0
     default_max_rating = 10
     default_min_votes = 0
@@ -115,8 +115,12 @@ def imdb_scrape(imdb_id):
         return "Invalid URL", 400
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0'}
-    req = requests.get(url, headers=headers).content
-    soup = BeautifulSoup(req, 'html.parser')
+    response = requests.get(url, headers=headers)
+    if response.ok:
+        response = response.content
+    else:
+        return None, None
+    soup = BeautifulSoup(response, 'html.parser')
     json_response = json.loads(str(soup.find('script', {'type': 'application/ld+json'}).text))
 
     poster_url = json_response.get('image')

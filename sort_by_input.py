@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 class Randomizationparameters:
     """ Class for applying user input to sort .tsv files based on parameters"""
     data = []
@@ -27,14 +26,12 @@ class Randomizationparameters:
         Randomizationparameters.data = Randomizationparameters.data[
             (Randomizationparameters.data['averageRating'].between(self.min_rating, self.max_rating)) &
             (Randomizationparameters.data['numVotes'] >= self.min_votes)
-        ]
+            ]
 
     def data_sort_by_genres(self):
         Randomizationparameters.data = Randomizationparameters.data[
             Randomizationparameters.data['genres'].apply(lambda x: any(genre in x for genre in self.genres))
         ]
-
-
 
     def data_sort_by_year(self):
         df = Randomizationparameters.data
@@ -42,9 +39,8 @@ class Randomizationparameters:
         df = df[(df['startYear'].between(self.min_year, self.max_year))]
         Randomizationparameters.data = df
 
-
     def data_remove_watched(self):
-       watched_content_set = set(self.watched_content)
-       Randomizationparameters.data = Randomizationparameters.data[~Randomizationparameters.data['tconst'].isin(watched_content_set)]
-
+        watched_content_set = set(self.watched_content)
+        Randomizationparameters.data = Randomizationparameters.data[
+            ~Randomizationparameters.data['tconst'].isin(watched_content_set)]
 

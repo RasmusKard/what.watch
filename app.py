@@ -1,12 +1,13 @@
-from flask import Flask, render_template, send_from_directory, request
+import pandas as pd
+from flask import Flask, render_template, send_from_directory
 import os
 from flask_modules import get_sorted_data, get_poster_url
 
 app = Flask(__name__)
 app.debug = True
 
+sorted_data = pd.DataFrame()
 # Default values for empty inputs
-
 
 # Render the main HTML page
 @app.route("/")
@@ -31,8 +32,7 @@ def serve_static(filename):
 
 @app.route('/run_script', methods=['POST'])
 def run_script():
-    
-    global sorted_data
+
     sorted_data = get_sorted_data()
     
     if len(sorted_data) == 0:
@@ -46,7 +46,10 @@ def run_script():
 
 @app.route('/reroll', methods=['POST'])
 def reroll():
-    randomized_data = sorted_data.sample()
+    if not sorted_data.empty:
+        randomized_data = sorted_data.sample()
+    else:
+        randomized_data = get_sorted_data().sample()
     poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
     return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url, overview=overview)
     
