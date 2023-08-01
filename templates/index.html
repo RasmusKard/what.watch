@@ -1,15 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='nouislider/dist/nouislider.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui-dist/jquery-ui.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+
   <script src="{{ url_for('static', filename='jquery/dist/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='@popperjs/core/dist/umd/popper.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap/dist/js/bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='jquery-ui-dist/jquery-ui.min.js') }}"></script>
   <script src="{{ url_for('static', filename='nouislider/dist/nouislider.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js-cookie/dist/js.cookie.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+
+  <title> IMDb Randomizer </title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+  <link rel="manifest" href="/static/site.webmanifest">
+  <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#5bbad5">
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="msapplication-config" content="/static/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <script>
+
     function resetFilters() {
     // Reset the checkboxes
     $("input[type='checkbox']").prop('checked', false);
@@ -61,19 +83,19 @@
       </button>
 <div class="dropdown-menu checkbox-menu" aria-labelledby="contentTypeDropdown">
   {% set contentTypes = [
-    "Movie",
-    "TVSeries",
-    "TVMovie",
+    "Movie 🎬",
+    "TVSeries 📺",
     "TVSpecial",
+    "TVMovie",
     "Video",
     "Short",
     "TVShort"
   ] %}
 
   {% for contentType in contentTypes %}
-    <div class="dropdown-item">
-      <input type="checkbox" id="contentType{{ loop.index }}" name="contentTypes" value="{{ contentType|lower }}">
-      <label for="contentType{{ loop.index }}">{{ contentType }}</label>
+    <div class="dropdown-item btn-group" role="group">
+      <input type="checkbox" class="btn-check" value="{{ contentType }}" id="btncheck1{{ loop.index }}" autocomplete="off">
+      <label class="btn btn-outline-primary" for="contentType{{ loop.index }}">{{ contentType }}</label>
     </div>
   {% endfor %}
 </div>
@@ -88,32 +110,32 @@
     </button>
     <div class="dropdown-menu checkbox-menu" aria-labelledby="genreDropdown">
       {% set genres = [
-        "Action",
-        "Adventure",
-        "Animation",
-        "Comedy",
-        "Crime",
-        "Documentary",
-        "Drama",
-        "Fantasy",
-        "Family",
-        "Film-Noir",
-        "Horror",
-        "Musical",
-        "Mystery",
-        "Romance",
-        "Sci-Fi",
-        "Short",
-        "Thriller",
-        "War",
-        "Western"
+        "Action 💥",
+        "Adventure 🌍",
+        "Animation 🎬",
+        "Comedy 😂",
+        "Crime 👮",
+        "Documentary 📹",
+        "Drama 🎭",
+        "Fantasy 🧚",
+        "Family 👪",
+        "Film-Noir 🎥",
+        "Horror 🎃",
+        "Musical 🎵",
+        "Mystery 🔍",
+        "Romance 💕",
+        "Sci-Fi 🚀",
+        "Short 🎥",
+        "Thriller 😱",
+        "War ⚔️",
+        "Western 🤠"
       ] %}
 
       {% for genre in genres %}
-        <div class="dropdown-item">
-          <input type="checkbox" id="genre{{ loop.index }}" name="genres" value="{{ genre }}">
-          <label for="genre{{ loop.index }}">{{ genre }}</label>
-        </div>
+      <div class="dropdown-item btn-group" role="group">
+      <input type="checkbox" class="btn-check" value="{{ genre }}" id="btncheck{{ loop.index }}" autocomplete="off">
+      <label class="btn btn-outline-primary" for="genre{{ loop.index }}">{{ genre }}</label>
+    </div>
       {% endfor %}
     </div>
   </div>
@@ -154,7 +176,6 @@
       <input type="hidden" id="maxYearInput" name="max_year">
     </div>
   </div>
-
   <div class="box2">
         <button type="submit" class="submit-btn">&#x1F37F; Randomize &#x1F37F;</button>
         <label for="info-checkbox1" class="info-button">
@@ -197,10 +218,6 @@
 
   </div>
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='nouislider/dist/nouislider.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui-dist/jquery-ui.min.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
 </body>
 </html>
