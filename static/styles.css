@@ -285,9 +285,9 @@ body {
   padding-top: 20px;
 }
 .button-container-top {
-  justify-content: left;
   margin:-40px -15px 0;
   padding-bottom: 30px;
+  display: inline-block;
 }
 /* Add the textured effect using a CSS pseudo-element */
 .go-back-button {
@@ -385,4 +385,12 @@ body {
 .info-button img {
   width: 20px; /* Adjust the width to your desired size */
   height: 20px; /* Adjust the height to your desired size */
+}
+
+.rolled-from-text {
+  font-size: 10px;
+  text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }

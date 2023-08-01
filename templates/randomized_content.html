@@ -36,13 +36,15 @@
     <meta name="theme-color" content="#ffffff">
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
 </head>
 <body>
 
     <div class="content-box">
         <div class="content-overlay">
             <div class="button-container button-container-top">
-                <a href="{{ url_for('index') }}" class="btn btn-primary go-back-button">&#x21A9;Go back to filters&#x21A9;</a>
+                <a href="{{ url_for('index') }}" class="btn btn-primary go-back-button" style="float: left">&#x21A9;Go back to filters&#x21A9;</a>
+                <em class="rolled-from-text">Rolled from {{ row_count }} possibilities<br>(you have a {{ probability }}% chance to roll this again)</em>
             </div>            
             <h2 id="title">{{ sorted_data.primaryTitle.values[0] }}</h2>
             {% if overview %}
