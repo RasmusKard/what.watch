@@ -4,12 +4,13 @@ from decimal import Decimal, getcontext
 import secrets
 from flask_session import Session
 from datetime import timedelta
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(16)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
 Session(app)
 
@@ -19,6 +20,7 @@ Session(app)
 # Render the main HTML page
 @app.route("/")
 def index():
+    session['uid'] = secrets.token_urlsafe(4)
     return render_template("index.html")
 
 
@@ -37,6 +39,7 @@ def get_template_variables():
 
 @app.route('/run_script', methods=['POST'])
 def run_script():
+    print(session.get('uid'))
     sorted_data = get_sorted_data()
     row_count = len(sorted_data.index)
 
@@ -55,7 +58,9 @@ def run_script():
     row_count_formatted = '{:,}'.format(row_count)
 
     # Store the sorted_data, row_count, and probability in the session
-    session['sorted_data'] = sorted_data
+    file_path = f'user_parquet/{session.get("uid")}_data.parquet'
+    sorted_data.to_parquet(file_path)
+    session['file_path'] = file_path
     session['row_count'] = row_count_formatted
     session['probability'] = probability
 
@@ -65,16 +70,12 @@ def run_script():
 
 @app.route('/reroll', methods=['POST'])
 def reroll():
-    # Get the stored data from the session
-    sorted_data = session.get('sorted_data')
     try:
-        print(sorted_data.head())
-    except AttributeError:
+        sorted_data = pd.read_parquet(session.get('file_path'))
+    except FileNotFoundError:
         error_message = "Your session has timed out, please try again."
         return render_template('index.html', error_message=error_message)
-    except NameError:
-        error_message = "Your session has timed out, please try again."
-        return render_template('index.html', error_message=error_message)
+
     row_count_formatted = session.get('row_count', '')
     probability = session.get('probability', Decimal('0.0'))
 

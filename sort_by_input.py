@@ -1,4 +1,5 @@
 import pandas as pd
+import pyarrow.parquet as pq
 
 class Randomizationparameters:
     """ Class for applying user input to sort .tsv files based on parameters"""
@@ -18,7 +19,8 @@ class Randomizationparameters:
         dataframe_by_types = []
         for content_type in self.content_types:
             file_path = f'{content_type}_data.parquet'
-            dataframe = pd.read_parquet(file_path)
+            table = pq.read_table(file_path)
+            dataframe = table.to_pandas()
             dataframe_by_types.append(dataframe)
         Randomizationparameters.data = pd.concat(dataframe_by_types)
 
