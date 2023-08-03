@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, session
-from flask_modules import get_sorted_data, get_poster_url
+from modules.flask_modules import get_sorted_data, get_poster_url
 from decimal import Decimal, getcontext
 import secrets
 from flask_session import Session

@@ -1,4 +1,4 @@
-from tsv_modules import *
+from modules.parquet_modules import *
 
 # Download data files from here: https://developer.imdb.com/non-commercial-datasets/
 # Extract and move .tsv files into the same folder as this file.
