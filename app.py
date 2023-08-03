@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, session
 from flask_modules import get_sorted_data, get_poster_url
 from decimal import Decimal, getcontext
@@ -20,7 +21,8 @@ Session(app)
 # Render the main HTML page
 @app.route("/")
 def index():
-    session['uid'] = secrets.token_urlsafe(4)
+    if not session.get('uid'):
+        session['uid'] = secrets.token_urlsafe(4)
     return render_template("index.html")
 
 
@@ -58,7 +60,17 @@ def run_script():
     row_count_formatted = '{:,}'.format(row_count)
 
     # Store the sorted_data, row_count, and probability in the session
-    file_path = f'user_parquet/{session.get("uid")}_data.parquet'
+    directory_path = 'user_parquet/'
+    file_path = f'{directory_path}{session.get("uid")}_data.parquet'
+    if len(os.listdir(directory_path)) > 20:
+
+        files = os.listdir(directory_path)
+
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(directory_path, x)))
+
+        oldest_file = os.path.join(directory_path, files[0])
+        os.remove(oldest_file)
+
     sorted_data.to_parquet(file_path)
     session['file_path'] = file_path
     session['row_count'] = row_count_formatted

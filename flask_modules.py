@@ -42,7 +42,6 @@ def get_sorted_data():
                                                        max_rating=max_rating, min_votes=min_votes,
                                                        genres=genres, min_year=min_year, max_year=max_year,
                                                        watched_content=watched_content)
-
     # Apply the sorting methods
     randomization_params.data_sort_by_content_types()
     if min_rating != default_min_rating or max_rating != default_max_rating or min_votes != default_min_votes:

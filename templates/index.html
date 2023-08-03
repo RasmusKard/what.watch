@@ -81,24 +81,24 @@
       <button class="dropdown-toggle" type="button" id="contentTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Select Content Types
       </button>
-<div class="dropdown-menu checkbox-menu" aria-labelledby="contentTypeDropdown">
-  {% set contentTypes = [
-    "Movie 🎬",
-    "TVSeries 📺",
-    "TVSpecial",
-    "TVMovie",
-    "Video",
-    "Short",
-    "TVShort"
-  ] %}
-
-  {% for contentType in contentTypes %}
-    <div class="dropdown-item btn-group" role="group">
-      <input type="checkbox" class="btn-check" value="{{ contentType }}" id="btncheck1{{ loop.index }}" autocomplete="off">
-      <label class="btn btn-outline-primary" for="contentType{{ loop.index }}">{{ contentType }}</label>
-    </div>
-  {% endfor %}
-</div>
+      <div class="dropdown-menu checkbox-menu" aria-labelledby="contentTypeDropdown">
+        {% set contentTypes = [
+          "movie 🎬",
+          "tvSeries 📺",
+          "tvSpecial",
+          "tvMovie",
+          "video",
+          "short",
+          "tvShort"
+        ] %}
+  
+        {% for contentType in contentTypes %}
+          <div class="dropdown-item btn-group" role="group">
+            <input type="checkbox" name="contentTypes" class="btn-check" value="{{ contentType.split(' ')[0] }}" id="btncheck1{{ loop.index }}" autocomplete="off">
+            <label class="btn btn-outline-primary" for="contentType{{ loop.index }}">{{ contentType }}</label>
+          </div>
+        {% endfor %}
+      </div>
     </div>
     <div class="multi-select-input" id="contentTypeMultiSelect"></div>
   </div>
@@ -133,7 +133,7 @@
 
       {% for genre in genres %}
       <div class="dropdown-item btn-group" role="group">
-      <input type="checkbox" class="btn-check" value="{{ genre }}" id="btncheck{{ loop.index }}" autocomplete="off">
+      <input type="checkbox" name="genres" class="btn-check" value="{{ genre.split(' ')[0] }}" id="btncheck{{ loop.index }}" autocomplete="off">
       <label class="btn btn-outline-primary" for="genre{{ loop.index }}">{{ genre }}</label>
     </div>
       {% endfor %}

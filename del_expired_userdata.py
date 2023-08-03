@@ -1,5 +1,6 @@
 import os
 import datetime
+import time
 
 
 def delete_old_files(directory_path):
@@ -8,7 +9,11 @@ def delete_old_files(directory_path):
         if os.path.isfile(file_path):
             creation_time = os.path.getctime(file_path)
             age_in_seconds = datetime.datetime.now().timestamp() - creation_time
-            if age_in_seconds > 600:  # 15 minutes in seconds
+            if age_in_seconds > 600:
                 os.remove(file_path)
 
-delete_old_files('')
+
+time.sleep(600)
+delete_old_files()
+
+
