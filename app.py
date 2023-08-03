@@ -1,6 +1,4 @@
-import pandas as pd
-from flask import Flask, render_template, send_from_directory, session
-import os
+from flask import Flask, render_template, session
 from flask_modules import get_sorted_data, get_poster_url
 from decimal import Decimal, getcontext
 import secrets
@@ -10,8 +8,9 @@ from datetime import timedelta
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(16)
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config["SESSION_PERMANENT"] = True
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
+
 Session(app)
 
 
@@ -22,22 +21,6 @@ Session(app)
 def index():
     return render_template("index.html")
 
-
-static_folder_path = '/static'
-
-
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    # Get the full absolute path of the requested file
-    requested_path = os.path.abspath(os.path.join(static_folder_path, filename))
-
-    # Check if the requested path is within the static folder
-    if not requested_path.startswith(static_folder_path):
-        # If the requested path is outside the static folder, return an error or handle it as needed
-        return "Invalid file path", 400
-
-    # If the path is safe, serve the file using send_from_directory
-    return send_from_directory(static_folder_path, filename)
 
 
 def get_template_variables():

@@ -17,8 +17,8 @@ class Randomizationparameters:
     def data_sort_by_content_types(self):
         dataframe_by_types = []
         for content_type in self.content_types:
-            file_path = f'{content_type}_data.tsv'
-            dataframe = pd.read_table(file_path, sep='\t')
+            file_path = f'{content_type}_data.parquet'
+            dataframe = pd.read_parquet(file_path)
             dataframe_by_types.append(dataframe)
         Randomizationparameters.data = pd.concat(dataframe_by_types)
 
