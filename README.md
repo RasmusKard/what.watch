@@ -1,1 +1,1 @@
-# IMDbSuggestionRandomizer
+# IMDb_Randomizer
