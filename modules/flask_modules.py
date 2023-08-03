@@ -38,7 +38,6 @@ def get_sorted_data():
     min_year = int(request.form.get('min_year', 0))
     max_year = int(request.form.get('max_year', 2023))
     watched_content = str(request.form.get('watchedContent', '')).splitlines()
-    print(genres)
     # Create an instance of RandomizationParameters
     randomization_params = sbi.Randomizationparameters(content_types=content_types, min_rating=min_rating,
                                                        max_rating=max_rating, min_votes=min_votes,
