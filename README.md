@@ -2,7 +2,6 @@
 <div align="center">
 <h1 align="center">
 <img src="https://i.imgur.com/b21t3Lu.png"/>
-<br>IMDb_Randomizer
 </h1>
 <h3>◦ Unlock movie magic with IMDb Randomizer!</h3>
 <h3>◦ Developed with the software and tools listed below.</h3>
