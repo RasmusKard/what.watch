@@ -1,7 +1,7 @@
 
 <div align="center">
 <h1 align="center">
-<img src="https://github.com/RasmusKard/IMDb_Randomizer/blob/0bdf7aaf2d955c8a1608a6205ea29edd9aaca039/static/imdb_randomizer.png" width="100" />
+<img src="https://github.com/RasmusKard/IMDb_Randomizer/blob/0bdf7aaf2d955c8a1608a6205ea29edd9aaca039/static/imdb_randomizer.png"/>
 <br>IMDb_Randomizer
 </h1>
 <h3>◦ Unlock movie magic with IMDb Randomizer!</h3>
