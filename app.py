@@ -16,8 +16,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 Session(app)
 
 
-
-
 # Render the main HTML page
 @app.route("/")
 def index():
