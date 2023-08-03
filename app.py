@@ -7,7 +7,9 @@ from flask_session import Session
 from datetime import timedelta
 import pandas as pd
 
+
 app = Flask(__name__)
+app.debug = True
 app.secret_key = secrets.token_urlsafe(16)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = True
@@ -82,6 +84,9 @@ def reroll():
     try:
         sorted_data = pd.read_parquet(session.get('file_path'))
     except FileNotFoundError:
+        error_message = "Your session has timed out, please try again."
+        return render_template('index.html', error_message=error_message)
+    except TypeError:
         error_message = "Your session has timed out, please try again."
         return render_template('index.html', error_message=error_message)
 

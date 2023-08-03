@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from flask import request
 
-import sort_by_input as sbi
+import modules.sort_by_input as sbi
 
 # Define a whitelist of allowed domains for SSRF protection
 ALLOWED_DOMAINS = ['api.themoviedb.org', 'www.imdb.com']
