@@ -67,16 +67,19 @@ def run_script():
 def reroll():
     # Get the stored data from the session
     sorted_data = session.get('sorted_data')
+    try:
+        print(sorted_data.head())
+    except AttributeError:
+        error_message = "Your session has timed out, please try again."
+        return render_template('index.html', error_message=error_message)
+    except NameError:
+        error_message = "Your session has timed out, please try again."
+        return render_template('index.html', error_message=error_message)
     row_count_formatted = session.get('row_count', '')
     probability = session.get('probability', Decimal('0.0'))
 
-    if sorted_data is None:
-        # If the sorted data is empty, call the function to get the template variables
-        sorted_data, row_count_formatted, probability = get_template_variables()
-    else:
-        # If there's data in the session, proceed with the reroll logic
-        randomized_data = sorted_data.sample()
-        poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
+    randomized_data = sorted_data.sample()
+    poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
 
     return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url,
                            overview=overview, row_count=row_count_formatted, probability=probability)
