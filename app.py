@@ -39,7 +39,6 @@ def get_template_variables():
 
 @app.route('/run_script', methods=['POST'])
 def run_script():
-    print(session.get('uid'))
     sorted_data = get_sorted_data()
     row_count = len(sorted_data.index)
 

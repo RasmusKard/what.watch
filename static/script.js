@@ -4,7 +4,6 @@ $(document).ready(function() {
     var selectedContentTypes = $(".contentType-group input[type='checkbox']:checked").map(function() {
       return $(this).val();
     }).get();
-    console.log("Selected content types:", selectedContentTypes);
     updateMultiSelect("#contentTypeMultiSelect", selectedContentTypes);
   });
 
@@ -13,7 +12,6 @@ $(document).ready(function() {
     var selectedGenres = $(".genre-group input[type='checkbox']:checked").map(function() {
       return $(this).val();
     }).get();
-    console.log("Selected genres:", selectedGenres);
     updateMultiSelect("#genreMultiSelect", selectedGenres);
   });
 
@@ -59,7 +57,6 @@ $(document).ready(function() {
     $(".dropdown-checkbox").removeClass("show");
     $(".dropdown-checkbox .dropdown-toggle").attr("aria-expanded", false);
   });
-
 
   // Rating Range Slider
   var ratingRangeSlider = document.getElementById('ratingRangeSliderContainer');
@@ -160,49 +157,42 @@ $(document).ready(function() {
     $("form").attr("action", "/run_script").submit();
   });
 
-  function isElementInViewport(el) {
-  var rect = el.getBoundingClientRect();
-  return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-  );
-}
+  // Save watched content input value to cookie
   var savedValue = Cookies.get('watchedContentCookie');
   if (savedValue) {
-    // Set the input value from the saved cookie value
     $("#watchedContentInput").val(savedValue);
   }
   $("#watchedContentInput").on("change", function() {
-  var inputValue = $(this).val();
-  Cookies.set('watchedContentCookie', inputValue, { expires: 7 }); // Cookie expires in 7 days
-});
-  const closeButton = document.querySelector('.close');
-  const errorBox = document.querySelector('.error');
-
-  closeButton.addEventListener('click', () => {
-      errorBox.style.display = 'none';
+    var inputValue = $(this).val();
+    Cookies.set('watchedContentCookie', inputValue, { expires: 7 }); // Cookie expires in 7 days
   });
 
-  // Get the elements
+  // Close error box
+  const closeButton = document.querySelector('.close');
+  const errorBox = document.querySelector('.error');
+  closeButton.addEventListener('click', () => {
+    errorBox.style.display = 'none';
+  });
+
+  // Show/hide info popup
   const infoButton = document.querySelector('.info-button');
   const popup = document.querySelector('.info-popup');
-
-  // Function to handle the toggle and closing of the popup
   function togglePopup() {
     popup.classList.toggle('show');
   }
-
-  // Close the popup when clicking outside
   window.addEventListener('click', (event) => {
     if (!popup.contains(event.target) && event.target !== infoButton) {
       popup.classList.remove('show');
     }
   });
-
-  // Add click event listener to the info button
   infoButton.addEventListener('click', togglePopup);
 
-  
+  // Checkboxes logging
+  $(".contentType-group input[type='checkbox'], .genre-group input[type='checkbox']").change(function() {
+    var selectedItems = $(this).closest(".form-group").find("input[type='checkbox']:checked");
+    var selectedValues = selectedItems.map(function() {
+      return $(this).val();
+    }).get();
+    console.log("Selected items:", selectedValues);
+  });
 });
