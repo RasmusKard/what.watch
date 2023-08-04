@@ -5,7 +5,7 @@
 </h1>
 
 <br>
-<h3>Developed with the software and tools listed below:</h3>
+
 
 <p align="center">
 <img src="https://img.shields.io/badge/Python-3776AB.svg?style&logo=Python&logoColor=white" alt="Python" />
