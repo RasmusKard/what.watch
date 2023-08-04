@@ -243,6 +243,7 @@ body {
   }
 .content-overlay p {
     margin: 10px 0;
+    font-size: min(2vw,25px);
   }
 .button-container .button {
     cursor: pointer;
