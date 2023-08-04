@@ -27,7 +27,6 @@
 - [📍 Overview](#-overview)
 - [⚙️ Features](#-features)
 - [📂 Project Structure](#project-structure)
-- [📄 License](#-license)
 
 ---
 
@@ -66,11 +65,3 @@ The IMDb Randomizer project is a Flask web application that allows users to gene
 | [sort_by_input.py](https://github.com/RasmusKard/IMDb_Randomizer/blob/main/modules\sort_by_input.py)                 | This code snippet is a class called Randomizationparameters that is used to apply user input to sort.parquet files based on specified parameters. It contains functions to sort, filter, and remove data from a pandas dataframe.                                                                                                                      |
 | [index.html](https://github.com/RasmusKard/IMDb_Randomizer/blob/main/templates\index.html)                           | This code snippet is an HTML template for a web page that allows users to filter and randomize content from IMDb. It includes functionality for selecting content types and genres, setting rating and votes ranges, and filtering by release year. The code also includes a reset feature for all filters and an option to filter content by IMDb ID. |
 | [randomized_content.html](https://github.com/RasmusKard/IMDb_Randomizer/blob/main/templates\randomized_content.html) | This code snippet is an HTML template for the site that displays the results of the randomization in the form of content details (title, overview, release year, avg rating) and poster image as a background.                                                                                                                                         |
-
-
-
-## 📄 License
-
-This project is licensed under the `ℹ️  INSERT-LICENSE-TYPE` License. See the [LICENSE](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository) file for additional info.
-
-
