@@ -11,9 +11,10 @@ body {
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     color: #FFFFFF;
-    margin: 0 auto;
     max-width: 600px;
     padding: 20px;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
   }
 .form-group {
     margin-bottom: 20px;
@@ -97,7 +98,7 @@ body {
     border-radius: 4px;
     color: white;
     cursor: pointer;
-    font-size: 16px;
+    font-size: min(2.5vw,15px);
     padding: 10px 20px;
 
   /* Set the background color */
@@ -270,7 +271,7 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
     color: #FFF;
     font-family: "Segoe UI Emoji", sans-serif;
-    font-size: min(1vw,15px);
+    font-size: min(1.5vw,15px);
     opacity: 0.7;
     overflow: hidden;
     position: relative;
