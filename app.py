@@ -1,11 +1,10 @@
-
 from flask import Flask, render_template, session, request
 from modules.flask_modules import get_sorted_data, get_poster_url
 from decimal import Decimal, getcontext
 import secrets
 import math
-import time
 import mysql.connector, mysql.connector.pooling
+from datetime import timedelta
 
 connection_pool = mysql.connector.pooling.MySQLConnectionPool()
 
@@ -25,6 +24,7 @@ default_values = {
 app = Flask(__name__)
 app.debug = True
 app.secret_key = secrets.token_urlsafe(16)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
 
 
 # Render the main HTML page
@@ -79,9 +79,6 @@ def run_script():
 
 @app.route('/reroll', methods=['POST'])
 def reroll():
-    session_values = {key: session[key] for key in session}
-    print(session_values)
-    start_time = time.time()
 
     sorted_data = get_sorted_data(connection_pool=connection_pool)
     row_count = len(sorted_data.index)
@@ -98,19 +95,8 @@ def reroll():
 
     # Thousand separators
     row_count_formatted = '{:,}'.format(row_count)
-    checkpoint1_time = time.time()
     poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
-    checkpoint2_time = time.time()
 
-    segment1_time = checkpoint1_time - start_time
-    segment2_time = checkpoint2_time - checkpoint1_time
-
-    end_time = time.time()
-    total_time = end_time - start_time
-
-    print(f"Segment 1 time: {segment1_time} seconds")
-    print(f"Segment 2 time: {segment2_time} seconds")
-    print(f"Total time: {total_time} seconds")
 
     return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url,
                            overview=overview, row_count=row_count_formatted, probability=probability)

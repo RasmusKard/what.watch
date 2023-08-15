@@ -65,7 +65,7 @@ $(document).ready(function() {
   var maxRatingInput = document.getElementById('maxRatingInput');
 
   noUiSlider.create(ratingRangeSlider, {
-    start: [0, 10],
+    start: [5, 10],
     connect: true,
     step: 0.1,
     range: {
@@ -94,7 +94,7 @@ $(document).ready(function() {
       'max': 250000
     },
     step: 25,
-    start: 0,
+    start: 10000,
     format: {
       to: function(value) {
         return value.toString();
@@ -119,11 +119,11 @@ $(document).ready(function() {
   var maxYearInput = document.getElementById('maxYearInput');
 
   noUiSlider.create(yearSlider, {
-    start: [1900, 2023],
+    start: [1940, 2023],
     connect: true,
     step: 1,
     range: {
-      'min': 1900,
+      'min': 1874,
       'max': 2023
     }
   });

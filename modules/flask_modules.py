@@ -1,10 +1,9 @@
 import json
-import math
 import requests
 from bs4 import BeautifulSoup
 from flask import request
 import mysql_sort
-from flask import session
+from flask import session, render_template
 
 # Define a whitelist of allowed domains for SSRF protection
 ALLOWED_DOMAINS = ['api.themoviedb.org', 'www.imdb.com']
@@ -24,14 +23,17 @@ def get_sorted_data(connection_pool):
     # Get the user input from the form
     watched_content = str(request.form.get('watchedContent', '')).splitlines()
     # Create an instance of RandomizationParameters
-
-    content_types = session['content_types']
-    min_rating = session['min_rating']
-    max_rating = session['max_rating']
-    min_votes = session['min_votes']
-    genres = session['genres']
-    min_year = session['min_year']
-    max_year = session['max_year']
+    try:
+        content_types = session['content_types']
+        min_rating = session['min_rating']
+        max_rating = session['max_rating']
+        min_votes = session['min_votes']
+        genres = session['genres']
+        min_year = session['min_year']
+        max_year = session['max_year']
+    except KeyError:
+        error_message = "Error: Session has expired, please try again."
+        return render_template("index.html", error_message=error_message), 400
 
     result = mysql_sort.sql_sort(content_types=content_types, min_rating=min_rating,
                                  max_rating=max_rating, min_votes=min_votes,
@@ -57,7 +59,7 @@ def get_poster_url(imdb_id):
         If the API request fails, the function falls back to the 'imdb_scrape' function.
     """
     # API key for themoviedb.org
-    api_key = "YOUR_API_KEY"
+    api_key = ""
     url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={api_key}&external_source=imdb_id"
 
     # Check if the URL is in the list of allowed domains
