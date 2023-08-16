@@ -5,13 +5,13 @@ import mysql.connector
 # Create a connection pool to the MySQL database
 
 
-def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year, max_year, connection_pool):
+def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year, max_year, connection_pool, watched_content):
     # Acquire a connection from the pool
     cnx = connection_pool.get_connection()
 
     query = '''
         SELECT tconst, titleType, primaryTitle, startYear, averageRating, numVotes, genres
-        FROM content_data.test
+        FROM test
         WHERE averageRating BETWEEN %s AND %s
           AND numVotes > %s
           AND startYear BETWEEN %s AND %s
@@ -32,5 +32,6 @@ def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year,
 
     # Release the connection back to the pool
     cnx.close()
-
+    if watched_content:
+        df = df[~df['tconst'].isin(set(watched_content))]
     return df

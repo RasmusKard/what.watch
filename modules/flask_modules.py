@@ -1,7 +1,6 @@
 import json
 import requests
 from bs4 import BeautifulSoup
-from flask import request
 import mysql_sort
 from flask import session, render_template
 
@@ -40,10 +39,10 @@ def get_sorted_data(connection_pool):
     if 'Other' in content_types:
         content_types.extend(["tvSpecial", "video", "short", "tvShort"])
         content_types.remove('Other')
-
-    return mysql_sort.sql_sort(content_types=content_types, min_rating=min_rating,
+    result = mysql_sort.sql_sort(content_types=content_types, min_rating=min_rating,
                                  max_rating=max_rating, min_votes=min_votes,
                                  genres=genres, min_year=min_year, max_year=max_year, connection_pool=connection_pool, watched_content=watched_content)
+    return result
 
 
 def get_poster_url(imdb_id):
@@ -63,7 +62,7 @@ def get_poster_url(imdb_id):
         If the API request fails, the function falls back to the 'imdb_scrape' function.
     """
     # API key for themoviedb.org
-    api_key = "YOUR_API_KEY"
+    api_key = "4b13e0220034fb4a33901504138edc4c"
     url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={api_key}&external_source=imdb_id"
 
     # Check if the URL is in the list of allowed domains

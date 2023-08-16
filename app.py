@@ -6,10 +6,13 @@ import math
 import mysql.connector, mysql.connector.pooling
 from datetime import timedelta
 
-connection_pool = mysql.connector.pooling.MySQLConnectionPool()
+connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name='your_pool_name', pool_size=5,
+                                                              user='root', password='RandomTest123!',
+                                                              host='localhost',
+                                                              database='content_data')
 
 default_values = {
-    'default_content_types': ["movie", "tvSeries", "tvMovie", "tvSpecial", "video", "short", "tvShort"],
+    'default_content_types': ["movie", "tvMovie", "tvSeries", "tvMiniSeries", "tvSpecial", "video", "short", "tvShort"],
     'default_min_rating': 0,
     'default_max_rating': 10,
     'default_min_votes': 0,
@@ -55,6 +58,7 @@ def run_script():
     session['genres'] = request.form.getlist('genres') or default_values['default_genres']
     session['min_year'] = int(request.form.get('min_year', default_values['default_min_year']))
     session['max_year'] = int(request.form.get('max_year', default_values['default_max_year']))
+    session['watched_content'] = str(request.form.get('watchedContent', '')).splitlines()
 
     sorted_data = get_sorted_data(connection_pool=connection_pool)
     row_count = len(sorted_data.index)

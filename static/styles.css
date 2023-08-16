@@ -145,7 +145,7 @@ body {
   }
 .checkbox-menu {
     background-color: #2d2d2d;
-    column-count: 3;
+    column-count: 2;
   }
 .dropdown-item input[type="checkbox"] {
     margin-right: 8px;
