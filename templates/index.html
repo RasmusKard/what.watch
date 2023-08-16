@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='nouislider/dist/nouislider.min.css') }}">
@@ -38,11 +38,11 @@
 
     // Reset the sliders
     $("#ratingRangeSliderContainer .slider").val([0, 10]);
-    $("#ratingRangeValue").text("0 - 10");
+    $("#ratingRangeValue").text("5 - 10");
     $("#minVotesSlider").val(0);
-    $("#minVotesValue").text("0");
+    $("#minVotesValue").text("10000");
     $("#yearSlider").val([1900, new Date().getFullYear()]);
-    $("#yearRangeValue").text("1900 - " + new Date().getFullYear());
+    $("#yearRangeValue").text("1940 - " + new Date().getFullYear());
 
     document.getElementById("genreMultiSelect").innerHTML = "";
     document.getElementById("contentTypeMultiSelect").innerHTML = "";
@@ -51,19 +51,19 @@
     const ratingSlider = document.getElementById("ratingRangeSliderContainer");
     const ratingRangeValue = document.getElementById("ratingRangeValue");
     ratingSlider.noUiSlider.reset();
-    ratingRangeValue.innerHTML = "0 - 10"; // Reset the displayed value
+    ratingRangeValue.innerHTML = "5 - 10"; // Reset the displayed value
 
     // Reset minVotes slider
     const minVotesSlider = document.getElementById("minVotesSlider");
     const minVotesValue = document.getElementById("minVotesValue");
     minVotesSlider.noUiSlider.reset();
-    minVotesValue.innerHTML = "0"; // Reset the displayed value
+    minVotesValue.innerHTML = "10000"; // Reset the displayed value
 
     // Reset year slider
     const yearSlider = document.getElementById("yearSlider");
     const yearRangeValue = document.getElementById("yearRangeValue");
     yearSlider.noUiSlider.reset();
-    yearRangeValue.innerHTML = "1900 - 2023"; // Reset the displayed value
+    yearRangeValue.innerHTML = "1940 - 2023"; // Reset the displayed value
 
   }
 

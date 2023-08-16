@@ -1,34 +1,40 @@
-import os
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, request
 from modules.flask_modules import get_sorted_data, get_poster_url
 from decimal import Decimal, getcontext
 import secrets
-from flask_session import Session
+import math
+import mysql.connector, mysql.connector.pooling
 from datetime import timedelta
-import pandas as pd
+
+connection_pool = mysql.connector.pooling.MySQLConnectionPool()
+
+default_values = {
+    'default_content_types': ["movie", "tvSeries", "tvMovie", "tvSpecial", "video", "short", "tvShort"],
+    'default_min_rating': 0,
+    'default_max_rating': 10,
+    'default_min_votes': 0,
+    'default_genres': ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama',
+                       'Fantasy', 'Family', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
+                       'Short', 'Thriller', 'War', 'Western'],
+    'default_min_year': 0,
+    'default_max_year': 2023
+}
 
 
 app = Flask(__name__)
 app.debug = True
 app.secret_key = secrets.token_urlsafe(16)
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
-
-Session(app)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
 
 
 # Render the main HTML page
 @app.route("/")
 def index():
-    if not session.get('uid'):
-        session['uid'] = secrets.token_urlsafe(4)
     return render_template("index.html")
 
 
-
 def get_template_variables():
-    sorted_data = get_sorted_data()
+    sorted_data = get_sorted_data(connection_pool=connection_pool)
     row_count = len(sorted_data.index)
 
     getcontext().prec = 3
@@ -41,7 +47,16 @@ def get_template_variables():
 
 @app.route('/run_script', methods=['POST'])
 def run_script():
-    sorted_data = get_sorted_data()
+
+    session['content_types'] = request.form.getlist('contentTypes') or default_values['default_content_types']
+    session['min_rating'] = float(request.form.get('min_rating', default_values['default_min_rating']))
+    session['max_rating'] = float(request.form.get('max_rating', default_values['default_max_rating']))
+    session['min_votes'] = int(math.floor(float(request.form.get('min_votes', default_values['default_min_votes']))))
+    session['genres'] = request.form.getlist('genres') or default_values['default_genres']
+    session['min_year'] = int(request.form.get('min_year', default_values['default_min_year']))
+    session['max_year'] = int(request.form.get('max_year', default_values['default_max_year']))
+
+    sorted_data = get_sorted_data(connection_pool=connection_pool)
     row_count = len(sorted_data.index)
 
     if row_count == 0:
@@ -58,47 +73,33 @@ def run_script():
     # Thousand separators
     row_count_formatted = '{:,}'.format(row_count)
 
-    # Store the sorted_data, row_count, and probability in the session
-    directory_path = 'user_parquet/'
-    file_path = f'{directory_path}{session.get("uid")}_data.parquet'
-    if len(os.listdir(directory_path)) > 20:
-
-        files = os.listdir(directory_path)
-
-        files.sort(key=lambda x: os.path.getmtime(os.path.join(directory_path, x)))
-
-        oldest_file = os.path.join(directory_path, files[0])
-        os.remove(oldest_file)
-
-    sorted_data.to_parquet(file_path)
-    session['file_path'] = file_path
-    session['row_count'] = row_count_formatted
-    session['probability'] = probability
-
     return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url,
                            overview=overview, row_count=row_count_formatted, probability=probability)
 
 
 @app.route('/reroll', methods=['POST'])
 def reroll():
-    try:
-        sorted_data = pd.read_parquet(session.get('file_path'))
-    except FileNotFoundError:
-        error_message = "Your session has timed out, please try again."
-        return render_template('index.html', error_message=error_message)
-    except TypeError:
-        error_message = "Your session has timed out, please try again."
-        return render_template('index.html', error_message=error_message)
 
-    row_count_formatted = session.get('row_count', '')
-    probability = session.get('probability', Decimal('0.0'))
+    sorted_data = get_sorted_data(connection_pool=connection_pool)
+    row_count = len(sorted_data.index)
+
+    if row_count == 0:
+        # If the sorted data is empty, return an error
+        error_message = "Error: No results found, please widen search parameters."
+        return render_template("index.html", error_message=error_message), 400
 
     randomized_data = sorted_data.sample()
+
+    getcontext().prec = 3
+    probability = Decimal('100') / Decimal(f'{row_count}')
+
+    # Thousand separators
+    row_count_formatted = '{:,}'.format(row_count)
     poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
+
 
     return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url,
                            overview=overview, row_count=row_count_formatted, probability=probability)
-
 
 
 if __name__ == "__main__":

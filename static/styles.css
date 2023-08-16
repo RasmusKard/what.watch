@@ -216,8 +216,6 @@ body {
     filter: invert(1);
     max-width: 100%;
   }
-.dropdown-textbox .dropdown-toggle {
-}
 .content-overlay {
     background-color: rgba(0, 0, 0, 0.7);
     box-sizing: border-box;
