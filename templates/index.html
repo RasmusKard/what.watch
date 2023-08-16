@@ -76,31 +76,17 @@
   </div>
    <hr style="height:1px;border:none;color:#FFFFFF;background-color:#FFFFFF;">
 <form action="/run_script" method="post">
-  <div class="contentType-group form-group">
-    <div class="dropdown-checkbox">
-      <button class="dropdown-toggle" type="button" id="contentTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        Select Content Types
-      </button>
-      <div class="dropdown-menu checkbox-menu" aria-labelledby="contentTypeDropdown">
-        {% set contentTypes = [
-          "movie 🎬",
-          "tvSeries 📺",
-          "tvSpecial",
-          "tvMovie",
-          "video",
-          "short",
-          "tvShort"
-        ] %}
-  
-        {% for contentType in contentTypes %}
-          <div class="dropdown-item btn-group" role="group">
-            <input type="checkbox" name="contentTypes" class="btn-check" value="{{ contentType.split(' ')[0] }}" id="btncheck1{{ loop.index }}" autocomplete="off">
-            <label class="btn btn-outline-primary" for="contentType{{ loop.index }}">{{ contentType }}</label>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-    <div class="multi-select-input" id="contentTypeMultiSelect"></div>
+<div style="padding-bottom: 1vh">
+    {% set contentTypes = [
+      "Movie 🎬",
+      "TvSeries 📺",
+      "Other ❓"
+    ] %}
+
+    {% for contentType in contentTypes %}
+        <input type="checkbox" name="contentTypes" id="contentType{{ loop.index }}" class="btn-check" autocomplete="off" value="{{ contentType.split(' ')[0] }}">
+      <label class="btn btn-outline-primary" for="contentType{{ loop.index }}" style="font-size: min(4vw,30px); padding-right: 1vw"> {{ contentType }} </label>
+    {% endfor %}
   </div>
 
 <div class="genre-group form-group">

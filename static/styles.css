@@ -20,10 +20,11 @@ body {
     margin-bottom: 20px;
   }
 .form-group label {
-    display: block;
+    display: inline-block;
     font-weight: bold;
     margin-bottom: 5px;
   }
+
 .form-group .slider {
     margin-top: 10px;
     padding-left: 20px;
