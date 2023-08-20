@@ -32,40 +32,26 @@
 </head>
 <script>
 
-    function resetFilters() {
-    // Reset the checkboxes
-    $("input[type='checkbox']").prop('checked', false);
+function resetFilters() {
+  // Reset the checkboxes
+  $("input[type='checkbox']").prop('checked', false);
 
-    // Reset the sliders
-    $("#ratingRangeSliderContainer .slider").val([0, 10]);
-    $("#ratingRangeValue").text("5 - 10");
-    $("#minVotesSlider").val(0);
-    $("#minVotesValue").text("10000");
-    $("#yearSlider").val([1900, new Date().getFullYear()]);
-    $("#yearRangeValue").text("1940 - " + new Date().getFullYear());
+  // Reset the sliders
+  const ratingSlider = document.getElementById("ratingRangeSliderContainer");
+  const minVotesSlider = document.getElementById("minVotesSlider");
+  const yearSlider = document.getElementById("yearSlider");
 
-    document.getElementById("genreMultiSelect").innerHTML = "";
-    document.getElementById("contentTypeMultiSelect").innerHTML = "";
+  ratingSlider.noUiSlider.reset(); // Reset the slider location
+  minVotesSlider.noUiSlider.reset(); // Reset the slider location
+  yearSlider.noUiSlider.reset(); // Reset the slider location
 
-    // Reset rating slider
-    const ratingSlider = document.getElementById("ratingRangeSliderContainer");
-    const ratingRangeValue = document.getElementById("ratingRangeValue");
-    ratingSlider.noUiSlider.reset();
-    ratingRangeValue.innerHTML = "5 - 10"; // Reset the displayed value
+  $("#ratingRangeValue").text("5.0 - 10.0");
+  $("#minVotesValue").text("10,000");
+  $("#yearRangeValue").text("1940 - " + new Date().getFullYear());
 
-    // Reset minVotes slider
-    const minVotesSlider = document.getElementById("minVotesSlider");
-    const minVotesValue = document.getElementById("minVotesValue");
-    minVotesSlider.noUiSlider.reset();
-    minVotesValue.innerHTML = "10000"; // Reset the displayed value
-
-    // Reset year slider
-    const yearSlider = document.getElementById("yearSlider");
-    const yearRangeValue = document.getElementById("yearRangeValue");
-    yearSlider.noUiSlider.reset();
-    yearRangeValue.innerHTML = "1940 - 2023"; // Reset the displayed value
-
-  }
+  document.getElementById("genreMultiSelect").innerHTML = "";
+  document.getElementById("contentTypeMultiSelect").innerHTML = "";
+}
 
 
 </script>
@@ -76,7 +62,7 @@
   </div>
    <hr style="height:1px;border:none;color:#FFFFFF;background-color:#FFFFFF;">
 <form action="/run_script" method="post">
-<div style="padding-bottom: 1vh">
+<div style="padding-bottom: 2vh">
     {% set contentTypes = [
       "Movie 🎬",
       "TvSeries 📺",
@@ -85,7 +71,7 @@
 
     {% for contentType in contentTypes %}
         <input type="checkbox" name="contentTypes" id="contentType{{ loop.index }}" class="btn-check" autocomplete="off" value="{{ contentType.split(' ')[0] }}">
-      <label class="btn btn-outline-primary" for="contentType{{ loop.index }}" style="font-size: min(4vw,30px); padding-right: 1vw"> {{ contentType }} </label>
+      <label class="btn btn-outline-primary" for="contentType{{ loop.index }}" style="font-size: min(4vw,30px);"> {{ contentType }} </label>
     {% endfor %}
   </div>
 

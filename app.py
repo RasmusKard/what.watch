@@ -48,8 +48,11 @@ def get_template_variables():
     return sorted_data, row_count, probability
 
 
-@app.route('/run_script', methods=['POST'])
+@app.route('/run_script', methods=['POST', 'GET'])
 def run_script():
+    if request.method == 'GET':
+        return render_template("index.html")
+
 
     session['content_types'] = request.form.getlist('contentTypes') or default_values['default_content_types']
     session['min_rating'] = float(request.form.get('min_rating', default_values['default_min_rating']))
@@ -81,11 +84,17 @@ def run_script():
                            overview=overview, row_count=row_count_formatted, probability=probability)
 
 
-@app.route('/reroll', methods=['POST'])
+@app.route('/reroll', methods=['POST', 'GET'])
 def reroll():
+    if request.method == 'GET':
+        return render_template("index.html")
 
-    sorted_data = get_sorted_data(connection_pool=connection_pool)
-    row_count = len(sorted_data.index)
+    try:
+        sorted_data = get_sorted_data(connection_pool=connection_pool)
+        row_count = len(sorted_data.index)
+    except TypeError:
+        error_message = "Error: Session has expired, please try again."
+        return render_template("index.html", error_message=error_message), 400
 
     if row_count == 0:
         # If the sorted data is empty, return an error
