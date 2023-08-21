@@ -174,18 +174,6 @@ $(document).ready(function() {
     errorBox.style.display = 'none';
   });
 
-  // Show/hide info popup
-  const infoButton = document.querySelector('.info-button');
-  const popup = document.querySelector('.info-popup');
-  function togglePopup() {
-    popup.classList.toggle('show');
-  }
-  window.addEventListener('click', (event) => {
-    if (!popup.contains(event.target) && event.target !== infoButton) {
-      popup.classList.remove('show');
-    }
-  });
-  infoButton.addEventListener('click', togglePopup);
 
   // Checkboxes logging
   $(".contentType-group input[type='checkbox'], .genre-group input[type='checkbox']").change(function() {
@@ -195,4 +183,5 @@ $(document).ready(function() {
     }).get();
     console.log("Selected items:", selectedValues);
   });
+
 });
