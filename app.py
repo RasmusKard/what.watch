@@ -1,3 +1,5 @@
+import random
+
 from flask import Flask, render_template, session, request
 from modules.flask_modules import get_sorted_data, get_poster_url
 from decimal import Decimal, getcontext
@@ -19,7 +21,7 @@ default_values = {
     'default_genres': ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama',
                        'Fantasy', 'Family', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi',
                        'Short', 'Thriller', 'War', 'Western'],
-    'default_min_year': 0,
+    'default_min_year': 1874,
     'default_max_year': 2023
 }
 
@@ -63,25 +65,25 @@ def run_script():
     session['max_year'] = int(request.form.get('max_year', default_values['default_max_year']))
     session['watched_content'] = str(request.form.get('watchedContent', '')).splitlines()
 
-    sorted_data = get_sorted_data(connection_pool=connection_pool)
-    row_count = len(sorted_data.index)
+    sorted_data = get_sorted_data(connection_pool=connection_pool, default_values=default_values)
+    result_count = len(sorted_data)
 
-    if row_count == 0:
+    if result_count == 0:
         # If the sorted data is empty, return an error
         error_message = "Error: No results found, please widen search parameters."
         return render_template("index.html", error_message=error_message), 400
 
-    randomized_data = sorted_data.sample()
-    poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
+    randomized_data = random.choice(sorted_data)
+    poster_url, overview = get_poster_url(randomized_data[0])
 
     getcontext().prec = 3
-    probability = Decimal('100') / Decimal(f'{row_count}')
+    probability = Decimal('100') / Decimal(f'{result_count}')
 
     # Thousand separators
-    row_count_formatted = '{:,}'.format(row_count)
+    result_count_formatted = '{:,}'.format(result_count)
 
     return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url,
-                           overview=overview, row_count=row_count_formatted, probability=probability)
+                           overview=overview, result_count=result_count_formatted, probability=probability)
 
 
 @app.route('/reroll', methods=['POST', 'GET'])
@@ -90,29 +92,29 @@ def reroll():
         return render_template("index.html")
 
     try:
-        sorted_data = get_sorted_data(connection_pool=connection_pool)
-        row_count = len(sorted_data.index)
+        sorted_data = get_sorted_data(connection_pool=connection_pool, default_values=default_values)
+        result_count = len(sorted_data)
     except TypeError:
         error_message = "Error: Session has expired, please try again."
         return render_template("index.html", error_message=error_message), 400
 
-    if row_count == 0:
+    if result_count == 0:
         # If the sorted data is empty, return an error
         error_message = "Error: No results found, please widen search parameters."
         return render_template("index.html", error_message=error_message), 400
 
-    randomized_data = sorted_data.sample()
+    randomized_data = random.choice(sorted_data)
 
     getcontext().prec = 3
-    probability = Decimal('100') / Decimal(f'{row_count}')
+    probability = Decimal('100') / Decimal(f'{result_count}')
 
     # Thousand separators
-    row_count_formatted = '{:,}'.format(row_count)
-    poster_url, overview = get_poster_url(randomized_data['tconst'].values[0])
+    result_count_formatted = '{:,}'.format(result_count)
+    poster_url, overview = get_poster_url(randomized_data[0])
 
 
     return render_template("randomized_content.html", sorted_data=randomized_data, poster_url=poster_url,
-                           overview=overview, row_count=row_count_formatted, probability=probability)
+                           overview=overview, result_count=result_count_formatted, probability=probability)
 
 
 if __name__ == "__main__":

@@ -54,6 +54,9 @@ function resetFilters() {
   document.getElementById("contentTypeMultiSelect").innerHTML = "";
 }
 
+$(window).on('unload', function () {
+    $('#loading-overlay').hide();
+});
 
 </script>
 <body>

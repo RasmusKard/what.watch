@@ -23,7 +23,6 @@
             background-position: center;
         }
 
-
     </style>
 
     <title> IMDb Randomizer </title>
@@ -39,6 +38,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <script>
+       $(window).on('unload', function () {
+            $('#loading-overlay').hide();
+        });
+
+    </script>
 </head>
 <body>
             <div id="loading-overlay" style="display:none">
@@ -48,28 +53,28 @@
         <div class="content-overlay">
             <div class="button-container button-container-top">
                 <a href="{{ url_for('index') }}" class="btn btn-primary go-back-button" style="float: left">&#x21A9;Go back to filters&#x21A9;</a>
-                <em class="rolled-from-text">Rolled from {{ row_count }} possibilities<br>(you have a {{ probability }}% chance to roll this again)</em>
+                <em class="rolled-from-text">Rolled from {{ result_count }} possibilities<br>(you have a {{ probability }}% chance to roll this again)</em>
             </div>            
-            <h2 id="title">{{ sorted_data.primaryTitle.values[0] }}</h2>
+            <h2 id="title">{{ sorted_data[2] }}</h2>
             {% if overview %}
             <p><strong>Overview:</strong> {{ overview }}</p>
             {% endif %}
-            <p><strong>Rating:</strong> {{ sorted_data.averageRating.values[0] }}</p>
-            <p><strong>Genre:</strong> {{ sorted_data.genres.values[0] }}</p>
-            <p><strong>Year:</strong> {{ sorted_data.startYear.values[0] }}</p>
+            <p><strong>Rating:</strong> {{ sorted_data[4] }}</p>
+            <p><strong>Genre:</strong> {{ sorted_data[6] }}</p>
+            <p><strong>Year:</strong> {{ sorted_data[3] }}</p>
 
 
             <div class="button-container">
-                <a href="http://www.imdb.com/title/{{ sorted_data.tconst.values[0] }}" target="_blank" class="button">
+                <a href="http://www.imdb.com/title/{{ sorted_data[0] }}" target="_blank" class="button">
                     <img src="/static/imdb_logo.png" alt="Button 1" style="width: 10vw; height: 5vw; max-width: 100px; max-height: 50px">
                 </a>
-                <a href="http://torrentgalaxy.to/torrents.php?search={{ sorted_data.tconst.values[0] }}#results" target="_blank" class="button">
+                <a href="http://torrentgalaxy.to/torrents.php?search={{ sorted_data[0] }}#results" target="_blank" class="button">
                     <img src="/static/torrentgalaxy_logo.png" alt="Button 2" style="width: 20vw; height: 5vw; max-width: 200px; max-height: 50px">
                 </a>
-                <a href="https://x1337x.ws/search/{{ sorted_data.primaryTitle.values[0] }}+{{ sorted_data.startYear.values[0] }}/1/" target="_blank" class="button">
+                <a href="https://x1337x.ws/search/{{ sorted_data[2] }}+{{ sorted_data[3] }}/1/" target="_blank" class="button">
                     <img src="/static/1337x_logo.png" alt="Button 3" style="width: 10vw; height: 5vw; max-width: 100px; max-height: 50px">
                 </a>
-                <a href="https://thepiratebay.org/search.php?q={{ sorted_data.primaryTitle.values[0] }}+{{ sorted_data.startYear.values[0] }}" target="_blank" class="button">
+                <a href="https://thepiratebay.org/search.php?q={{ sorted_data[2] }}+{{ sorted_data[3] }}" target="_blank" class="button">
                     <img src="/static/thepiratebay_logo.png" alt="Button 4" style="width: 10vw; height: 10vw; max-width: 100px; max-height: 100px">
                 </a>
             </div>

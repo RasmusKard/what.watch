@@ -1,37 +1,57 @@
-import pandas as pd
-import mysql.connector.pooling
 import mysql.connector
 
-# Create a connection pool to the MySQL database
 
-
-def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year, max_year, connection_pool, watched_content):
+def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year, max_year, connection_pool,
+             watched_content, default_values):
     # Acquire a connection from the pool
     cnx = connection_pool.get_connection()
 
-    query = '''
-        SELECT tconst, titleType, primaryTitle, startYear, averageRating, numVotes, genres
-        FROM test
-        WHERE averageRating BETWEEN %s AND %s
-          AND numVotes > %s
-          AND startYear BETWEEN %s AND %s
-          AND titleType IN ({placeholders_content_types})
-          AND CONCAT(",", genres, ",") REGEXP CONCAT(",", %s, ",");
-    '''
-
-    # Generate placeholders for genres and content types
     placeholders_content_types = ', '.join(['%s'] * len(content_types))
+    genres_string = '|'.join(genres)
 
-    genres = '|'.join(genres)
+    query_parts = [
+        'SELECT tconst, titleType, primaryTitle, startYear, averageRating, numVotes, genres',
+        'FROM test'
+    ]
 
-    # Construct the query with the generated placeholders
-    formatted_query = query.format(placeholders_content_types=placeholders_content_types)
+    conditions = []
+    params = []
+    if min_rating != default_values['default_min_rating'] or max_rating != default_values['default_max_rating']:
+        conditions.append('averageRating BETWEEN %s AND %s')
+        params.extend([min_rating, max_rating])
 
-    # Execute the query and fetch the results directly into a DataFrame
-    df = pd.read_sql_query(formatted_query, cnx, params=(min_rating, max_rating, min_votes, min_year, max_year, *content_types, genres))
+    if min_votes != default_values['default_min_votes']:
+        conditions.append('numVotes > %s')
+        params.append(min_votes)
 
+    if min_year != default_values['default_min_year'] or max_year != default_values['default_max_year']:
+        conditions.append('startYear BETWEEN %s AND %s')
+        params.extend([min_year, max_year])
+
+    if sorted(content_types) != sorted(default_values['default_content_types']):
+        conditions.append('titleType IN ({placeholders_content_types})')
+        params.extend(content_types)
+
+    if sorted(genres) != sorted(default_values['default_genres']):
+        conditions.append('CONCAT(",", genres, ",") REGEXP CONCAT(",", %s, ",")')
+        params.append(genres_string)
+
+    if watched_content:
+        conditions.append('tconst NOT IN ({watched_content_placeholders})')
+        params.extend(watched_content)
+
+    if conditions:
+        query_parts.append('WHERE ' + ' AND '.join(conditions))
+
+    formatted_query = ' '.join(query_parts)
+    # Execute the query
+    cursor = cnx.cursor()
+    cursor.execute(formatted_query, params)
+    result = cursor.fetchall()
+
+    cursor.close()
     # Release the connection back to the pool
     cnx.close()
-    if watched_content:
-        df = df[~df['tconst'].isin(set(watched_content))]
-    return df
+
+    return result
+

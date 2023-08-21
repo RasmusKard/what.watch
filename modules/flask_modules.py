@@ -13,7 +13,7 @@ def is_valid_url(url):
     return any(domain.lower() in url.lower() for domain in ALLOWED_DOMAINS)
 
 
-def get_sorted_data(connection_pool):
+def get_sorted_data(connection_pool, default_values):
     """
     Retrieves sorted data based on user input from a form and returns it along with a poster URL and overview.
     """
@@ -40,7 +40,7 @@ def get_sorted_data(connection_pool):
         content_types.extend(["tvSpecial", "video", "short", "tvShort"])
         content_types.remove('Other')
     result = mysql_sort.sql_sort(content_types=content_types, min_rating=min_rating,
-                                 max_rating=max_rating, min_votes=min_votes,
+                                 max_rating=max_rating, min_votes=min_votes, default_values=default_values,
                                  genres=genres, min_year=min_year, max_year=max_year, connection_pool=connection_pool, watched_content=watched_content)
     return result
 
@@ -62,7 +62,7 @@ def get_poster_url(imdb_id):
         If the API request fails, the function falls back to the 'imdb_scrape' function.
     """
     # API key for themoviedb.org
-    api_key = "4b13e0220034fb4a33901504138edc4c"
+    api_key = "API_KEY"
     url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={api_key}&external_source=imdb_id"
 
     # Check if the URL is in the list of allowed domains
