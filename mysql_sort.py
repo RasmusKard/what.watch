@@ -1,12 +1,10 @@
-import mysql.connector
-
-
 def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year, max_year, connection_pool,
              watched_content, default_values):
     # Acquire a connection from the pool
     cnx = connection_pool.get_connection()
 
     placeholders_content_types = ', '.join(['%s'] * len(content_types))
+    watched_content_placeholders = ', '.join(['%s'] * len(watched_content))
     genres_string = '|'.join(genres)
 
     query_parts = [
@@ -29,7 +27,7 @@ def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year,
         params.extend([min_year, max_year])
 
     if sorted(content_types) != sorted(default_values['default_content_types']):
-        conditions.append('titleType IN ({placeholders_content_types})')
+        conditions.append('titleType IN ({})'.format(placeholders_content_types))
         params.extend(content_types)
 
     if sorted(genres) != sorted(default_values['default_genres']):
@@ -37,7 +35,7 @@ def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year,
         params.append(genres_string)
 
     if watched_content:
-        conditions.append('tconst NOT IN ({watched_content_placeholders})')
+        conditions.append('tconst NOT IN ({})'.format(watched_content_placeholders))
         params.extend(watched_content)
 
     if conditions:
@@ -54,4 +52,3 @@ def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year,
     cnx.close()
 
     return result
-
