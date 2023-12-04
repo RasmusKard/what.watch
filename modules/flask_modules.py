@@ -1,8 +1,10 @@
 import json
 import requests
 from bs4 import BeautifulSoup
-import mysql_sort
+from modules import mysql_sort, variables
 from flask import session, render_template
+import arrow
+import os
 
 # Define a whitelist of allowed domains for SSRF protection
 ALLOWED_DOMAINS = ['api.themoviedb.org', 'www.imdb.com']
@@ -62,8 +64,7 @@ def get_poster_url(imdb_id):
         If the API request fails, the function falls back to the 'imdb_scrape' function.
     """
     # API key for themoviedb.org
-    api_key = "API_KEY"
-    url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={api_key}&external_source=imdb_id"
+    url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={variables.api_key}&external_source=imdb_id"
 
     # Check if the URL is in the list of allowed domains
     if not is_valid_url(url):
@@ -74,6 +75,7 @@ def get_poster_url(imdb_id):
     # Check if the API response is successful
     if response.ok:
         json_response = response.json()
+        print(json_response)
         if json_response['movie_results']:
             poster_path = json_response['movie_results'][0]['poster_path']
             overview = json_response['movie_results'][0]['overview']
@@ -127,3 +129,23 @@ def imdb_scrape(imdb_id):
     overview = json_response.get('description')
 
     return poster_url, overview
+
+
+def get_db_update_time():
+    modification_time = os.path.getmtime(variables.title_file_path)
+
+    # Convert modification time to arrow object
+    modification_arrow = arrow.get(modification_time)
+
+    # Get the current time as an arrow object
+    current_arrow = arrow.utcnow()
+
+    # Calculate the time difference between the file modification time and the current time
+    time_difference = current_arrow - modification_arrow
+
+    # Shift the current time by the negative time difference
+    result_arrow = current_arrow.shift(seconds=-time_difference.total_seconds())
+
+    result_arrow = result_arrow.humanize()
+
+    return result_arrow

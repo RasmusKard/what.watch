@@ -1,6 +1,7 @@
 import pandas as pd
 import os
-from sqlalchemy import create_engine
+from modules import variables
+
 
 
 class DataFile:
@@ -113,9 +114,9 @@ def remove_genre():
     df.to_csv('title_data_clean_final.csv', index=False, na_rep='NULL')
 
 def csv_to_sql():
-    engine = create_engine('mysql+mysqlconnector://root:1234@localhost:3306/content_data')
+    engine = variables.mysql_engine
 
     df = pd.read_csv('title_data_clean.csv')
 
 
-    df.to_sql(name='test', con=engine, index=False, if_exists='append')
+    df.to_sql(name='test', con=engine, index=False, if_exists='replace')

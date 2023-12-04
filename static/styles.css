@@ -412,6 +412,12 @@ body {
     border-color: #fff transparent transparent transparent;
 }
 
+.database-update-text {
+    font-size: min(1vw,15px);
+    opacity: 0.3;
+    padding-top: 100px;
+  }
+
 /* Spinner animation keyframes */
 @keyframes lds-ring {
     0% {

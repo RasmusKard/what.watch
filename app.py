@@ -1,12 +1,13 @@
 import random
 
 from flask import Flask, render_template, session, request
-from modules.flask_modules import get_sorted_data, get_poster_url
+from modules.flask_modules import get_sorted_data, get_poster_url, get_db_update_time
 from decimal import Decimal, getcontext
 import secrets
 import math
 import mysql.connector, mysql.connector.pooling
 from datetime import timedelta
+from os import path
 
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name='your_pool_name', pool_size=5,
                                                               user='root', password='1234',
@@ -32,16 +33,17 @@ app.secret_key = secrets.token_urlsafe(16)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
 
 
+
 # Render the main HTML page
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", db_update_time=get_db_update_time())
 
 
 @app.route('/run_script', methods=['POST', 'GET'])
 def run_script():
     if request.method == 'GET':
-        return render_template("index.html")
+        return render_template("index.html", db_update_time=get_db_update_time())
 
 
     session['content_types'] = request.form.getlist('contentTypes') or default_values['default_content_types']
@@ -59,7 +61,7 @@ def run_script():
     if result_count == 0:
         # If the sorted data is empty, return an error
         error_message = "Error: No results found, please widen search parameters."
-        return render_template("index.html", error_message=error_message), 400
+        return render_template("index.html", error_message=error_message, db_update_time=get_db_update_time()), 400
 
     random_index = random.randrange(result_count)
     randomized_data = sorted_data[random_index]
@@ -78,7 +80,7 @@ def run_script():
 @app.route('/reroll', methods=['POST', 'GET'])
 def reroll():
     if request.method == 'GET':
-        return render_template("index.html")
+        return render_template("index.html", db_update_time=get_db_update_time())
 
     try:
         sorted_data = get_sorted_data(connection_pool=connection_pool, default_values=default_values)
@@ -86,16 +88,16 @@ def reroll():
 
     except TypeError:
         error_message = "Error: Session has expired, please try again."
-        return render_template("index.html", error_message=error_message), 400
+        return render_template("index.html", error_message=error_message, db_update_time=get_db_update_time()), 400
 
     if result_count == 0:
         # If the sorted data is empty, return an error
         error_message = "Error: No results found, please widen search parameters."
-        return render_template("index.html", error_message=error_message), 400
+        return render_template("index.html", error_message=error_message, db_update_time=get_db_update_time()), 400
 
     if type(sorted_data) != list:
         error_message = "Error: Session has expired, please try again."
-        return render_template("index.html", error_message=error_message), 400
+        return render_template("index.html", error_message=error_message, db_update_time=get_db_update_time()), 400
 
     random_index = random.randrange(result_count)
     randomized_data = sorted_data[random_index]
