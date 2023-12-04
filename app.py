@@ -9,7 +9,7 @@ import mysql.connector, mysql.connector.pooling
 from datetime import timedelta
 
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name='your_pool_name', pool_size=5,
-                                                              user='root', password='RandomTest123!',
+                                                              user='root', password='1234',
                                                               host='localhost',
                                                               database='content_data')
 
@@ -38,18 +38,6 @@ def index():
     return render_template("index.html")
 
 
-def get_template_variables():
-    sorted_data = get_sorted_data(connection_pool=connection_pool)
-    row_count = len(sorted_data.index)
-
-    getcontext().prec = 3
-    probability = Decimal('100') / Decimal(f'{row_count}')
-
-    row_count = '{:,}'.format(row_count)
-
-    return sorted_data, row_count, probability
-
-
 @app.route('/run_script', methods=['POST', 'GET'])
 def run_script():
     if request.method == 'GET':
@@ -73,7 +61,8 @@ def run_script():
         error_message = "Error: No results found, please widen search parameters."
         return render_template("index.html", error_message=error_message), 400
 
-    randomized_data = random.choice(sorted_data)
+    random_index = random.randrange(result_count)
+    randomized_data = sorted_data[random_index]
     poster_url, overview = get_poster_url(randomized_data[0])
 
     getcontext().prec = 3
@@ -94,6 +83,7 @@ def reroll():
     try:
         sorted_data = get_sorted_data(connection_pool=connection_pool, default_values=default_values)
         result_count = len(sorted_data)
+
     except TypeError:
         error_message = "Error: Session has expired, please try again."
         return render_template("index.html", error_message=error_message), 400
@@ -103,7 +93,12 @@ def reroll():
         error_message = "Error: No results found, please widen search parameters."
         return render_template("index.html", error_message=error_message), 400
 
-    randomized_data = random.choice(sorted_data)
+    if type(sorted_data) != list:
+        error_message = "Error: Session has expired, please try again."
+        return render_template("index.html", error_message=error_message), 400
+
+    random_index = random.randrange(result_count)
+    randomized_data = sorted_data[random_index]
 
     getcontext().prec = 3
     probability = Decimal('100') / Decimal(f'{result_count}')

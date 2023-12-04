@@ -93,8 +93,8 @@ $(document).ready(function() {
       'min': 0,
       'max': 250000
     },
-    step: 25,
-    start: 10000,
+    step: 10,
+    start: 1000,
     format: {
       to: function(value) {
         return value.toString();

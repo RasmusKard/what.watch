@@ -50,5 +50,4 @@ def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year,
     cursor.close()
     # Release the connection back to the pool
     cnx.close()
-
     return result

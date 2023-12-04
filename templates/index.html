@@ -47,7 +47,7 @@ function resetFilters() {
   yearSlider.noUiSlider.reset(); // Reset the slider location
 
   $("#ratingRangeValue").text("5.0 - 10.0");
-  $("#minVotesValue").text("10,000");
+  $("#minVotesValue").text("5,000");
   $("#yearRangeValue").text("1940 - " + new Date().getFullYear());
 
   document.getElementById("genreMultiSelect").innerHTML = "";
@@ -77,7 +77,7 @@ $(window).on('unload', function () {
     ] %}
 
     {% for contentType in contentTypes %}
-        <input type="checkbox" name="contentTypes" id="contentType{{ loop.index }}" class="btn-check" autocomplete="off" value="{{ contentType.split(' ')[0] }}">
+        <input type="checkbox" name="contentTypes" id="contentType{{ loop.index }}" class="btn-check" checked autocomplete="off" value="{{ contentType.split(' ')[0] }}">
       <label class="btn btn-outline-primary" for="contentType{{ loop.index }}" style="font-size: min(4vw,30px);"> {{ contentType }} </label>
     {% endfor %}
   </div>
