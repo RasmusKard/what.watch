@@ -30,6 +30,7 @@ def get_sorted_data(connection_pool, default_values):
         min_year = session['min_year']
         max_year = session['max_year']
         watched_content = session['watched_content']
+        already_rolled = session['already_rolled']
     except KeyError:
         error_message = "Error: Session has expired, please try again."
         return render_template("index.html", error_message=error_message), 400
@@ -43,7 +44,8 @@ def get_sorted_data(connection_pool, default_values):
         content_types.remove('Other')
     result = mysql_sort.sql_sort(content_types=content_types, min_rating=min_rating,
                                  max_rating=max_rating, min_votes=min_votes, default_values=default_values,
-                                 genres=genres, min_year=min_year, max_year=max_year, connection_pool=connection_pool, watched_content=watched_content)
+                                 genres=genres, min_year=min_year, max_year=max_year, connection_pool=connection_pool,
+                                 watched_content=watched_content, already_rolled=already_rolled)
     return result
 
 
@@ -75,7 +77,6 @@ def get_poster_url(imdb_id):
     # Check if the API response is successful
     if response.ok:
         json_response = response.json()
-        print(json_response)
         if json_response['movie_results']:
             poster_path = json_response['movie_results'][0]['poster_path']
             overview = json_response['movie_results'][0]['overview']

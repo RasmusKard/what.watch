@@ -1,10 +1,11 @@
 def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year, max_year, connection_pool,
-             watched_content, default_values):
+             watched_content, default_values, already_rolled):
     # Acquire a connection from the pool
     cnx = connection_pool.get_connection()
 
     placeholders_content_types = ', '.join(['%s'] * len(content_types))
     watched_content_placeholders = ', '.join(['%s'] * len(watched_content))
+    already_rolled_placeholders = ', '.join(['%s'] * len(already_rolled))
     genres_string = '|'.join(genres)
 
     query_parts = [
@@ -38,6 +39,9 @@ def sql_sort(content_types, min_rating, max_rating, min_votes, genres, min_year,
         conditions.append('tconst NOT IN ({})'.format(watched_content_placeholders))
         params.extend(watched_content)
 
+    if already_rolled:
+        conditions.append('tconst NOT IN ({})'.format(already_rolled_placeholders))
+        params.extend(already_rolled)
     if conditions:
         query_parts.append('WHERE ' + ' AND '.join(conditions))
 

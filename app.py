@@ -8,6 +8,7 @@ import math
 import mysql.connector, mysql.connector.pooling
 from datetime import timedelta
 from os import path
+from copy import deepcopy
 
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name='your_pool_name', pool_size=5,
                                                               user='root', password='1234',
@@ -54,6 +55,7 @@ def run_script():
     session['min_year'] = int(request.form.get('min_year', default_values['default_min_year']))
     session['max_year'] = int(request.form.get('max_year', default_values['default_max_year']))
     session['watched_content'] = str(request.form.get('watchedContent', '')).splitlines()
+    session['already_rolled'] = list()
 
     sorted_data = get_sorted_data(connection_pool=connection_pool, default_values=default_values)
     result_count = len(sorted_data)
@@ -65,6 +67,14 @@ def run_script():
 
     random_index = random.randrange(result_count)
     randomized_data = sorted_data[random_index]
+
+    try:
+        rolled_list = session['already_rolled']
+        rolled_list.append(randomized_data[0])
+        session['already_rolled'] = rolled_list
+    except TypeError:
+        error_message = "Error: Session has expired, please try again."
+        return render_template("index.html", error_message=error_message, db_update_time=get_db_update_time()), 400
     poster_url, overview = get_poster_url(randomized_data[0])
 
     getcontext().prec = 3
@@ -92,7 +102,7 @@ def reroll():
 
     if result_count == 0:
         # If the sorted data is empty, return an error
-        error_message = "Error: No results found, please widen search parameters."
+        error_message = "Error: Ran out of possible suggestions, please try again."
         return render_template("index.html", error_message=error_message, db_update_time=get_db_update_time()), 400
 
     if type(sorted_data) != list:
@@ -101,12 +111,20 @@ def reroll():
 
     random_index = random.randrange(result_count)
     randomized_data = sorted_data[random_index]
-
     getcontext().prec = 3
     probability = Decimal('100') / Decimal(f'{result_count}')
 
     # Thousand separators
     result_count_formatted = '{:,}'.format(result_count)
+
+    try:
+        rolled_list = session['already_rolled']
+        rolled_list.append(randomized_data[0])
+        session['already_rolled'] = rolled_list
+    except TypeError:
+        error_message = "Error: Session has expired, please try again."
+        return render_template("index.html", error_message=error_message, db_update_time=get_db_update_time()), 400
+
     poster_url, overview = get_poster_url(randomized_data[0])
 
 
