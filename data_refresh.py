@@ -18,15 +18,8 @@ data.data_title_cleanup()
 
 data.data_merge()
 
-data_modules.clean_data()
+data.clean_merged_data()
 
-data_modules.extract_genre()
-
-data_modules.genre_split()
-
-data_modules.remove_genre()
-
-data_modules.csv_to_sql()
-
+data.df_to_sql()
 
 

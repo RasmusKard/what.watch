@@ -1,5 +1,4 @@
 import random
-
 from flask import Flask, render_template, session, request
 from modules.flask_modules import get_sorted_data, get_poster_url, get_db_update_time
 from decimal import Decimal, getcontext
@@ -7,8 +6,6 @@ import secrets
 import math
 import mysql.connector, mysql.connector.pooling
 from datetime import timedelta
-from os import path
-from copy import deepcopy
 
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name='your_pool_name', pool_size=5,
                                                               user='root', password='1234',
@@ -28,10 +25,13 @@ default_values = {
 }
 
 
+
 app = Flask(__name__)
 app.debug = True
 app.secret_key = secrets.token_urlsafe(16)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
+
+
 
 
 
