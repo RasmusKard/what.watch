@@ -17,15 +17,10 @@ noUiSlider.create(ratingSlider, {
 const ratingSliderValue = document.getElementById("rating-slider-value");
 ratingSliderValue.value = ratingSlider.noUiSlider.get();
 
-// Button checkbox functionality
-
-// const checkboxButtons = document.querySelectorAll(".checkbox-button");
-
-// checkboxButtons.forEach((button) =>
-// 	button.addEventListener("click", (event) => {
-// 		const buttonElement = event.target;
-// 		buttonElement.classList.toggle("checked");
-// 	})
-// );
+// rating slider update input value on change
+ratingSlider.noUiSlider.on(
+	"update",
+	(value) => (ratingSliderValue.value = value)
+);
 
 // Submit functionality
