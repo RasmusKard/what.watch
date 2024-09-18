@@ -1,5 +1,5 @@
-var ratingSlider = document.getElementById("rating-range-slider");
-
+// Add rating slider
+const ratingSlider = document.getElementById("rating-range-slider");
 noUiSlider.create(ratingSlider, {
 	start: [5],
 	connect: "lower",
@@ -14,3 +14,16 @@ noUiSlider.create(ratingSlider, {
 		max: 10,
 	},
 });
+
+// Button checkbox functionality
+
+const checkboxButtons = document.querySelectorAll(".checkbox-button");
+
+checkboxButtons.forEach((button) =>
+	button.addEventListener("click", (event) => {
+		const buttonElement = event.target;
+		buttonElement.classList.toggle("checked");
+	})
+);
+
+// Submit functionality

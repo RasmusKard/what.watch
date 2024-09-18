@@ -34,12 +34,38 @@ img {
 	max-inline-size: 100%;
 }
 
+/* NORMALIZE CSS END */
 
 
+#page-container {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+	justify-content: center;
+	padding: 1rem 3rem;
+}
 
 #form-container {
 	display: flex;
 	flex-flow: column;
-	width: 70vw;
-	gap: 1rem;
+	text-align: center;
+	gap: 2rem;
+	max-width: 700px;
+}
+
+.checkbox-button {
+	margin: 0.15rem;
+	padding: 0.3rem;
+}
+
+.checkbox-button:hover {
+	filter: brightness(0.9);
+}
+
+#rating-range-container {
+	margin-top: 1.5rem;
+}
+
+.checked {
+	background-color: greenyellow;
 }
