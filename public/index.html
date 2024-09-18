@@ -15,164 +15,281 @@
 	</head>
 	<body>
 		<div id="page-container">
-			<div id="form-container">
-				<div id="content-type-container">
-					<button
-						class="content-type-button checkbox-button"
-						value="Movie"
-					>
-						Movie</button
-					><button
-						class="content-type-button checkbox-button"
-						value="TV Show"
-					>
-						TV Show
-					</button>
-				</div>
-				<div id="genre-container">
-					<button class="genre-button checkbox-button" value="Action">
-						Action
-					</button>
-					<button class="genre-button checkbox-button" value="Adult">
-						Adult
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Adventure"
-					>
-						Adventure
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Animation"
-					>
-						Animation
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Biography"
-					>
-						Biography
-					</button>
-					<button class="genre-button checkbox-button" value="Comedy">
-						Comedy
-					</button>
-					<button class="genre-button checkbox-button" value="Crime">
-						Crime
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Documentary"
-					>
-						Documentary
-					</button>
-					<button class="genre-button checkbox-button" value="Drama">
-						Drama
-					</button>
-					<button class="genre-button checkbox-button" value="Family">
-						Family
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Fantasy"
-					>
-						Fantasy
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Film Noir"
-					>
-						Film Noir
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Game Show"
-					>
-						Game Show
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="History"
-					>
-						History
-					</button>
-					<button class="genre-button checkbox-button" value="Horror">
-						Horror
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Musical"
-					>
-						Musical
-					</button>
-					<button class="genre-button checkbox-button" value="Music">
-						Music
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Mystery"
-					>
-						Mystery
-					</button>
-					<button class="genre-button checkbox-button" value="News">
-						News
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Reality-TV"
-					>
-						Reality-TV
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Romance"
-					>
-						Romance
-					</button>
-					<button class="genre-button checkbox-button" value="Sci-Fi">
-						Sci-Fi
-					</button>
-					<button class="genre-button checkbox-button" value="Short">
-						Short
-					</button>
-					<button class="genre-button checkbox-button" value="Sport">
-						Sport
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Talk-Show"
-					>
-						Talk-Show
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Thriller"
-					>
-						Thriller
-					</button>
-					<button class="genre-button checkbox-button" value="War">
-						War
-					</button>
-					<button
-						class="genre-button checkbox-button"
-						value="Western"
-					>
-						Western
-					</button>
-				</div>
-				<div id="rating-range-container">
-					<label for="rating-range-slider">
-						<div id="rating-range-slider"></div>
-					</label>
-				</div>
+			<form action="/roll" method="post">
+				<div id="form-container">
+					<div id="content-type-container">
+						<label for="Movie">
+							<input
+								type="checkbox"
+								id="Movie"
+								name="content-types"
+								class="content-type-button checkbox-button"
+								value="Movie"
+							/>
+							Movie
+						</label>
+						<label for="TV Show">
+							<input
+								type="checkbox"
+								id="TV Show"
+								name="content-types"
+								class="content-type-button checkbox-button"
+								value="TV Show"
+							/>
+							TV Show
+						</label>
+					</div>
+					<div id="genre-container">
+						<label for="Action">
+							<input
+								type="checkbox"
+								id="Action"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Action"
+							/>
+							Action
+						</label>
 
-				<div id="submit-reset-container">
-					<form action="/roll" method="POST">
+						<label for="Adventure">
+							<input
+								type="checkbox"
+								id="Adventure"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Adventure"
+							/>
+							Adventure
+						</label>
+
+						<label for="Animation">
+							<input
+								type="checkbox"
+								id="Animation"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Animation"
+							/>
+							Animation
+						</label>
+
+						<label for="Biography">
+							<input
+								type="checkbox"
+								id="Biography"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Biography"
+							/>
+							Biography
+						</label>
+
+						<label for="Comedy">
+							<input
+								type="checkbox"
+								id="Comedy"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Comedy"
+							/>
+							Comedy
+						</label>
+
+						<label for="Crime">
+							<input
+								type="checkbox"
+								id="Crime"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Crime"
+							/>
+							Crime
+						</label>
+
+						<label for="Documentary">
+							<input
+								type="checkbox"
+								id="Documentary"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Documentary"
+							/>
+							Documentary
+						</label>
+
+						<label for="Drama">
+							<input
+								type="checkbox"
+								id="Drama"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Drama"
+							/>
+							Drama
+						</label>
+
+						<label for="Family">
+							<input
+								type="checkbox"
+								id="Family"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Family"
+							/>
+							Family
+						</label>
+
+						<label for="Fantasy">
+							<input
+								type="checkbox"
+								id="Fantasy"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Fantasy"
+							/>
+							Fantasy
+						</label>
+
+						<label for="Film-Noir">
+							<input
+								type="checkbox"
+								id="Film-Noir"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Film-Noir"
+							/>
+							Film-Noir
+						</label>
+
+						<label for="Game-Show">
+							<input
+								type="checkbox"
+								id="Game-Show"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Game-Show"
+							/>
+							Game-Show
+						</label>
+
+						<label for="History">
+							<input
+								type="checkbox"
+								id="History"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="History"
+							/>
+							History
+						</label>
+
+						<label for="Horror">
+							<input
+								type="checkbox"
+								id="Horror"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Horror"
+							/>
+							Horror
+						</label>
+
+						<label for="Mystery">
+							<input
+								type="checkbox"
+								id="Mystery"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Mystery"
+							/>
+							Mystery
+						</label>
+
+						<label for="Reality-TV">
+							<input
+								type="checkbox"
+								id="Reality-TV"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Reality-TV"
+							/>
+							Reality-TV
+						</label>
+
+						<label for="Romance">
+							<input
+								type="checkbox"
+								id="Romance"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Romance"
+							/>
+							Romance
+						</label>
+
+						<label for="Sci-Fi">
+							<input
+								type="checkbox"
+								id="Sci-Fi"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Sci-Fi"
+							/>
+							Sci-Fi
+						</label>
+
+						<label for="Thriller">
+							<input
+								type="checkbox"
+								id="Thriller"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Thriller"
+							/>
+							Thriller
+						</label>
+
+						<label for="War">
+							<input
+								type="checkbox"
+								id="War"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="War"
+							/>
+							War
+						</label>
+
+						<label for="Western">
+							<input
+								type="checkbox"
+								id="Western"
+								name="genres"
+								class="genre-button checkbox-button"
+								value="Western"
+							/>
+							Western
+						</label>
+					</div>
+					<div id="rating-slider-container">
+						<label for="rating-slider">
+							<input
+								type="hidden"
+								id="rating-slider-value"
+								name="rating-slider-value"
+								value=""
+							/>
+							<div id="rating-slider"></div>
+						</label>
+					</div>
+
+					<div id="submit-reset-container">
 						<button id="submit-button">Submit</button>
-					</form>
-					<button id="reset-button">Reset filters</button>
+
+						<button id="reset-button">Reset filters</button>
+					</div>
 				</div>
-			</div>
+			</form>
 		</div>
 	</body>
 </html>
