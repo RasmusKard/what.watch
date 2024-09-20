@@ -1,0 +1,67 @@
+:root {
+	line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+figure,
+p,
+ol,
+ul {
+	margin: 0;
+}
+
+ol[role="list"],
+ul[role="list"] {
+	list-style: none;
+	padding-inline: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	font-size: inherit;
+	font-weight: inherit;
+}
+
+img {
+	display: block;
+	max-inline-size: 100%;
+}
+
+/* NORMALIZE CSS END */
+
+
+#page-container {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+	justify-content: center;
+	padding: 1rem 3rem;
+}
+
+#form-container {
+	display: flex;
+	flex-flow: column;
+	text-align: center;
+	gap: 2rem;
+	max-width: 700px;
+}
+
+.checkbox-button {
+	margin: 0.15rem;
+	padding: 0.3rem;
+}
+
+.checkbox-button:hover {
+	filter: brightness(0.9);
+}
+
+#rating-slider-container {
+	margin-top: 1.5rem;
+}
