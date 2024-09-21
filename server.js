@@ -10,14 +10,19 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/roll", async (req, res) => {
 	const userInput = req.body;
 	const avgRating = userInput["rating-slider-value"];
+	let genresString = userInput["genres"];
+	if (Array.isArray(genresString))
+		() => {
+			genresString.join("|");
+		};
 	let output;
 	try {
-		const [results] = await connection.query(
-			"SELECT * FROM `test` WHERE `averageRating` > ? LIMIT 10",
-			[avgRating]
+		const [results] = await connection.execute(
+			'SELECT * FROM `test` WHERE `averageRating` > ? AND CONCAT(",", `genres`, ",") REGEXP CONCAT(",", ?, ",")',
+			[avgRating, genresString]
 		);
 		output = results;
-		console.log(results);
+		console.log(output);
 	} catch (err) {
 		console.log(err);
 	}
