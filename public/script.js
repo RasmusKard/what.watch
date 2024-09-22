@@ -17,10 +17,16 @@ noUiSlider.create(ratingSlider, {
 const ratingSliderValue = document.getElementById("rating-slider-value");
 ratingSliderValue.value = ratingSlider.noUiSlider.get();
 
-// rating slider update input value on change
+// Rating slider update input value on change
 ratingSlider.noUiSlider.on(
 	"update",
 	(value) => (ratingSliderValue.value = value)
 );
 
-// Submit functionality
+// Reset ratingSlider when form is reset
+
+const resetButton = document.querySelector("#reset-button");
+resetButton.addEventListener("click", () => {
+	ratingSlider.noUiSlider.reset();
+	ratingSliderValue.value = ratingSlider.noUiSlider.get();
+});
