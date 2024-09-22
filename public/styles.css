@@ -42,26 +42,55 @@ img {
 	width: 100vw;
 	height: 100vh;
 	justify-content: center;
-	padding: 1rem 3rem;
+	padding: 1rem;
 }
 
 #form-container {
 	display: flex;
-	flex-flow: column;
 	text-align: center;
+	flex-flow: column;
+	align-items: center;
 	gap: 2rem;
 	max-width: 700px;
 }
 
 .checkbox-button {
-	margin: 0.15rem;
-	padding: 0.3rem;
+	padding: 0.1rem 0.2rem;
+	border: 0.05rem solid #f5c518;
 }
 
-.checkbox-button:hover {
-	filter: brightness(0.9);
+.checkbox-button:has(> input:checked) {
+	background-color: blue;
+}
+
+
+input[type=checkbox] {
+	display: none;
+}
+
+.checkbox-container {
+	justify-content: center;
+	display: flex;
+	gap: 0.5rem;
+}
+
+#content-type-container {
+	width: 90%;
+}
+
+#content-type-container>.checkbox-button {
+	flex: 1;
+}
+
+#genre-container {
+	width: 60%;
+	font-size: 0.5rem;
+	gap: 0.2rem;
+	flex-wrap: wrap;
 }
 
 #rating-slider-container {
 	margin-top: 1.5rem;
+	align-self: center;
+	width: 70%;
 }

@@ -9,6 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post("/roll", async (req, res) => {
 	const userInput = req.body;
+	console.log(userInput);
 	const avgRating = userInput["rating-slider-value"];
 	let genresString = userInput["genres"];
 	if (Array.isArray(genresString))
@@ -22,7 +23,6 @@ app.post("/roll", async (req, res) => {
 			[avgRating, genresString]
 		);
 		output = results;
-		console.log(output);
 	} catch (err) {
 		console.log(err);
 	}
