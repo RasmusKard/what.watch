@@ -70,10 +70,18 @@ body {
 	background-color: rgba(255, 255, 255, 0.1);
 }
 
+
 .checkbox-button {
 	padding: 0.3rem;
 	border: 0.05rem solid #f5c518;
 	border-radius: 15px;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
 }
 
 .checkbox-button:has(> input:checked) {
@@ -109,7 +117,7 @@ input[type=checkbox] {
 }
 
 #rating-slider-container {
-	margin-top: 1.5rem;
+	margin-top: 2rem;
 	align-self: center;
 	width: 70%;
 }
