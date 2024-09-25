@@ -39,22 +39,25 @@ img {
 
 /* NORMALIZE CSS END */
 
+html {
+	height: 100%;
+}
+
 body {
 	color: white;
 	font-family: 'Roboto', sans-serif;
 	--base-small-font: clamp(0.25rem, 2vw + 0.15rem, 1.25rem);
 	font-size: var(--base-small-font);
+	background: linear-gradient(#504f4f, #070707);
+	min-height: 100%;
 }
 
 
 
 #page-container {
 	display: flex;
-	width: 100vw;
-	height: 100vh;
 	justify-content: center;
 	padding: 1.5rem;
-	background: linear-gradient(#504f4f, #070707);
 }
 
 #form-container {
@@ -63,10 +66,12 @@ body {
 	flex-flow: column;
 	align-items: center;
 	padding: 1rem;
-	border: 3px solid black;
+	border: 2px solid #f5c518;
 	border-radius: 20px;
 	gap: 2rem;
 	max-width: 700px;
+	min-width: 200px;
+	min-height: 700px;
 	background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -75,6 +80,7 @@ body {
 	padding: 0.3rem;
 	border: 0.05rem solid #f5c518;
 	border-radius: 15px;
+	flex: 1 1;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -95,13 +101,13 @@ input[type=checkbox] {
 
 .checkbox-container {
 	justify-content: center;
-	display: flex;
+	display: grid;
 	gap: 0.5rem;
 }
 
 #content-type-container {
 	font-size: clamp(0.5rem, 3vw + 0.4rem, 2rem);
-	width: 90%;
+	grid-template-columns: 1fr 1fr;
 }
 
 #content-type-container>.checkbox-button {
@@ -110,10 +116,9 @@ input[type=checkbox] {
 }
 
 #genre-container {
-	width: 85%;
 	font-size: var(--base-small-font);
 	gap: 0.4rem;
-	flex-wrap: wrap;
+	grid-template-columns: 1fr 1fr 1fr;
 }
 
 #rating-slider-container {
@@ -133,7 +138,13 @@ input[type=checkbox] {
 
 #reset-button {
 	align-self: flex-end;
-	border: 0.05rem solid #f5c518;
+	border: 0.05rem solid rgba(245, 197, 24, 0.5);
 	background-color: rgba(255, 255, 255, 0.1);
-	color: rgba(255, 255, 255, 0.63);
+	color: rgba(255, 255, 255, 0.6);
+}
+
+#rating-slider .noUi-tooltip {
+	color: white;
+	border: none;
+	background: none;
 }

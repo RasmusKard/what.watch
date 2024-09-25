@@ -3,29 +3,51 @@ import { connection } from "./db.js";
 const app = express();
 const __dirname = import.meta.dirname;
 
+const TITLETYPES = {
+	movie: ["movie", "tvMovie", "tvSpecial"],
+	tvSeries: ["tvMiniSeries", "tvSeries"],
+};
+
 app.use("/node_modules", express.static(__dirname + "/node_modules/"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
+function ifStringToArray(variable) {
+	if (Array.isArray(variable)) {
+		return variable;
+	}
+	return [variable];
+}
+
 app.post("/roll", async (req, res) => {
 	const userInput = req.body;
-	console.log(userInput);
-	const avgRating = userInput["rating-slider-value"];
-	let genresString = userInput["genres"];
-	if (Array.isArray(genresString))
-		() => {
-			genresString.join("|");
-		};
+	const contentTypes = ifStringToArray(userInput["content-types"]);
+	const minRating = userInput["rating-slider-value"];
+	const genres = ifStringToArray(userInput["genres"]);
+
+	let titleTypes = [];
+	for (const contentType of contentTypes) {
+		titleTypes = titleTypes.concat(TITLETYPES[contentType]);
+	}
+
 	let output;
 	try {
-		const [results] = await connection.execute(
-			'SELECT * FROM `test` WHERE `averageRating` > ? AND CONCAT(",", `genres`, ",") REGEXP CONCAT(",", ?, ",")',
-			[avgRating, genresString]
-		);
-		output = results;
+		output = await connection("title")
+			.select("title.*", "matched_genres.genres")
+			.innerJoin(
+				connection("title_genres as genres")
+					.select("*")
+					.whereIn("genres.genres", genres)
+					.as("matched_genres"),
+				"title.tconst",
+				"matched_genres.tconst"
+			)
+			.whereIn("title.titleType", ["movie"])
+			.andWhere("title.averageRating", ">", minRating);
 	} catch (err) {
-		console.log(err);
+		console.error(err);
 	}
+
 	res.render("roll", { output: output });
 });
 

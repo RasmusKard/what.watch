@@ -1,12 +1,16 @@
-import mysql from "mysql2/promise";
+import knex from "knex";
 
-// Create the connection to database
-const connection = await mysql.createConnection({
-	host: "localhost",
-	port: 3306,
-	user: "root",
-	password: "1234",
-	database: "content_data",
-});
+const dbConfig = {
+	client: "mysql2",
+	connection: {
+		host: "localhost",
+		port: 3306,
+		user: "root",
+		password: "1234",
+		database: "dataset_sql",
+	},
+};
+
+const connection = knex(dbConfig);
 
 export { connection };
