@@ -46,7 +46,8 @@ html {
 body {
 	color: white;
 	font-family: 'Roboto', sans-serif;
-	--base-small-font: clamp(0.25rem, 2vw + 0.15rem, 1.25rem);
+	--base-small-font: clamp(0.5rem, 2vw + 0.15rem, 1.25rem);
+	--base-big-font: clamp(0.75rem, 3vw + 0.4rem, 2rem);
 	font-size: var(--base-small-font);
 	background: linear-gradient(#504f4f, #070707);
 	min-height: 100%;
@@ -70,7 +71,7 @@ body {
 	border-radius: 20px;
 	gap: 2rem;
 	max-width: 700px;
-	min-width: 200px;
+	min-width: 300px;
 	min-height: 700px;
 	background-color: rgba(255, 255, 255, 0.1);
 }
@@ -81,6 +82,7 @@ body {
 	border: 0.05rem solid #f5c518;
 	border-radius: 15px;
 	flex: 1 1;
+	transition: 0.3s;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -88,6 +90,10 @@ body {
 	-ms-user-select: none;
 	user-select: none;
 
+}
+
+.checkbox-button:hover {
+	background-color: #7a7676;
 }
 
 .checkbox-button:has(> input:checked) {
@@ -106,7 +112,7 @@ input[type=checkbox] {
 }
 
 #content-type-container {
-	font-size: clamp(0.5rem, 3vw + 0.4rem, 2rem);
+	font-size: var(--base-big-font);
 	grid-template-columns: 1fr 1fr;
 }
 
@@ -134,6 +140,20 @@ input[type=checkbox] {
 	width: 100%;
 	align-items: center;
 	margin-top: auto;
+}
+
+#submit-button {
+	background: linear-gradient(#daab02, #f0cb44);
+	color: white;
+	font-size: var(--base-big-font);
+	border-radius: 15px;
+	margin: 0.5rem;
+	padding: 0.5rem;
+	transition: 0.3s;
+}
+
+#submit-button:hover {
+	opacity: 0.8;
 }
 
 #reset-button {

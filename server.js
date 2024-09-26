@@ -47,8 +47,9 @@ app.post("/roll", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 	}
-
-	res.render("roll", { output: output });
+	const outputKeys = Object.keys(output);
+	const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
+	res.render("roll", { output: output[outputKeys[randIndex]] });
 });
 
 app.set("view engine", "ejs");
