@@ -13,7 +13,7 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
 function ifStringToArray(variable) {
-	if (Array.isArray(variable)) {
+	if (!variable || Array.isArray(variable)) {
 		return variable;
 	}
 	return [variable];
@@ -21,32 +21,61 @@ function ifStringToArray(variable) {
 
 app.post("/roll", async (req, res) => {
 	const userInput = req.body;
+
 	const contentTypes = ifStringToArray(userInput["content-types"]);
 	const minRating = userInput["rating-slider-value"];
 	const genres = ifStringToArray(userInput["genres"]);
-
 	let titleTypes = [];
-	for (const contentType of contentTypes) {
-		titleTypes = titleTypes.concat(TITLETYPES[contentType]);
+	if (contentTypes) {
+		for (const contentType of contentTypes) {
+			titleTypes = titleTypes.concat(TITLETYPES[contentType]);
+		}
 	}
 
 	let output;
 	try {
 		output = await connection("title")
-			.select("title.*", "matched_genres.genres")
+			.select(
+				"title.*",
+				"matched_genres.genres_str",
+				"titleType_ref.titleType_str"
+			)
 			.innerJoin(
 				connection("title_genres as genres")
-					.select("*")
-					.whereIn("genres.genres", genres)
+					.select("genres.tconst", "lookup.genres_str")
+					.innerJoin(
+						"genres_ref as lookup",
+						"genres.genres",
+						"lookup.genres_id"
+					)
+					.modify((query) => {
+						if (genres) {
+							query.whereIn("lookup.genres_str", genres);
+						}
+					})
 					.as("matched_genres"),
 				"title.tconst",
 				"matched_genres.tconst"
 			)
-			.whereIn("title.titleType", ["movie"])
-			.andWhere("title.averageRating", ">", minRating);
-	} catch (err) {
-		console.error(err);
+			.innerJoin(
+				"titleType_ref",
+				"title.titleType",
+				"titleType_ref.titleType_id"
+			)
+			.modify((query) => {
+				if (contentTypes) {
+					query.whereIn("titleType_ref.titleType_str", contentTypes);
+				}
+			})
+			.modify((query) => {
+				if (minRating && minRating > 0) {
+					query.andWhere("title.averageRating", ">", minRating);
+				}
+			});
+	} catch (error) {
+		console.error(error);
 	}
+
 	const outputKeys = Object.keys(output);
 	const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
 	res.render("roll", { output: output[outputKeys[randIndex]] });
