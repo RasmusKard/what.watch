@@ -19,17 +19,43 @@ function ifStringToArray(variable) {
 	return [variable];
 }
 
+async function strArrToIDArr(strArray, refTable) {
+	try {
+		const output = await connection(refTable).select("*");
+		let convertObj = {};
+		for (const obj of output) {
+			const values = Object.values(obj);
+			convertObj[values[1]] = values[0];
+		}
+		strArray = strArray.map((str) => convertObj[str]);
+		return strArray;
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+await strArrToIDArr(
+	["Drama", "Music", "Action", "Adventure", "Crime"],
+	"genres_ref"
+);
+
 app.post("/roll", async (req, res) => {
 	const userInput = req.body;
 
 	const contentTypes = ifStringToArray(userInput["content-types"]);
 	const minRating = userInput["rating-slider-value"];
-	const genres = ifStringToArray(userInput["genres"]);
+	let genres = ifStringToArray(userInput["genres"]);
+
 	let titleTypes = [];
 	if (contentTypes) {
 		for (const contentType of contentTypes) {
 			titleTypes = titleTypes.concat(TITLETYPES[contentType]);
 		}
+		titleTypes = await strArrToIDArr(titleTypes, "titleType_ref");
+	}
+
+	if (genres) {
+		genres = await strArrToIDArr(genres, "genres_ref");
 	}
 
 	let output;
@@ -37,12 +63,12 @@ app.post("/roll", async (req, res) => {
 		output = await connection("title")
 			.select(
 				"title.*",
-				"matched_genres.genres_str",
+				"matched_genres.genres",
 				"titleType_ref.titleType_str"
 			)
 			.innerJoin(
 				connection("title_genres as genres")
-					.select("genres.tconst", "lookup.genres_str")
+					.select("genres.tconst", "genres.genres")
 					.innerJoin(
 						"genres_ref as lookup",
 						"genres.genres",
@@ -50,7 +76,7 @@ app.post("/roll", async (req, res) => {
 					)
 					.modify((query) => {
 						if (genres) {
-							query.whereIn("lookup.genres_str", genres);
+							query.whereIn("genres.genres", genres);
 						}
 					})
 					.as("matched_genres"),
@@ -63,8 +89,8 @@ app.post("/roll", async (req, res) => {
 				"titleType_ref.titleType_id"
 			)
 			.modify((query) => {
-				if (contentTypes) {
-					query.whereIn("titleType_ref.titleType_str", contentTypes);
+				if (titleTypes && titleTypes.length !== 5) {
+					query.whereIn("title.titleType", titleTypes);
 				}
 			})
 			.modify((query) => {
@@ -76,9 +102,11 @@ app.post("/roll", async (req, res) => {
 		console.error(error);
 	}
 
-	const outputKeys = Object.keys(output);
-	const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
-	res.render("roll", { output: output[outputKeys[randIndex]] });
+	if (typeof output !== "undefined") {
+		const outputKeys = Object.keys(output);
+		const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
+		res.render("roll", { output: output[outputKeys[randIndex]] });
+	}
 });
 
 app.set("view engine", "ejs");
