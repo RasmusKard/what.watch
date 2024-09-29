@@ -61,32 +61,17 @@ app.post("/roll", async (req, res) => {
 	let output;
 	try {
 		output = await connection("title")
-			.select(
-				"title.*",
-				"matched_genres.genres",
-				"titleType_ref.titleType_str"
-			)
+			.select("title.*", "matched_genres.genres")
 			.innerJoin(
-				connection("title_genres as genres")
-					.select("genres.tconst", "genres.genres")
-					.innerJoin(
-						"genres_ref as lookup",
-						"genres.genres",
-						"lookup.genres_id"
-					)
+				connection("title_genres")
 					.modify((query) => {
 						if (genres) {
-							query.whereIn("genres.genres", genres);
+							query.whereIn("title_genres.genres", genres);
 						}
 					})
 					.as("matched_genres"),
 				"title.tconst",
 				"matched_genres.tconst"
-			)
-			.innerJoin(
-				"titleType_ref",
-				"title.titleType",
-				"titleType_ref.titleType_id"
 			)
 			.modify((query) => {
 				if (titleTypes && titleTypes.length !== 5) {
