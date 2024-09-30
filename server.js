@@ -34,10 +34,7 @@ async function strArrToIDArr(strArray, refTable) {
 	}
 }
 
-await strArrToIDArr(
-	["Drama", "Music", "Action", "Adventure", "Crime"],
-	"genres_ref"
-);
+app.get("/api/test", (req, res) => {});
 
 app.post("/roll", async (req, res) => {
 	const userInput = req.body;
@@ -64,6 +61,7 @@ app.post("/roll", async (req, res) => {
 			.select("title.*", "matched_genres.genres")
 			.innerJoin(
 				connection("title_genres")
+					.select("tconst", "genres")
 					.modify((query) => {
 						if (genres) {
 							query.whereIn("title_genres.genres", genres);
@@ -74,13 +72,18 @@ app.post("/roll", async (req, res) => {
 				"matched_genres.tconst"
 			)
 			.modify((query) => {
-				if (titleTypes && titleTypes.length !== 5) {
+				if (
+					Array.isArray(titleTypes) &&
+					titleTypes.length &&
+					titleTypes.length !== 5
+				) {
+					console.log(i);
 					query.whereIn("title.titleType", titleTypes);
 				}
 			})
 			.modify((query) => {
 				if (minRating && minRating > 0) {
-					query.andWhere("title.averageRating", ">", minRating);
+					query.where("title.averageRating", ">", minRating);
 				}
 			});
 	} catch (error) {
@@ -90,6 +93,7 @@ app.post("/roll", async (req, res) => {
 	if (typeof output !== "undefined") {
 		const outputKeys = Object.keys(output);
 		const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
+		// res.send({ output: output[outputKeys[randIndex]] });
 		res.render("roll", { output: output[outputKeys[randIndex]] });
 	}
 });
