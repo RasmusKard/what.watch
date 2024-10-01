@@ -74,7 +74,7 @@ body {
 	min-width: 300px;
 	min-height: 700px;
 	background-color: rgba(255, 255, 255, 0.1);
-	transition: opacity 2s;
+	transition: opacity 1s;
 }
 
 
@@ -84,7 +84,7 @@ body {
 	border: 0.05rem solid #f5c518;
 	border-radius: 15px;
 	flex: 1 1;
-	transition: 0.3s;
+	transition: background-color 0.3s;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -151,7 +151,7 @@ input[type=checkbox] {
 	border-radius: 15px;
 	margin: 0.5rem;
 	padding: 0.5rem;
-	transition: 0.3s;
+	transition: opacity 0.3s;
 }
 
 #submit-button:hover {

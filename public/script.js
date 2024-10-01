@@ -46,7 +46,12 @@ formElement.addEventListener("submit", async (e) => {
 	})
 		.then((response) => response.text())
 		.then((response) => (newEle.innerText = response));
-	await new Promise((resolve) => (formElement.ontransitionend = resolve));
-	formElement.replaceChildren(newEle);
+
+	const newSubmit = document.createElement("button");
+	newSubmit.type = "submit";
+	newSubmit.innerText = "Reroll";
+	newSubmit.id = "submit-button";
+
+	formElement.replaceChildren(newEle, newSubmit);
 	formElement.style.opacity = 1;
 });
