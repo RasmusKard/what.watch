@@ -35,14 +35,21 @@ const formElement = document.querySelector("#form-container");
 formElement.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
-	const formDataObj = Object.fromEntries(new FormData(formElement));
-	sessionStorage.setItem("formData", JSON.stringify(formDataObj));
-
+	let formDataObj;
+	const sessionItem = sessionStorage.getItem("formData");
+	if (e.submitter.id === "form-submit") {
+		formDataObj = Object.fromEntries(new FormData(formElement));
+		sessionStorage.setItem("formData", JSON.stringify(formDataObj));
+	} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
+		formDataObj = JSON.parse(sessionItem);
+	} else {
+		window.location.href = "/";
+	}
 	formElement.style.opacity = 0;
 	const newEle = document.createElement("div");
 	await fetch("/api/test", {
 		method: "POST",
-		body: formDataObj,
+		body: new URLSearchParams(formDataObj),
 	})
 		.then((response) => response.text())
 		.then((response) => (newEle.innerText = response));
@@ -50,7 +57,8 @@ formElement.addEventListener("submit", async (e) => {
 	const newSubmit = document.createElement("button");
 	newSubmit.type = "submit";
 	newSubmit.innerText = "Reroll";
-	newSubmit.id = "submit-button";
+	newSubmit.id = "form-resubmit";
+	newSubmit.classList = "submit-button";
 
 	formElement.replaceChildren(newEle, newSubmit);
 	formElement.style.opacity = 1;
