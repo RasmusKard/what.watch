@@ -31,16 +31,19 @@ resetButton.addEventListener("click", () => {
 	ratingSliderValue.value = ratingSlider.noUiSlider.get();
 });
 
-const formElement = document.getElementById("form-container");
-formElement.addEventListener("submit", (e) => {
+const formElement = document.querySelector("#form-container");
+formElement.addEventListener("submit", async (e) => {
 	e.preventDefault();
 	const data = new URLSearchParams(new FormData(formElement));
 	const newEle = document.createElement("div");
-	fetch("/api/test", {
+	formElement.style.opacity = 0;
+	await fetch("/api/test", {
 		method: "POST",
 		body: data,
 	})
 		.then((response) => response.text())
 		.then((response) => (newEle.innerText = response));
+	await new Promise((resolve) => (formElement.ontransitionend = resolve));
 	formElement.replaceChildren(newEle);
+	formElement.style.opacity = 1;
 });

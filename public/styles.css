@@ -66,7 +66,7 @@ body {
 	text-align: center;
 	flex-flow: column;
 	align-items: center;
-	padding: 1rem;
+	padding: 1.5rem;
 	border: 2px solid #f5c518;
 	border-radius: 20px;
 	gap: 2rem;
@@ -74,7 +74,9 @@ body {
 	min-width: 300px;
 	min-height: 700px;
 	background-color: rgba(255, 255, 255, 0.1);
+	transition: opacity 2s;
 }
+
 
 
 .checkbox-button {
@@ -168,3 +170,30 @@ input[type=checkbox] {
 	border: none;
 	background: none;
 }
+
+
+
+
+/* .animation#form-container>* {
+	animation: fade-out 0.5s 1, 0.5s fade-in 0.5s forwards;
+}
+
+@keyframes fade-out {
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+} */
