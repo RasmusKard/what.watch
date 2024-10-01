@@ -99,7 +99,7 @@ body {
 }
 
 .checkbox-button:has(> input:checked) {
-	background-color: blue;
+	background-color: #1b1b1b;
 }
 
 

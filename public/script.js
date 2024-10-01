@@ -34,12 +34,15 @@ resetButton.addEventListener("click", () => {
 const formElement = document.querySelector("#form-container");
 formElement.addEventListener("submit", async (e) => {
 	e.preventDefault();
-	const data = new URLSearchParams(new FormData(formElement));
-	const newEle = document.createElement("div");
+
+	const formDataObj = Object.fromEntries(new FormData(formElement));
+	sessionStorage.setItem("formData", JSON.stringify(formDataObj));
+
 	formElement.style.opacity = 0;
+	const newEle = document.createElement("div");
 	await fetch("/api/test", {
 		method: "POST",
-		body: data,
+		body: formDataObj,
 	})
 		.then((response) => response.text())
 		.then((response) => (newEle.innerText = response));
