@@ -2,3 +2,4 @@ node_modules
 .env
 sql-db-updater/variables.py
 temp_title.csv
+plans.md

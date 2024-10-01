@@ -35,10 +35,12 @@ const formElement = document.getElementById("form-container");
 formElement.addEventListener("submit", (e) => {
 	e.preventDefault();
 	const data = new URLSearchParams(new FormData(formElement));
+	const newEle = document.createElement("div");
 	fetch("/api/test", {
 		method: "POST",
 		body: data,
 	})
 		.then((response) => response.text())
-		.then((thing) => console.log(thing));
+		.then((response) => (newEle.innerText = response));
+	formElement.replaceChildren(newEle);
 });

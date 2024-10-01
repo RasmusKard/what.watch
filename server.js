@@ -91,8 +91,8 @@ app.post("/api/test", async (req, res) => {
 		const outputKeys = Object.keys(output);
 		const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
 		// res.send({ output: output[outputKeys[randIndex]] });
-		const thing = JSON.stringify(output[outputKeys[randIndex]]);
-		res.send(thing);
+		const things = output[outputKeys[randIndex]];
+		res.json(things);
 	}
 });
 
