@@ -30,3 +30,15 @@ resetButton.addEventListener("click", () => {
 	ratingSlider.noUiSlider.reset();
 	ratingSliderValue.value = ratingSlider.noUiSlider.get();
 });
+
+const formElement = document.getElementById("form-container");
+formElement.addEventListener("submit", (e) => {
+	e.preventDefault();
+	const data = new URLSearchParams(new FormData(formElement));
+	fetch("/api/test", {
+		method: "POST",
+		body: data,
+	})
+		.then((response) => response.text())
+		.then((thing) => console.log(thing));
+});

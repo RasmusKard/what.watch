@@ -34,7 +34,67 @@ async function strArrToIDArr(strArray, refTable) {
 	}
 }
 
-app.get("/api/test", (req, res) => {});
+app.post("/api/test", async (req, res) => {
+	const userInput = req.body;
+
+	const contentTypes = ifStringToArray(userInput["content-types"]);
+	const minRating = userInput["rating-slider-value"];
+	let genres = ifStringToArray(userInput["genres"]);
+
+	let titleTypes = [];
+	if (contentTypes) {
+		for (const contentType of contentTypes) {
+			titleTypes = titleTypes.concat(TITLETYPES[contentType]);
+		}
+		titleTypes = await strArrToIDArr(titleTypes, "titleType_ref");
+	}
+
+	if (genres) {
+		genres = await strArrToIDArr(genres, "genres_ref");
+	}
+
+	let output;
+	try {
+		output = await connection("title")
+			.select("title.*", "matched_genres.genres")
+			.innerJoin(
+				connection("title_genres")
+					.select("tconst", "genres")
+					.modify((query) => {
+						if (genres) {
+							query.whereIn("title_genres.genres", genres);
+						}
+					})
+					.as("matched_genres"),
+				"title.tconst",
+				"matched_genres.tconst"
+			)
+			.modify((query) => {
+				if (
+					Array.isArray(titleTypes) &&
+					titleTypes.length &&
+					titleTypes.length !== 5
+				) {
+					query.whereIn("title.titleType", titleTypes);
+				}
+			})
+			.modify((query) => {
+				if (minRating && minRating > 0) {
+					query.where("title.averageRating", ">", minRating);
+				}
+			});
+	} catch (error) {
+		console.error(error);
+	}
+
+	if (typeof output !== "undefined") {
+		const outputKeys = Object.keys(output);
+		const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
+		// res.send({ output: output[outputKeys[randIndex]] });
+		const thing = JSON.stringify(output[outputKeys[randIndex]]);
+		res.send(thing);
+	}
+});
 
 app.post("/roll", async (req, res) => {
 	const userInput = req.body;
@@ -77,7 +137,6 @@ app.post("/roll", async (req, res) => {
 					titleTypes.length &&
 					titleTypes.length !== 5
 				) {
-					console.log(i);
 					query.whereIn("title.titleType", titleTypes);
 				}
 			})
