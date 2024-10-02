@@ -59,6 +59,38 @@ function formDataToObj(formElement) {
 	return formDataObj;
 }
 
+async function fetchSqlAndReplaceContainer({ reqType, body }) {
+	formElement.style.opacity = 0;
+	const newEle = document.createElement("div");
+	const response = await fetch("/result", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"request-type": reqType,
+		},
+		body: body,
+	})
+		.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			throw new Error("Not found");
+		})
+		.catch((e) => {
+			console.error(e);
+		});
+	newEle.innerText = JSON.stringify(response);
+	const newSubmit = document.createElement("button");
+	newSubmit.type = "submit";
+	newSubmit.innerText = "Reroll";
+	newSubmit.id = "form-resubmit";
+	newSubmit.classList = "submit-button";
+	formElement.replaceChildren(newEle, newSubmit);
+	formElement.style.opacity = 1;
+
+	return response;
+}
+
 formElement.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
@@ -72,33 +104,25 @@ formElement.addEventListener("submit", async (e) => {
 	} else {
 		window.location.href = "/";
 	}
-	formElement.style.opacity = 0;
-	const newEle = document.createElement("div");
 
-	const response = await fetch("/api/test", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
+	const response = await fetchSqlAndReplaceContainer({
+		reqType: "submit",
 		body: formDataObj,
-	})
-		.then((response) => {
-			if (response.ok) {
-				return response.json();
-			}
-			throw new Error("Not found");
-		})
-		.catch((e) => {
-			console.error(e);
-		});
-	newEle.innerText = JSON.stringify(response);
-	history.pushState({}, "", `/result/${response["tconst"]}`);
-	const newSubmit = document.createElement("button");
-	newSubmit.type = "submit";
-	newSubmit.innerText = "Reroll";
-	newSubmit.id = "form-resubmit";
-	newSubmit.classList = "submit-button";
+	});
 
-	formElement.replaceChildren(newEle, newSubmit);
-	formElement.style.opacity = 1;
+	const state = { tconst: response["tconst"] };
+	history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
+});
+
+window.addEventListener("popstate", async (e) => {
+	if (e.state) {
+		const response = await fetch("/result", {
+			method: "POST",
+			headers: { "request-type": "retrieve" },
+			body: e.state,
+		});
+		// fetch from db using tconst in state
+		// change dom to include query result
+		console.log(response);
+	}
 });
