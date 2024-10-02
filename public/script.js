@@ -75,7 +75,7 @@ formElement.addEventListener("submit", async (e) => {
 	formElement.style.opacity = 0;
 	const newEle = document.createElement("div");
 
-	await fetch("/api/test", {
+	const response = await fetch("/api/test", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -84,15 +84,15 @@ formElement.addEventListener("submit", async (e) => {
 	})
 		.then((response) => {
 			if (response.ok) {
-				return response.text();
+				return response.json();
 			}
 			throw new Error("Not found");
 		})
-		.then((response) => (newEle.innerText = response))
 		.catch((e) => {
 			console.error(e);
 		});
-
+	newEle.innerText = JSON.stringify(response);
+	history.pushState({}, "", `/result/${response["tconst"]}`);
 	const newSubmit = document.createElement("button");
 	newSubmit.type = "submit";
 	newSubmit.innerText = "Reroll";
