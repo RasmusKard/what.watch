@@ -1,5 +1,5 @@
 import express from "express";
-import { submitMethod } from "./server-module.js";
+import { submitMethod, retrieveMethod } from "./server-module.js";
 const app = express();
 const __dirname = import.meta.dirname;
 
@@ -9,7 +9,7 @@ app.use(express.json());
 
 async function mainFunc(req, res) {
 	if (req.method === "GET") {
-		console.log("GET");
+		retrieveMethod({ tconst: req.query.tconst, res: res });
 		return;
 	}
 
@@ -22,10 +22,11 @@ async function mainFunc(req, res) {
 
 	const header = req.get("request-type");
 	if (header === "submit") {
-		submitMethod(userInput, res);
+		submitMethod({ userInput: userInput, res: res });
 		console.log("submit");
 	} else if (header === "retrieve") {
-		console.log("retrieve");
+		console.log(req.body);
+		retrieveMethod({ tconst: req.body["tconst"], res: res });
 		return;
 	}
 }

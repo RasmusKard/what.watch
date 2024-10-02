@@ -116,13 +116,11 @@ formElement.addEventListener("submit", async (e) => {
 
 window.addEventListener("popstate", async (e) => {
 	if (e.state) {
-		const response = await fetch("/result", {
-			method: "POST",
-			headers: { "request-type": "retrieve" },
-			body: e.state,
+		await fetchSqlAndReplaceContainer({
+			reqType: "retrieve",
+			body: JSON.stringify(e.state),
 		});
-		// fetch from db using tconst in state
-		// change dom to include query result
-		console.log(response);
+	} else if (e.state === null) {
+		location.reload();
 	}
 });

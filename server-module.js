@@ -5,7 +5,21 @@ const TITLETYPES = {
 	tvSeries: ["tvMiniSeries", "tvSeries"],
 };
 
-async function submitMethod(userInput, res) {
+async function retrieveMethod({ tconst, res }) {
+	try {
+		const output = await connection("title")
+			.select("title.*")
+			.where("title.tconst", "=", tconst);
+
+		if (output) {
+			res.send(output);
+		}
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+async function submitMethod({ userInput, res }) {
 	const contentTypes = userInput["content-types"];
 	const minRating = userInput["rating-slider-value"][0];
 	let genres = userInput["genres"];
@@ -15,16 +29,21 @@ async function submitMethod(userInput, res) {
 		for (const contentType of contentTypes) {
 			titleTypes = titleTypes.concat(TITLETYPES[contentType]);
 		}
-		titleTypes = await strArrToIDArr(titleTypes, "titleType_ref");
+		titleTypes = await strArrToIDArr({
+			strArray: titleTypes,
+			refTable: "titleType_ref",
+		});
 	}
 
 	if (typeof genres !== "undefined") {
-		genres = await strArrToIDArr(genres, "genres_ref");
+		genres = await strArrToIDArr({
+			strArray: genres,
+			refTable: "genres_ref",
+		});
 	}
 
-	let output;
 	try {
-		output = await connection("title")
+		const output = await connection("title")
 			.select("title.*", "matched_genres.genres")
 			.innerJoin(
 				connection("title_genres")
@@ -52,19 +71,19 @@ async function submitMethod(userInput, res) {
 					query.andWhere("title.averageRating", ">", minRating);
 				}
 			});
+
+		if (typeof output !== "undefined") {
+			const outputKeys = Object.keys(output);
+			const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
+			const things = output[outputKeys[randIndex]];
+			res.json(things);
+		}
 	} catch (error) {
 		console.error(error);
 	}
-
-	if (typeof output !== "undefined") {
-		const outputKeys = Object.keys(output);
-		const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
-		const things = output[outputKeys[randIndex]];
-		res.json(things);
-	}
 }
 
-async function strArrToIDArr(strArray, refTable) {
+async function strArrToIDArr({ strArray, refTable }) {
 	try {
 		const output = await connection(refTable).select("*");
 		let convertObj = {};
@@ -86,4 +105,4 @@ function ifStringToArray(variable) {
 	return [variable];
 }
 
-export { submitMethod };
+export { submitMethod, retrieveMethod };
