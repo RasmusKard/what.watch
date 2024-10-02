@@ -3,6 +3,7 @@ import {
 	checkUrlParams,
 	populateFormWithSessionData,
 	addSubmitListener,
+	listenToPopState,
 } from "./module.js";
 
 // checks if url contains tconst, if so querys db and changes dom (for GET requests with param)
