@@ -32,20 +32,23 @@ resetButton.addEventListener("click", () => {
 });
 
 const formElement = document.querySelector("#form-container");
-// if (sessionStorage.getItem("formData") !== null) {
-// 	const formData = formDataObj.entries(
-// 		JSON.parse(sessionStorage.getItem("formData"))
-// 	);
-// 	console.log(formData);
+if (sessionStorage.getItem("formData") !== null) {
+	const formData = JSON.parse(sessionStorage.getItem("formData"));
 
-// 	for (const [key, value] of formData) {
-// 		console.log(key, value);
-// 		const input = formElement.elements[key];
-// 		// [...input].forEach(element => {
-
-// 		// })
-// 	}
-// }
+	const formElements = formElement.elements;
+	for (const [key, value] of Object.entries(formData)) {
+		const formEle = formElements[key];
+		if (Object.prototype.isPrototypeOf.call(NodeList.prototype, formEle)) {
+			formEle.forEach((element) => {
+				if (value.includes(element.value)) {
+					element.checked = true;
+				}
+			});
+		}
+	}
+	ratingSlider.noUiSlider.set(formData["rating-slider-value"]);
+	ratingSliderValue.value = ratingSlider.noUiSlider.get();
+}
 
 function formDataToObj(formElement) {
 	const formData = new FormData(formElement);
@@ -65,7 +68,6 @@ formElement.addEventListener("submit", async (e) => {
 		formDataObj = JSON.stringify(formDataToObj(formElement));
 		sessionStorage.setItem("formData", formDataObj);
 	} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
-		console.log("test");
 		formDataObj = sessionItem;
 	} else {
 		window.location.href = "/";

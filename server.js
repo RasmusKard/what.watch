@@ -36,7 +36,7 @@ async function strArrToIDArr(strArray, refTable) {
 
 app.post("/api/test", async (req, res) => {
 	const userInput = req.body;
-	console.log(userInput);
+
 	if (Object.keys(userInput).length === 0) {
 		res.status(404).end();
 		return;
@@ -95,7 +95,6 @@ app.post("/api/test", async (req, res) => {
 	if (typeof output !== "undefined") {
 		const outputKeys = Object.keys(output);
 		const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
-		// res.send({ output: output[outputKeys[randIndex]] });
 		const things = output[outputKeys[randIndex]];
 		res.json(things);
 	}
