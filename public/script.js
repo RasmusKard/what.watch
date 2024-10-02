@@ -32,27 +32,64 @@ resetButton.addEventListener("click", () => {
 });
 
 const formElement = document.querySelector("#form-container");
+// if (sessionStorage.getItem("formData") !== null) {
+// 	const formData = formDataObj.entries(
+// 		JSON.parse(sessionStorage.getItem("formData"))
+// 	);
+// 	console.log(formData);
+
+// 	for (const [key, value] of formData) {
+// 		console.log(key, value);
+// 		const input = formElement.elements[key];
+// 		// [...input].forEach(element => {
+
+// 		// })
+// 	}
+// }
+
+function formDataToObj(formElement) {
+	const formData = new FormData(formElement);
+	const formDataObj = {};
+	for (const key of formData.keys()) {
+		formDataObj[key] = formData.getAll(key);
+	}
+	return formDataObj;
+}
+
 formElement.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
-	let formDataObj;
 	const sessionItem = sessionStorage.getItem("formData");
+	let formDataObj;
 	if (e.submitter.id === "form-submit") {
-		formDataObj = Object.fromEntries(new FormData(formElement));
-		sessionStorage.setItem("formData", JSON.stringify(formDataObj));
+		formDataObj = JSON.stringify(formDataToObj(formElement));
+		sessionStorage.setItem("formData", formDataObj);
 	} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
-		formDataObj = JSON.parse(sessionItem);
+		console.log("test");
+		formDataObj = sessionItem;
 	} else {
 		window.location.href = "/";
 	}
 	formElement.style.opacity = 0;
 	const newEle = document.createElement("div");
+
 	await fetch("/api/test", {
 		method: "POST",
-		body: new URLSearchParams(formDataObj),
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: formDataObj,
 	})
-		.then((response) => response.text())
-		.then((response) => (newEle.innerText = response));
+		.then((response) => {
+			if (response.ok) {
+				return response.text();
+			}
+			throw new Error("Not found");
+		})
+		.then((response) => (newEle.innerText = response))
+		.catch((e) => {
+			console.error(e);
+		});
 
 	const newSubmit = document.createElement("button");
 	newSubmit.type = "submit";

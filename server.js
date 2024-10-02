@@ -10,7 +10,7 @@ const TITLETYPES = {
 
 app.use("/node_modules", express.static(__dirname + "/node_modules/"));
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 function ifStringToArray(variable) {
 	if (!variable || Array.isArray(variable)) {
@@ -36,10 +36,15 @@ async function strArrToIDArr(strArray, refTable) {
 
 app.post("/api/test", async (req, res) => {
 	const userInput = req.body;
+	console.log(userInput);
+	if (Object.keys(userInput).length === 0) {
+		res.status(404).end();
+		return;
+	}
 
-	const contentTypes = ifStringToArray(userInput["content-types"]);
-	const minRating = userInput["rating-slider-value"];
-	let genres = ifStringToArray(userInput["genres"]);
+	const contentTypes = userInput["content-types"];
+	const minRating = userInput["rating-slider-value"][0];
+	let genres = userInput["genres"];
 
 	let titleTypes = [];
 	if (contentTypes) {
@@ -49,7 +54,7 @@ app.post("/api/test", async (req, res) => {
 		titleTypes = await strArrToIDArr(titleTypes, "titleType_ref");
 	}
 
-	if (genres) {
+	if (typeof genres !== "undefined") {
 		genres = await strArrToIDArr(genres, "genres_ref");
 	}
 
