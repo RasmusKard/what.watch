@@ -44,7 +44,7 @@ async function submitMethod({ userInput, res }) {
 
 	try {
 		const output = await connection("title")
-			.select("title.*")
+			.select("title.tconst")
 			.modify((query) => {
 				if (genres) {
 					query.innerJoin(
@@ -76,7 +76,41 @@ async function submitMethod({ userInput, res }) {
 			const outputKeys = Object.keys(output);
 			const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
 			const things = output[outputKeys[randIndex]];
-			res.json(things);
+
+			const tconst = things["tconst"];
+			const result = await connection("title as t")
+				.select(
+					"t.tconst",
+					"t.primaryTitle",
+					"t.startYear",
+					"t.averageRating",
+					"tf.titleType_str"
+				)
+				.join("titleType_ref as tf", "t.titleType", "tf.titleType_id")
+				.where("t.tconst", tconst)
+				.join(
+					function () {
+						this.select("tg.tconst")
+							.from("title_genres as tg")
+							.join(
+								"genres_ref as gf",
+								"tg.genres",
+								"gf.genres_id"
+							)
+							.where("tg.tconst", tconst)
+							.groupBy("tg.tconst")
+							.select(
+								connection.raw(
+									'GROUP_CONCAT(gf.genres_str SEPARATOR ", ") as genres'
+								)
+							)
+							.as("tg");
+					},
+					"t.tconst",
+					"tg.tconst"
+				)
+				.select("tg.genres");
+			res.json(result[0]);
 		}
 	} catch (error) {
 		console.error(error);
