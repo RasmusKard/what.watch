@@ -44,19 +44,19 @@ async function submitMethod({ userInput, res }) {
 
 	try {
 		const output = await connection("title")
-			.select("title.*", "matched_genres.genres")
-			.innerJoin(
-				connection("title_genres")
-					.select("tconst", "genres")
-					.modify((query) => {
-						if (genres) {
-							query.whereIn("title_genres.genres", genres);
-						}
-					})
-					.as("matched_genres"),
-				"title.tconst",
-				"matched_genres.tconst"
-			)
+			.select("title.*")
+			.modify((query) => {
+				if (genres) {
+					query.innerJoin(
+						connection("title_genres")
+							.select("tconst", "genres")
+							.whereIn("title_genres.genres", genres)
+							.as("matched_genres"),
+						"title.tconst",
+						"matched_genres.tconst"
+					);
+				}
+			})
 			.modify((query) => {
 				if (
 					Array.isArray(titleTypes) &&
