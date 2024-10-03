@@ -11,7 +11,6 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 	const formElement = document.querySelector("#form-container");
 
 	formElement.style.opacity = 0;
-	const newEle = document.createElement("div");
 	const response = await fetch("/result", {
 		method: "POST",
 		headers: {
@@ -29,13 +28,12 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 		.catch((e) => {
 			console.error(e);
 		});
-	newEle.innerText = JSON.stringify(response);
-	const newSubmit = document.createElement("button");
-	newSubmit.type = "submit";
-	newSubmit.innerText = "Reroll";
-	newSubmit.id = "form-resubmit";
-	newSubmit.classList = "submit-button";
-	formElement.replaceChildren(newEle, newSubmit);
+	console.log(response);
+	populateResultsToTemplate({
+		resultsObj: response,
+		templateId: "#results-template",
+		containerSelector: formElement,
+	});
 	formElement.style.opacity = 1;
 
 	return response;
@@ -159,6 +157,23 @@ function listenToPopState() {
 			location.reload();
 		}
 	});
+}
+
+function populateResultsToTemplate({
+	templateId,
+	resultsObj,
+	containerSelector,
+}) {
+	const template = document.querySelector(templateId);
+	const newTemplate = template.content.cloneNode(true);
+
+	const title = newTemplate.querySelector("#primary-title");
+	title.innerText = resultsObj["primaryTitle"];
+
+	const titleInfo = newTemplate.querySelector("#title-info");
+	titleInfo.innerText = `${resultsObj["averageRating"]}⭐ | ${resultsObj["startYear"]} | ${resultsObj["genres"]} | ${resultsObj["titleType_str"]}`;
+
+	containerSelector.replaceChildren(newTemplate);
 }
 
 export {
