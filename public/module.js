@@ -28,7 +28,6 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 		.catch((e) => {
 			console.error(e);
 		});
-	console.log(response);
 	populateResultsToTemplate({
 		resultsObj: response,
 		templateId: "#results-template",
@@ -141,6 +140,8 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			body: formDataObj,
 		});
 
+		getTmdbApiData({ tconst: response["tconst"] });
+
 		const state = { tconst: response["tconst"] };
 		history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
 	});
@@ -176,6 +177,24 @@ function populateResultsToTemplate({
 	containerSelector.replaceChildren(newTemplate);
 }
 
+async function getTmdbApiData({ tconst }) {
+	console.log(tconst);
+	const response = await fetch("/api/tconst", {
+		method: "POST",
+		body: tconst,
+	})
+		.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+		})
+		.catch((e) => {
+			console.error(e);
+		});
+
+	console.log(response);
+}
+
 export {
 	formDataToObj,
 	fetchSqlAndReplaceContainer,
@@ -184,4 +203,5 @@ export {
 	populateFormWithSessionData,
 	addSubmitListener,
 	listenToPopState,
+	getTmdbApiData,
 };

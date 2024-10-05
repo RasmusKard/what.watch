@@ -1,4 +1,5 @@
 import { connection } from "./db.js";
+import "dotenv/config";
 
 const TITLETYPES = {
 	movie: ["movie", "tvMovie", "tvSpecial"],
@@ -142,6 +143,22 @@ async function submitMethod({ userInput, res }) {
 	}
 }
 
+async function getDataFromTmdbApi({ tconst }) {
+	const url = `https://api.themoviedb.org/3/find/${tconst}?external_source=imdb_id`;
+	const options = {
+		method: "GET",
+		headers: {
+			accept: "application/json",
+			Authorization: process.env.TMDB_API_KEY,
+		},
+	};
+
+	await fetch(url, options)
+		.then((res) => res.json())
+		.then((json) => console.log(json))
+		.catch((err) => console.error("error:" + err));
+}
+
 async function strArrToIDArr({ strArray, refTable }) {
 	try {
 		const output = await connection(refTable).select("*");
@@ -164,4 +181,4 @@ function ifStringToArray(variable) {
 	return [variable];
 }
 
-export { submitMethod, retrieveMethod };
+export { submitMethod, retrieveMethod, getDataFromTmdbApi };
