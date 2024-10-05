@@ -43,9 +43,7 @@ img {
 
 /* NORMALIZE CSS END */
 
-html {
-	height: 100%;
-}
+
 
 body {
 	color: white;
@@ -54,11 +52,10 @@ body {
 	--base-big-font: clamp(1rem, 3vw + 0.6rem, 2rem);
 	--base-tiny-font: clamp(0.4rem, 1vw + 0.075rem, 0.5rem);
 	font-size: var(--base-small-font);
-	background-position: center;
 	background-repeat: no-repeat;
 	background-size: contain;
 	background-image: linear-gradient(#504f4f, #070707);
-	min-height: 100%;
+	min-height: 100vh;
 }
 
 
@@ -80,7 +77,6 @@ body {
 	gap: 2rem;
 	max-width: 700px;
 	min-width: 250px;
-	min-height: 600px;
 	max-height: 1000px;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
@@ -110,7 +106,7 @@ body {
 }
 
 .checkbox-button:has(> input:checked) {
-	background-color: #1b1b1b;
+	background-color: #7a7676;
 }
 
 

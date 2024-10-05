@@ -11,6 +11,7 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 	const formElement = document.querySelector("#form-container");
 
 	formElement.style.opacity = 0;
+	document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
 	const response = await fetch("/result", {
 		method: "POST",
 		headers: {
