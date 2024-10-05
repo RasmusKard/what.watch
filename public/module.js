@@ -11,6 +11,7 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 	const formElement = document.querySelector("#form-container");
 
 	formElement.style.opacity = 0;
+	document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
 	const response = await fetch("/result", {
 		method: "POST",
 		headers: {
@@ -131,6 +132,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			sessionStorage.setItem(sessionStorageName, formDataObj);
 		} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
 			formDataObj = sessionItem;
+			document.getElementById("page-container").style.background = "";
 		} else {
 			window.location.href = "/";
 		}
@@ -140,10 +142,21 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			body: formDataObj,
 		});
 
-		getTmdbApiData({ tconst: response["tconst"] });
-
 		const state = { tconst: response["tconst"] };
 		history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
+
+		const tmdbResponse = await getTmdbApiData({
+			tconst: response["tconst"],
+		});
+		if (tmdbResponse) {
+			if (tmdbResponse["overview"]) {
+				document.getElementById("title-overview").textContent =
+					tmdbResponse["overview"];
+			}
+			if (tmdbResponse["poster_path"]) {
+				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tmdbResponse["poster_path"]}"), linear-gradient(#504f4f, #070707)`;
+			}
+		}
 	});
 }
 
@@ -178,8 +191,7 @@ function populateResultsToTemplate({
 }
 
 async function getTmdbApiData({ tconst }) {
-	console.log(tconst);
-	const response = await fetch("/api/tconst", {
+	const apiResponse = await fetch("/api/tconst", {
 		method: "POST",
 		body: tconst,
 	})
@@ -189,10 +201,10 @@ async function getTmdbApiData({ tconst }) {
 			}
 		})
 		.catch((e) => {
-			console.error(e);
+			return false;
 		});
 
-	console.log(response);
+	return apiResponse;
 }
 
 export {

@@ -2,7 +2,6 @@ import express from "express";
 import path from "node:path";
 import "dotenv/config";
 import { submitMethod, retrieveMethod } from "./server-module.js";
-import exp from "node:constants";
 const app = express();
 const __dirname = import.meta.dirname;
 
@@ -61,8 +60,18 @@ app.post("/api/tconst", async (req, res) => {
 	const tconst = req.body;
 
 	const result = await getDataFromTmdbApi({ tconst: tconst });
-	console.log(result);
-	res.json(result);
+
+	for (const arr of Object.values(result)) {
+		if (Array.isArray(arr) && arr.length > 0) {
+			const resultObj = arr[0];
+			console.log(resultObj);
+			res.json(resultObj).end();
+
+			return;
+		}
+	}
+
+	res.status(404).end();
 });
 
 app.listen(3000);

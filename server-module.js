@@ -96,7 +96,8 @@ async function submitMethod({ userInput, res }) {
 				if (minRating && minRating > 0) {
 					query.andWhere("title.averageRating", ">", minRating);
 				}
-			});
+			})
+			.andWhere("title.numVotes", ">", "10000");
 
 		if (typeof output !== "undefined") {
 			const outputKeys = Object.keys(output);
@@ -155,8 +156,7 @@ async function getDataFromTmdbApi({ tconst }) {
 
 	await fetch(url, options)
 		.then((res) => res.json())
-		.then((json) => console.log(json))
-		.catch((err) => console.error("error:" + err));
+		.catch((err) => console.error(err));
 }
 
 async function strArrToIDArr({ strArray, refTable }) {
