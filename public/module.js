@@ -205,6 +205,9 @@ function populateResultsToTemplate({
 	const titleInfo = newTemplate.querySelector("#title-info");
 	titleInfo.innerText = `${resultsObj["averageRating"]}⭐ | ${resultsObj["startYear"]} | ${resultsObj["genres"]} | ${resultsObj["titleType_str"]}`;
 
+	const imdbLink = newTemplate.querySelector("#imdb-link");
+	imdbLink.href = `http://www.imdb.com/title/${resultsObj["tconst"]}`;
+
 	containerSelector.replaceChildren(newTemplate);
 }
 
