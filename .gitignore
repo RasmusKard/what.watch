@@ -3,3 +3,7 @@ node_modules
 sql-db-updater/variables.py
 temp_title.csv
 plans.md
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

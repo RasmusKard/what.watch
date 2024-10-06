@@ -64,7 +64,6 @@ app.post("/api/tconst", async (req, res) => {
 	for (const arr of Object.values(result)) {
 		if (Array.isArray(arr) && arr.length > 0) {
 			const resultObj = arr[0];
-			console.log(resultObj);
 			res.json(resultObj).end();
 
 			return;

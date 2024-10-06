@@ -49,6 +49,7 @@ async function submitMethod({ userInput, res }) {
 	const contentTypes = userInput["content-types"];
 	const minRating = userInput["rating-slider-value"][0];
 	let genres = userInput["genres"];
+	const seenIds = userInput["seenIds"];
 
 	let titleTypes = [];
 	if (contentTypes) {
@@ -94,14 +95,19 @@ async function submitMethod({ userInput, res }) {
 			})
 			.modify((query) => {
 				if (minRating && minRating > 0) {
-					query.andWhere("title.averageRating", ">", minRating);
+					query.andWhere("title.averageRating", ">=", minRating);
 				}
 			})
-			.andWhere("title.numVotes", ">", "10000");
+			.modify((query) => {
+				if (Array.isArray(seenIds) && seenIds.length) {
+					query.whereNotIn("title.tconst", seenIds);
+				}
+			})
+			.andWhere("title.numVotes", ">", "1000");
 
-		if (typeof output !== "undefined") {
+		if (Array.isArray(output) && output.length) {
 			const outputKeys = Object.keys(output);
-			const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
+			const randIndex = Math.floor(Math.random() * outputKeys.length);
 			const things = output[outputKeys[randIndex]];
 
 			const tconst = things["tconst"];
@@ -138,6 +144,9 @@ async function submitMethod({ userInput, res }) {
 				)
 				.select("tg.genres");
 			res.json(result[0]);
+		} else {
+			res.status(404).end();
+			return;
 		}
 	} catch (error) {
 		console.error(error);
