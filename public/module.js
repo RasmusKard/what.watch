@@ -9,7 +9,6 @@ function formDataToObj(formElement) {
 
 async function fetchSqlAndReplaceContainer({ reqType, body }) {
 	const formElement = document.querySelector("#form-container");
-
 	formElement.style.opacity = 0;
 	document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
 	const response = await fetch("/result", {
@@ -27,6 +26,7 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 			throw new Error("Not found");
 		})
 		.catch((e) => {
+			window.location.href = "/";
 			console.error(e);
 		});
 	populateResultsToTemplate({
@@ -127,11 +127,17 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		const sessionItem = sessionStorage.getItem(sessionStorageName);
 		let formDataObj;
+		let formDataObjStr;
 		if (e.submitter.id === "form-submit") {
-			formDataObj = JSON.stringify(formDataToObj(formElement));
-			sessionStorage.setItem(sessionStorageName, formDataObj);
+			formDataObj = formDataToObj(formElement);
+			formDataObjStr = JSON.stringify(formDataObj);
+			sessionStorage.setItem(sessionStorageName, formDataObjStr);
 		} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
-			formDataObj = sessionItem;
+			formDataObj = JSON.parse(sessionItem);
+			formDataObj["seenIds"] = JSON.parse(
+				sessionStorage.getItem("seenIds")
+			);
+			formDataObjStr = JSON.stringify(formDataObj);
 			document.getElementById("page-container").style.background = "";
 		} else {
 			window.location.href = "/";
@@ -139,11 +145,23 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		const response = await fetchSqlAndReplaceContainer({
 			reqType: "submit",
-			body: formDataObj,
+			body: formDataObjStr,
 		});
 
 		const state = { tconst: response["tconst"] };
 		history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
+
+		const seenIds = sessionStorage.getItem("seenIds");
+		if (e.submitter.id === "form-submit") {
+			sessionStorage.setItem(
+				"seenIds",
+				JSON.stringify([response["tconst"]])
+			);
+		} else if (e.submitter.id === "form-resubmit" && seenIds !== null) {
+			const seenIdsObj = JSON.parse(seenIds);
+			seenIdsObj.push(response["tconst"]);
+			sessionStorage.setItem("seenIds", JSON.stringify(seenIdsObj));
+		}
 
 		const tmdbResponse = await getTmdbApiData({
 			tconst: response["tconst"],

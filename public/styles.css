@@ -79,6 +79,7 @@ body {
 	max-width: 700px;
 	min-width: 250px;
 	max-height: 1000px;
+	min-height: 400px;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
 	transition: opacity 1s;
@@ -164,12 +165,11 @@ input[type=checkbox] {
 }
 
 
-#submit-reset-container {
+#settings-reset-container {
 	display: flex;
-	flex-flow: column;
 	width: 100%;
-	align-items: center;
-	margin-top: auto;
+	justify-content: space-between;
+
 }
 
 .submit-button {
@@ -184,8 +184,7 @@ input[type=checkbox] {
 	opacity: 0.8;
 }
 
-#reset-button {
-	align-self: flex-end;
+.secondary-button {
 	border: 0.05rem solid rgba(245, 197, 24, 0.5);
 	background-color: rgba(255, 255, 255, 0.1);
 	color: rgba(255, 255, 255, 0.6);
