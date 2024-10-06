@@ -26,6 +26,7 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 			throw new Error("Not found");
 		})
 		.catch((e) => {
+			window.alert("Nothing was found, please try again.");
 			window.location.href = "/";
 			console.error(e);
 		});
@@ -140,6 +141,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			formDataObjStr = JSON.stringify(formDataObj);
 			document.getElementById("page-container").style.background = "";
 		} else {
+			window.alert("Nothing was found, please try again.");
 			window.location.href = "/";
 		}
 
