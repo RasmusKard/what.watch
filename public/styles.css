@@ -221,7 +221,16 @@ input[type=checkbox] {
 }
 
 #settings-button {
-	background: url('./settings.svg');
+	background-image: url('./settings.svg');
+}
+
+#home-button {
+	background-image: url('./home.svg');
+	align-self: flex-start;
+	margin: 0;
+}
+
+.svg-button {
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-origin: content-box;
@@ -253,4 +262,8 @@ input[type=checkbox] {
 	padding: 1rem;
 	width: 90%;
 
+}
+
+#title-container {
+	margin-top: -1.5rem;
 }

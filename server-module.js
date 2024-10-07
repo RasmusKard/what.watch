@@ -121,6 +121,8 @@ async function submitMethod({ userInput, res }) {
 				if (minVotes) {
 					minVotes = Math.floor(minVotes);
 					query.andWhere("title.numVotes", ">=", minVotes);
+				} else {
+					query.andWhere("title.numVotes", ">=", 1000);
 				}
 			});
 

@@ -268,7 +268,7 @@
 				<div id="flex-between">
 					<button
 						type="button"
-						class="secondary-button"
+						class="secondary-button svg-button"
 						id="settings-button"
 					></button>
 					<button
@@ -281,6 +281,7 @@
 				</div>
 			</form>
 		</div>
+
 		<template id="settings-template">
 			<form id="settings-form" action="">
 				<fieldset id="settings-body">
@@ -312,8 +313,15 @@
 				</fieldset>
 			</form>
 		</template>
+
 		<template id="results-template">
-			<div>
+			<button
+				type="button"
+				class="secondary-button svg-button"
+				id="home-button"
+				onclick="window.location.href = '/'"
+			></button>
+			<div id="title-container">
 				<h1 id="primary-title"></h1>
 				<p id="title-info"></p>
 			</div>

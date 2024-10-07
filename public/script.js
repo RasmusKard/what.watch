@@ -62,7 +62,8 @@ settingsButton.addEventListener("click", (e) => {
 
 	const alreadyExistingForm = document.getElementById("settings-form");
 	if (!alreadyExistingForm) {
-		document.body.appendChild(settingsFormClone);
+		const formContainer = document.getElementById("form-container");
+		formContainer.appendChild(settingsFormClone);
 
 		const minVotesSlider = document.getElementById("minvotes-slider");
 		const minVotesSliderValue = document.getElementById(
