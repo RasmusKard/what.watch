@@ -40,42 +40,24 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 	return response;
 }
 
-function createRatingSlider({
-	ratingSliderId,
-	ratingSliderValueId,
-	resetButtonId,
-}) {
+function createSlider({ slider, sliderValue, start, step, range, tooltips }) {
 	// create and intialize
-	const ratingSlider = document.getElementById(ratingSliderId);
-	noUiSlider.create(ratingSlider, {
-		start: [5],
+	const sliderElement = slider;
+	noUiSlider.create(sliderElement, {
+		start: start,
 		connect: "lower",
-		step: 0.1,
-		tooltips: {
-			to: function (value) {
-				return `⭐ ${value}+`;
-			},
-		},
-		range: {
-			min: 0,
-			max: 10,
-		},
+		step: step,
+		tooltips: tooltips,
+		range: range,
 	});
-	const ratingSliderValue = document.getElementById(ratingSliderValueId);
-	ratingSliderValue.value = ratingSlider.noUiSlider.get();
+	const sliderValueElement = sliderValue;
+	sliderValueElement.value = sliderElement.noUiSlider.get();
 
-	// ratingSlider on update change input value
-	ratingSlider.noUiSlider.on(
+	// slider on update change input value
+	sliderElement.noUiSlider.on(
 		"update",
-		(value) => (ratingSliderValue.value = value)
+		(value) => (sliderValueElement.value = value)
 	);
-
-	// Reset ratingSlider when form is reset
-	const resetButton = document.getElementById(resetButtonId);
-	resetButton.addEventListener("click", () => {
-		ratingSlider.noUiSlider.reset();
-		ratingSliderValue.value = ratingSlider.noUiSlider.get();
-	});
 }
 
 function populateFormWithSessionData({
@@ -233,7 +215,7 @@ async function getTmdbApiData({ tconst }) {
 export {
 	formDataToObj,
 	fetchSqlAndReplaceContainer,
-	createRatingSlider,
+	createSlider,
 	checkUrlParams,
 	populateFormWithSessionData,
 	addSubmitListener,

@@ -1,5 +1,5 @@
 import {
-	createRatingSlider,
+	createSlider,
 	checkUrlParams,
 	populateFormWithSessionData,
 	addSubmitListener,
@@ -10,10 +10,30 @@ import {
 checkUrlParams();
 
 // Add rating slider and set initial value
-createRatingSlider({
-	ratingSliderId: "rating-slider",
-	ratingSliderValueId: "rating-slider-value",
-	resetButtonId: "reset-button",
+const ratingSlider = document.getElementById("rating-slider");
+const ratingSliderValue = document.getElementById("rating-slider-value");
+
+createSlider({
+	slider: ratingSlider,
+	sliderValue: ratingSliderValue,
+	tooltips: {
+		to: function (value) {
+			return `⭐ ${value}+`;
+		},
+	},
+	start: [5],
+	step: 0.1,
+	range: {
+		min: 0,
+		max: 10,
+	},
+});
+
+// Reset ratingSlider when form is reset
+const resetButton = document.getElementById("reset-button");
+resetButton.addEventListener("click", () => {
+	ratingSlider.noUiSlider.reset();
+	ratingSliderValue.value = ratingSlider.noUiSlider.get();
 });
 
 // if sessionStorage has form data, populate form
@@ -44,16 +64,20 @@ settingsButton.addEventListener("click", (e) => {
 		document.body.appendChild(settingsForm);
 
 		const minVotesSlider = document.getElementById("minvotes-slider");
-		noUiSlider.create(minVotesSlider, {
-			start: 0,
-			connect: "lower",
-			step: 50,
-			margin: 10,
+		const minVotesSliderValue = document.getElementById(
+			"minvotes-slider-value"
+		);
+
+		createSlider({
+			slider: minVotesSlider,
+			sliderValue: minVotesSliderValue,
 			tooltips: {
 				to: function (value) {
 					return `${Math.floor(value)}`;
 				},
 			},
+			start: 0,
+			step: 50,
 			range: {
 				min: 0,
 				max: 100000,
