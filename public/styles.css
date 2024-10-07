@@ -59,6 +59,10 @@ body {
 	min-height: 100vh;
 }
 
+button {
+	cursor: pointer;
+}
+
 
 
 #page-container {
@@ -101,6 +105,7 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	cursor: pointer;
 }
 
 .checkbox-button:hover {
@@ -213,4 +218,14 @@ input[type=checkbox] {
 
 #imdb-logo {
 	width: 3rem;
+}
+
+#settings-button {
+	background: url('./settings.svg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-origin: content-box;
+	height: 1rem;
+	width: 1rem;
+	padding: 0.1rem;
 }
