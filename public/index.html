@@ -250,7 +250,7 @@
 						<input
 							type="hidden"
 							id="rating-slider-value"
-							name="rating-slider-value"
+							name="minrating"
 							value=""
 						/>
 						<div id="rating-slider"></div>
@@ -285,16 +285,28 @@
 			<form id="settings-form" action="">
 				<fieldset id="settings-body">
 					<legend>Settings</legend>
-					<div id="minvotes-slider-container">
+					<div class="settings-slider">
 						<label for="minvotes-slider">
-							Minimum votes
+							Minimum votes:
 							<input
 								type="hidden"
 								id="minvotes-slider-value"
-								name="minvotes-slider-value"
+								name="minvotes"
 								value=""
 							/>
 							<div id="minvotes-slider"></div>
+						</label>
+					</div>
+					<div class="settings-slider">
+						<label for="year-slider">
+							Release year
+							<input
+								type="hidden"
+								id="year-slider-value"
+								name="yearrange"
+								value=""
+							/>
+							<div id="year-slider"></div>
 						</label>
 					</div>
 				</fieldset>

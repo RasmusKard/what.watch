@@ -40,18 +40,28 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 	return response;
 }
 
-function createSlider({ slider, sliderValue, start, step, range, tooltips }) {
+function createSlider({
+	slider,
+	sliderValue,
+	start,
+	step,
+	range,
+	tooltips,
+	connect,
+	format,
+}) {
 	// create and intialize
 	const sliderElement = slider;
 	noUiSlider.create(sliderElement, {
 		start: start,
-		connect: "lower",
+		connect: connect,
 		step: step,
 		tooltips: tooltips,
 		range: range,
+		format: format,
 	});
 	const sliderValueElement = sliderValue;
-	sliderValueElement.value = sliderElement.noUiSlider.get();
+	sliderValueElement.value = sliderElement.noUiSlider.get(true);
 
 	// slider on update change input value
 	sliderElement.noUiSlider.on(
@@ -113,6 +123,10 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		let formDataObjStr;
 		if (e.submitter.id === "form-submit") {
 			formDataObj = formDataToObj(formElement);
+			formDataObj["settings"] = {
+				minvotes: localStorage.getItem("minvotes"),
+				yearrange: JSON.parse(localStorage.getItem("yearrange")),
+			};
 			formDataObjStr = JSON.stringify(formDataObj);
 			sessionStorage.setItem(sessionStorageName, formDataObjStr);
 		} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {

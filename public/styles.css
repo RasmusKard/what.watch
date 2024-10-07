@@ -245,9 +245,11 @@ input[type=checkbox] {
 #settings-body {
 	display: flex;
 	justify-content: center;
+	flex-direction: column;
+	gap: 1rem;
 }
 
-#minvotes-slider-container {
+.settings-slider {
 	padding: 1rem;
 	width: 90%;
 

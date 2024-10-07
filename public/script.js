@@ -22,6 +22,7 @@ createSlider({
 		},
 	},
 	start: [5],
+	connect: "lower",
 	step: 0.1,
 	range: {
 		min: 0,
@@ -57,33 +58,77 @@ listenToPopState();
 const settingsButton = document.getElementById("settings-button");
 settingsButton.addEventListener("click", (e) => {
 	const settingsTemplate = document.getElementById("settings-template");
-	const settingsForm = settingsTemplate.content.cloneNode(true);
+	const settingsFormClone = settingsTemplate.content.cloneNode(true);
 
 	const alreadyExistingForm = document.getElementById("settings-form");
 	if (!alreadyExistingForm) {
-		document.body.appendChild(settingsForm);
+		document.body.appendChild(settingsFormClone);
 
 		const minVotesSlider = document.getElementById("minvotes-slider");
 		const minVotesSliderValue = document.getElementById(
 			"minvotes-slider-value"
 		);
-
 		createSlider({
 			slider: minVotesSlider,
 			sliderValue: minVotesSliderValue,
 			tooltips: {
-				to: function (value) {
-					return `${Math.floor(value)}`;
-				},
+				to: (value) => Math.floor(value),
 			},
-			start: 0,
-			step: 50,
+			start: 1000,
+			connect: "lower",
+			step: 20,
 			range: {
 				min: 0,
 				max: 100000,
 			},
+			format: {
+				to: (value) => {
+					return Math.floor(value);
+				},
+				from: (value) => Number(value),
+			},
+		});
+
+		const yearSlider = document.getElementById("year-slider");
+		const yearSliderValue = document.getElementById("year-slider-value");
+		const currentYear = new Date().getFullYear();
+		createSlider({
+			slider: yearSlider,
+			sliderValue: yearSliderValue,
+			tooltips: {
+				to: function (value) {
+					return value;
+				},
+			},
+			start: [1894, currentYear],
+			connect: true,
+			step: 1,
+			range: {
+				min: [1894],
+				max: [currentYear],
+			},
+			format: {
+				to: (value) => {
+					return Math.floor(value);
+				},
+				from: (value) => {
+					return Number(value);
+				},
+			},
 		});
 	} else {
+		const settingsData = new FormData(alreadyExistingForm);
+
+		for (let [key, value] of settingsData.entries()) {
+			if (key === "yearrange") {
+				let rangeArr = value.split(",");
+				rangeArr = rangeArr.map((x) => Number(x));
+				rangeArr = JSON.stringify(rangeArr);
+				localStorage.setItem(key, rangeArr);
+			} else {
+				localStorage.setItem(key, value);
+			}
+		}
 		alreadyExistingForm.remove();
 	}
 });

@@ -47,9 +47,17 @@ async function retrieveMethod({ tconst, res }) {
 
 async function submitMethod({ userInput, res }) {
 	const contentTypes = userInput["content-types"];
-	const minRating = userInput["rating-slider-value"][0];
+	const minRating = userInput["minrating"][0];
 	let genres = userInput["genres"];
 	const seenIds = userInput["seenIds"];
+	const settings = userInput["settings"];
+
+	let minVotes;
+	let yearRange;
+	if (settings) {
+		minVotes = settings["minvotes"];
+		yearRange = settings["yearrange"];
+	}
 
 	let titleTypes = [];
 	if (contentTypes) {
@@ -103,7 +111,18 @@ async function submitMethod({ userInput, res }) {
 					query.whereNotIn("title.tconst", seenIds);
 				}
 			})
-			.andWhere("title.numVotes", ">", "1000");
+			.modify((query) => {
+				if (Array.isArray(yearRange) && yearRange.length) {
+					yearRange = yearRange.map((x) => Math.floor(x));
+					query.andWhereBetween("title.startYear", yearRange);
+				}
+			})
+			.modify((query) => {
+				if (minVotes) {
+					minVotes = Math.floor(minVotes);
+					query.andWhere("title.numVotes", ">=", minVotes);
+				}
+			});
 
 		if (Array.isArray(output) && output.length) {
 			const outputKeys = Object.keys(output);
