@@ -33,3 +33,33 @@ addSubmitListener({
 
 // when user moves backwards or forwards use history API state to populate page
 listenToPopState();
+
+const settingsButton = document.getElementById("settings-button");
+settingsButton.addEventListener("click", (e) => {
+	const settingsTemplate = document.getElementById("settings-template");
+	const settingsForm = settingsTemplate.content.cloneNode(true);
+
+	const alreadyExistingForm = document.getElementById("settings-form");
+	if (!alreadyExistingForm) {
+		document.body.appendChild(settingsForm);
+
+		const minVotesSlider = document.getElementById("minvotes-slider");
+		noUiSlider.create(minVotesSlider, {
+			start: 0,
+			connect: "lower",
+			step: 50,
+			margin: 10,
+			tooltips: {
+				to: function (value) {
+					return `${Math.floor(value)}`;
+				},
+			},
+			range: {
+				min: 0,
+				max: 100000,
+			},
+		});
+	} else {
+		alreadyExistingForm.remove();
+	}
+});

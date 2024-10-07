@@ -281,6 +281,25 @@
 				</div>
 			</form>
 		</div>
+		<template id="settings-template">
+			<form id="settings-form" action="">
+				<fieldset id="settings-body">
+					<legend>Settings</legend>
+					<div id="minvotes-slider-container">
+						<label for="minvotes-slider">
+							Minimum votes
+							<input
+								type="hidden"
+								id="minvotes-slider-value"
+								name="minvotes-slider-value"
+								value=""
+							/>
+							<div id="minvotes-slider"></div>
+						</label>
+					</div>
+				</fieldset>
+			</form>
+		</template>
 		<template id="results-template">
 			<div>
 				<h1 id="primary-title"></h1>

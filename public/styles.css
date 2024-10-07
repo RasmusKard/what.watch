@@ -229,3 +229,26 @@ input[type=checkbox] {
 	width: 1rem;
 	padding: 0.1rem;
 }
+
+#settings-form {
+	width: 90%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-ms-transform: translateX(-50%) translateY(-50%);
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	z-index: 2;
+	background-color: #070707;
+}
+
+#settings-body {
+	display: flex;
+	justify-content: center;
+}
+
+#minvotes-slider-container {
+	padding: 1rem;
+	width: 90%;
+
+}
