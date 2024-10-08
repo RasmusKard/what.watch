@@ -40,41 +40,37 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 	return response;
 }
 
-function createRatingSlider({
-	ratingSliderId,
-	ratingSliderValueId,
-	resetButtonId,
+function createSlider({
+	slider,
+	sliderValue,
+	start,
+	step,
+	range,
+	tooltips,
+	connect,
+	format,
+	array,
 }) {
 	// create and intialize
-	const ratingSlider = document.getElementById(ratingSliderId);
-	noUiSlider.create(ratingSlider, {
-		start: [5],
-		connect: "lower",
-		step: 0.1,
-		tooltips: {
-			to: function (value) {
-				return `⭐ ${value}+`;
-			},
-		},
-		range: {
-			min: 0,
-			max: 10,
-		},
+	const sliderElement = slider;
+	noUiSlider.create(sliderElement, {
+		start: start,
+		connect: connect,
+		step: step,
+		tooltips: tooltips,
+		range: range,
+		format: format,
 	});
-	const ratingSliderValue = document.getElementById(ratingSliderValueId);
-	ratingSliderValue.value = ratingSlider.noUiSlider.get();
+	const sliderValueElement = sliderValue;
+	sliderValueElement.value = sliderElement.noUiSlider.get(true);
 
-	// ratingSlider on update change input value
-	ratingSlider.noUiSlider.on(
-		"update",
-		(value) => (ratingSliderValue.value = value)
-	);
-
-	// Reset ratingSlider when form is reset
-	const resetButton = document.getElementById(resetButtonId);
-	resetButton.addEventListener("click", () => {
-		ratingSlider.noUiSlider.reset();
-		ratingSliderValue.value = ratingSlider.noUiSlider.get();
+	// slider on update change input value
+	sliderElement.noUiSlider.on("update", (value) => {
+		if (array === true) {
+			sliderValueElement.value = JSON.stringify(value);
+		} else {
+			sliderValueElement.value = value;
+		}
 	});
 }
 
@@ -131,6 +127,10 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		let formDataObjStr;
 		if (e.submitter.id === "form-submit") {
 			formDataObj = formDataToObj(formElement);
+			formDataObj["settings"] = {
+				minvotes: localStorage.getItem("minvotes"),
+				yearrange: JSON.parse(localStorage.getItem("yearrange")),
+			};
 			formDataObjStr = JSON.stringify(formDataObj);
 			sessionStorage.setItem(sessionStorageName, formDataObjStr);
 		} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
@@ -230,13 +230,112 @@ async function getTmdbApiData({ tconst }) {
 	return apiResponse;
 }
 
+function addSettingsListener() {
+	const settingsButton = document.getElementById("settings-button");
+	settingsButton.addEventListener("click", (e) => {
+		// clone settings template
+		const settingsTemplate = document.getElementById("settings-template");
+		const settingsFormClone = settingsTemplate.content.cloneNode(true);
+
+		// add minvotes slider
+		createSlider({
+			slider: settingsFormClone.getElementById("minvotes-slider"),
+			sliderValue: settingsFormClone.getElementById(
+				"minvotes-slider-value"
+			),
+			tooltips: {
+				to: (value) => Math.floor(value),
+			},
+			start: 5000,
+			connect: "lower",
+			step: 20,
+			range: {
+				min: 0,
+				max: 100000,
+			},
+			format: {
+				to: (value) => Math.floor(value),
+
+				from: (value) => Number(value),
+			},
+		});
+
+		// add year slider ranging from the year of first content available in DB to current year
+		const currentYear = new Date().getFullYear();
+		createSlider({
+			slider: settingsFormClone.getElementById("year-slider"),
+			sliderValue: settingsFormClone.getElementById("year-slider-value"),
+			tooltips: {
+				to: (value) => value,
+			},
+			start: [1965, currentYear],
+			connect: true,
+			step: 1,
+			range: {
+				min: [1894],
+				max: [currentYear],
+			},
+			format: {
+				to: (value) => Math.floor(value),
+
+				from: (value) => Number(value),
+			},
+			array: true,
+		});
+
+		populateSettingsFromLocalStorage({ formTemplate: settingsFormClone });
+		const formContainer = document.getElementById("form-container");
+		formContainer.appendChild(settingsFormClone);
+
+		// add overlay so elements behind settings are blocked from view
+		const overlayElement = document.createElement("div");
+		overlayElement.id = "settings-overlay";
+		document.body.appendChild(overlayElement);
+
+		// add settings save listener
+		settingsSaveListener();
+	});
+}
+
+function settingsSaveListener() {
+	const settingsSaveButton = document.getElementById("save-settings");
+	settingsSaveButton.addEventListener("click", (e) => {
+		const settingsForm = document.getElementById("settings-form");
+
+		const settingsData = new FormData(settingsForm);
+
+		for (let [key, value] of settingsData.entries()) {
+			localStorage.setItem(key, value);
+		}
+
+		const settingsOverlay = document.getElementById("settings-overlay");
+		settingsForm.remove();
+		settingsOverlay.remove();
+	});
+}
+
+function populateSettingsFromLocalStorage({ formTemplate }) {
+	const settingsSliders = [
+		formTemplate.getElementById("minvotes-slider"),
+		formTemplate.getElementById("year-slider"),
+	];
+	for (const slider of settingsSliders) {
+		const sliderInput = formTemplate.getElementById(slider.id + "-value");
+		const storageValue = JSON.parse(localStorage.getItem(sliderInput.name));
+		if (storageValue) {
+			slider.noUiSlider.set(storageValue);
+		}
+	}
+}
+
 export {
 	formDataToObj,
 	fetchSqlAndReplaceContainer,
-	createRatingSlider,
+	createSlider,
 	checkUrlParams,
 	populateFormWithSessionData,
 	addSubmitListener,
 	listenToPopState,
 	getTmdbApiData,
+	addSettingsListener,
 };

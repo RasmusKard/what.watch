@@ -4,8 +4,11 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
+		<script
+			defer
+			src="/node_modules/nouislider/dist/nouislider.min.js"
+		></script>
 		<script type="module" defer src="script.js"></script>
-		<script src="/node_modules/nouislider/dist/nouislider.min.js"></script>
 		<link rel="stylesheet" href="styles.css" />
 	</head>
 	<body>
@@ -250,7 +253,7 @@
 						<input
 							type="hidden"
 							id="rating-slider-value"
-							name="rating-slider-value"
+							name="minrating"
 							value=""
 						/>
 						<div id="rating-slider"></div>
@@ -265,14 +268,12 @@
 					Submit
 				</button>
 
-				<div id="flex-between">
+				<div id="footer-flex">
 					<button
 						type="button"
+						class="secondary-button svg-button"
 						id="settings-button"
-						class="secondary-button"
-					>
-						Settings
-					</button>
+					></button>
 					<button
 						type="reset"
 						id="reset-button"
@@ -283,8 +284,52 @@
 				</div>
 			</form>
 		</div>
+
+		<template id="settings-template">
+			<form id="settings-form" action="">
+				<fieldset id="settings-body">
+					<legend>Settings</legend>
+					<fieldset>
+						<legend>Minimum votes</legend>
+						<div class="settings-slider">
+							<label for="minvotes-slider">
+								<input
+									type="hidden"
+									id="minvotes-slider-value"
+									name="minvotes"
+									value=""
+								/>
+								<div id="minvotes-slider"></div>
+							</label>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>Release year range</legend>
+						<div class="settings-slider">
+							<label for="year-slider">
+								<input
+									type="hidden"
+									id="year-slider-value"
+									name="yearrange"
+									value=""
+								/>
+								<div id="year-slider"></div>
+							</label>
+						</div>
+					</fieldset>
+					<button id="save-settings" type="button">Save</button>
+				</fieldset>
+			</form>
+		</template>
+
 		<template id="results-template">
-			<div>
+			<button
+				type="button"
+				class="secondary-button svg-button"
+				id="home-button"
+				onclick="window.location.href = '/'"
+			></button>
+			<div id="title-container">
 				<h1 id="primary-title"></h1>
 				<p id="title-info"></p>
 			</div>
@@ -295,7 +340,7 @@
 			<button id="form-resubmit" type="submit" class="submit-button">
 				Reroll
 			</button>
-			<div id="flex-between">
+			<div id="footer-flex">
 				<a target="_blank" id="imdb-link" href=""
 					><img id="imdb-logo" src="./imdb.svg" alt="Imdb Link"
 				/></a>

@@ -32,7 +32,6 @@ async function mainFunc(req, res) {
 		submitMethod({ userInput: userInput, res: res });
 	} else if (header === "retrieve") {
 		retrieveMethod({ tconst: req.body["tconst"], res: res });
-		return;
 	}
 }
 
