@@ -230,6 +230,86 @@ async function getTmdbApiData({ tconst }) {
 	return apiResponse;
 }
 
+function addSettingsListener() {
+	const settingsButton = document.getElementById("settings-button");
+	settingsButton.addEventListener("click", (e) => {
+		// clone settings template and append to form container
+		const settingsTemplate = document.getElementById("settings-template");
+		const settingsFormClone = settingsTemplate.content.cloneNode(true);
+		const formContainer = document.getElementById("form-container");
+		formContainer.appendChild(settingsFormClone);
+
+		// add minvotes slider
+		createSlider({
+			slider: document.getElementById("minvotes-slider"),
+			sliderValue: document.getElementById("minvotes-slider-value"),
+			tooltips: {
+				to: (value) => Math.floor(value),
+			},
+			start: 5000,
+			connect: "lower",
+			step: 20,
+			range: {
+				min: 0,
+				max: 100000,
+			},
+			format: {
+				to: (value) => Math.floor(value),
+
+				from: (value) => Number(value),
+			},
+		});
+
+		// add year slider ranging from the year of first content available in DB to current year
+		const currentYear = new Date().getFullYear();
+		createSlider({
+			slider: document.getElementById("year-slider"),
+			sliderValue: document.getElementById("year-slider-value"),
+			tooltips: {
+				to: (value) => value,
+			},
+			start: [1965, currentYear],
+			connect: true,
+			step: 1,
+			range: {
+				min: [1894],
+				max: [currentYear],
+			},
+			format: {
+				to: (value) => Math.floor(value),
+
+				from: (value) => Number(value),
+			},
+			array: true,
+		});
+
+		// add overlay so elements behind settings are blocked from view
+		const overlayElement = document.createElement("div");
+		overlayElement.id = "settings-overlay";
+		document.body.appendChild(overlayElement);
+
+		// add settings save listener
+		settingsSaveListener();
+	});
+}
+
+function settingsSaveListener() {
+	const settingsSaveButton = document.getElementById("save-settings");
+	settingsSaveButton.addEventListener("click", (e) => {
+		const settingsForm = document.getElementById("settings-form");
+
+		const settingsData = new FormData(settingsForm);
+
+		for (let [key, value] of settingsData.entries()) {
+			localStorage.setItem(key, value);
+		}
+
+		const settingsOverlay = document.getElementById("settings-overlay");
+		settingsForm.remove();
+		settingsOverlay.remove();
+	});
+}
+
 export {
 	formDataToObj,
 	fetchSqlAndReplaceContainer,
@@ -239,4 +319,5 @@ export {
 	addSubmitListener,
 	listenToPopState,
 	getTmdbApiData,
+	addSettingsListener,
 };

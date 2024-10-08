@@ -265,7 +265,7 @@
 					Submit
 				</button>
 
-				<div id="flex-between">
+				<div id="footer-flex">
 					<button
 						type="button"
 						class="secondary-button svg-button"
@@ -286,30 +286,35 @@
 			<form id="settings-form" action="">
 				<fieldset id="settings-body">
 					<legend>Settings</legend>
-					<div class="settings-slider">
-						<label for="minvotes-slider">
-							Minimum votes:
-							<input
-								type="hidden"
-								id="minvotes-slider-value"
-								name="minvotes"
-								value=""
-							/>
-							<div id="minvotes-slider"></div>
-						</label>
-					</div>
-					<div class="settings-slider">
-						<label for="year-slider">
-							Release year
-							<input
-								type="hidden"
-								id="year-slider-value"
-								name="yearrange"
-								value=""
-							/>
-							<div id="year-slider"></div>
-						</label>
-					</div>
+					<fieldset>
+						<legend>Minimum votes</legend>
+						<div class="settings-slider">
+							<label for="minvotes-slider">
+								<input
+									type="hidden"
+									id="minvotes-slider-value"
+									name="minvotes"
+									value=""
+								/>
+								<div id="minvotes-slider"></div>
+							</label>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>Release year range</legend>
+						<div class="settings-slider">
+							<label for="year-slider">
+								<input
+									type="hidden"
+									id="year-slider-value"
+									name="yearrange"
+									value=""
+								/>
+								<div id="year-slider"></div>
+							</label>
+						</div>
+					</fieldset>
+					<button id="save-settings" type="button">Save</button>
 				</fieldset>
 			</form>
 		</template>
@@ -332,7 +337,7 @@
 			<button id="form-resubmit" type="submit" class="submit-button">
 				Reroll
 			</button>
-			<div id="flex-between">
+			<div id="footer-flex">
 				<a target="_blank" id="imdb-link" href=""
 					><img id="imdb-logo" src="./imdb.svg" alt="Imdb Link"
 				/></a>
