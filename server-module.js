@@ -101,7 +101,7 @@ async function submitMethod({ userInput, res }) {
 
 		if (typeof output !== "undefined") {
 			const outputKeys = Object.keys(output);
-			const randIndex = Math.floor(Math.random() * outputKeys.length + 1);
+			const randIndex = Math.floor(Math.random() * outputKeys.length);
 			const things = output[outputKeys[randIndex]];
 
 			const tconst = things["tconst"];
