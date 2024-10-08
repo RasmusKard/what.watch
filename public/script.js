@@ -44,7 +44,8 @@ populateFormWithSessionData({
 	sessionStorageName: "formData",
 });
 
-// onClick on settings button open/close the settings window (on close store settings in localStorage)
+// open settings onclick settings button - close and save to localStorage onclick save button
+// populate settings using localStorage when possible
 addSettingsListener();
 
 // onSubmit, either query database with form submission data or grab form data from sessionStorage and query with that

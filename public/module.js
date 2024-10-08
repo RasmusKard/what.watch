@@ -81,8 +81,6 @@ function populateFormWithSessionData({
 	sessionStorageName,
 }) {
 	const formElement = document.getElementById(formContainerId);
-	const ratingSlider = document.getElementById(ratingSliderId);
-	const ratingSliderValue = document.getElementById(ratingSliderValueId);
 	const sessionStorageItem = sessionStorage.getItem(sessionStorageName);
 
 	if (sessionStorageItem !== null) {
@@ -101,8 +99,16 @@ function populateFormWithSessionData({
 				});
 			}
 		}
-		ratingSlider.noUiSlider.set(formData[ratingSliderValueId]);
-		ratingSliderValue.value = ratingSlider.noUiSlider.get();
+
+		//
+		const ratingSlider = document.getElementById(ratingSliderId);
+		const ratingSliderInput = document.getElementById(
+			ratingSlider.id + "-value"
+		);
+		const storageValue = JSON.parse(formData[ratingSliderInput.name]);
+		if (storageValue) {
+			ratingSlider.noUiSlider.set(storageValue);
+		}
 	}
 }
 

@@ -174,7 +174,7 @@ async function submitMethod({ userInput, res }) {
 	}
 }
 
-async function getDataFromTmdbApi({ tconst }) {
+function getDataFromTmdbApi({ tconst }) {
 	const url = `https://api.themoviedb.org/3/find/${tconst}?external_source=imdb_id`;
 	const options = {
 		method: "GET",
@@ -184,9 +184,10 @@ async function getDataFromTmdbApi({ tconst }) {
 		},
 	};
 
-	await fetch(url, options)
+	const response = fetch(url, options)
 		.then((res) => res.json())
-		.catch((err) => console.error(err));
+		.catch((err) => console.error("error:" + err));
+	return response;
 }
 
 async function strArrToIDArr({ strArray, refTable }) {

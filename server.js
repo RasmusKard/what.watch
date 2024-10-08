@@ -1,7 +1,11 @@
 import express from "express";
 import path from "node:path";
 import "dotenv/config";
-import { submitMethod, retrieveMethod } from "./server-module.js";
+import {
+	submitMethod,
+	retrieveMethod,
+	getDataFromTmdbApi,
+} from "./server-module.js";
 const app = express();
 const __dirname = import.meta.dirname;
 
@@ -38,22 +42,6 @@ async function mainFunc(req, res) {
 app.post("/result", mainFunc);
 
 app.get("/result", mainFunc);
-
-function getDataFromTmdbApi({ tconst }) {
-	const url = `https://api.themoviedb.org/3/find/${tconst}?external_source=imdb_id`;
-	const options = {
-		method: "GET",
-		headers: {
-			accept: "application/json",
-			Authorization: process.env.TMDB_API_KEY,
-		},
-	};
-
-	const response = fetch(url, options)
-		.then((res) => res.json())
-		.catch((err) => console.error("error:" + err));
-	return response;
-}
 
 app.post("/api/tconst", async (req, res) => {
 	const tconst = req.body;
