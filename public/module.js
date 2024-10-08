@@ -49,6 +49,7 @@ function createSlider({
 	tooltips,
 	connect,
 	format,
+	array,
 }) {
 	// create and intialize
 	const sliderElement = slider;
@@ -64,10 +65,13 @@ function createSlider({
 	sliderValueElement.value = sliderElement.noUiSlider.get(true);
 
 	// slider on update change input value
-	sliderElement.noUiSlider.on(
-		"update",
-		(value) => (sliderValueElement.value = value)
-	);
+	sliderElement.noUiSlider.on("update", (value) => {
+		if (array === true) {
+			sliderValueElement.value = JSON.stringify(value);
+		} else {
+			sliderValueElement.value = value;
+		}
+	});
 }
 
 function populateFormWithSessionData({

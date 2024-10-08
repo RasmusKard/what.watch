@@ -55,6 +55,8 @@ addSubmitListener({
 // when user moves backwards or forwards use history API state to populate page
 listenToPopState();
 
+// add event listener to settings button
+// when button clicked
 const settingsButton = document.getElementById("settings-button");
 settingsButton.addEventListener("click", (e) => {
 	const settingsTemplate = document.getElementById("settings-template");
@@ -116,19 +118,13 @@ settingsButton.addEventListener("click", (e) => {
 					return Number(value);
 				},
 			},
+			array: true,
 		});
 	} else {
 		const settingsData = new FormData(alreadyExistingForm);
 
 		for (let [key, value] of settingsData.entries()) {
-			if (key === "yearrange") {
-				let rangeArr = value.split(",");
-				rangeArr = rangeArr.map((x) => Number(x));
-				rangeArr = JSON.stringify(rangeArr);
-				localStorage.setItem(key, rangeArr);
-			} else {
-				localStorage.setItem(key, value);
-			}
+			localStorage.setItem(key, value);
 		}
 		alreadyExistingForm.remove();
 	}
