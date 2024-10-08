@@ -233,16 +233,16 @@ async function getTmdbApiData({ tconst }) {
 function addSettingsListener() {
 	const settingsButton = document.getElementById("settings-button");
 	settingsButton.addEventListener("click", (e) => {
-		// clone settings template and append to form container
+		// clone settings template
 		const settingsTemplate = document.getElementById("settings-template");
 		const settingsFormClone = settingsTemplate.content.cloneNode(true);
-		const formContainer = document.getElementById("form-container");
-		formContainer.appendChild(settingsFormClone);
 
 		// add minvotes slider
 		createSlider({
-			slider: document.getElementById("minvotes-slider"),
-			sliderValue: document.getElementById("minvotes-slider-value"),
+			slider: settingsFormClone.getElementById("minvotes-slider"),
+			sliderValue: settingsFormClone.getElementById(
+				"minvotes-slider-value"
+			),
 			tooltips: {
 				to: (value) => Math.floor(value),
 			},
@@ -263,8 +263,8 @@ function addSettingsListener() {
 		// add year slider ranging from the year of first content available in DB to current year
 		const currentYear = new Date().getFullYear();
 		createSlider({
-			slider: document.getElementById("year-slider"),
-			sliderValue: document.getElementById("year-slider-value"),
+			slider: settingsFormClone.getElementById("year-slider"),
+			sliderValue: settingsFormClone.getElementById("year-slider-value"),
 			tooltips: {
 				to: (value) => value,
 			},
@@ -282,6 +282,10 @@ function addSettingsListener() {
 			},
 			array: true,
 		});
+
+		populateSettingsFromLocalStorage({ formTemplate: settingsFormClone });
+		const formContainer = document.getElementById("form-container");
+		formContainer.appendChild(settingsFormClone);
 
 		// add overlay so elements behind settings are blocked from view
 		const overlayElement = document.createElement("div");
@@ -308,6 +312,20 @@ function settingsSaveListener() {
 		settingsForm.remove();
 		settingsOverlay.remove();
 	});
+}
+
+function populateSettingsFromLocalStorage({ formTemplate }) {
+	const settingsSliders = [
+		formTemplate.getElementById("minvotes-slider"),
+		formTemplate.getElementById("year-slider"),
+	];
+	for (const slider of settingsSliders) {
+		const sliderInput = formTemplate.getElementById(slider.id + "-value");
+		const storageValue = JSON.parse(localStorage.getItem(sliderInput.name));
+		if (storageValue) {
+			slider.noUiSlider.set(storageValue);
+		}
+	}
 }
 
 export {

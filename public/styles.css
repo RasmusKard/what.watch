@@ -183,14 +183,14 @@ input[type=checkbox] {
 }
 
 .submit-button {
-	background: #f5c518;
+	background-color: rgb(245, 197, 24);
 	color: white;
 	font-size: var(--base-big-font);
 	border-radius: 8px;
 	margin-top: auto;
 }
 
-#submit-button:hover {
+.submit-button:hover {
 	opacity: 0.8;
 }
 
@@ -199,6 +199,10 @@ input[type=checkbox] {
 	background-color: rgba(0, 0, 0, 0.7);
 	color: rgba(255, 255, 255, 0.6);
 	border-radius: 5px;
+}
+
+.secondary-button:hover {
+	opacity: 0.8;
 }
 
 #rating-slider .noUi-tooltip {
