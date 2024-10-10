@@ -129,10 +129,10 @@ async function submitMethod({ userInput, res }) {
 		if (Array.isArray(output) && output.length) {
 			const outputKeys = Object.keys(output);
 			const randIndex = Math.floor(Math.random() * outputKeys.length);
-			const things = output[outputKeys[randIndex]];
+			const chosenRow = output[outputKeys[randIndex]];
 
-			const tconst = things["tconst"];
-			const result = await connection("title as t")
+			const tconst = chosenRow["tconst"];
+			const chosenRowAllDetails = await connection("title as t")
 				.select(
 					"t.tconst",
 					"t.primaryTitle",
@@ -164,7 +164,7 @@ async function submitMethod({ userInput, res }) {
 					"tg.tconst"
 				)
 				.select("tg.genres");
-			res.json(result[0]);
+			res.json(chosenRowAllDetails[0]);
 		} else {
 			res.status(404).end();
 			return;

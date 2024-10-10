@@ -1,34 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-const contentTypes = {
-	Movie: ["movie", "tvMovie", "tvSpecial"],
-	"TV Show": ["tvMiniSeries", "tvSeries"],
-};
-
-const availableGenres = [
-	"Action ⚔️",
-	"Adventure 🏞️",
-	"Animation 🎨",
-	"Biography 📖",
-	"Comedy 😂",
-	"Crime 🔫",
-	"Documentary 🎥",
-	"Drama 🎭",
-	"Family 👨‍👩‍👧‍👦",
-	"Fantasy 🧙‍♂️",
-	"Film-Noir 🎬",
-	"Game-Show 🎤",
-	"History 📜",
-	"Horror 👻",
-	"Mystery 🤫",
-	"Reality-TV 📺",
-	"Romance ❤️",
-	"Sci-Fi 🚀",
-	"Thriller 😱",
-	"War ⚔️",
-	"Western 🤠",
-];
-
 test("test", async ({ page }) => {
 	await page.goto("http://localhost:3000/");
 
@@ -113,7 +84,7 @@ test("test", async ({ page }) => {
 	const resultArr = result.split("|");
 
 	const rating = parseFloat(resultArr[0]);
-	await expect(rating).toBeGreaterThanOrEqual(allowedMinRating);
+	expect(rating).toBeGreaterThanOrEqual(allowedMinRating);
 
 	const genres = resultArr[2].split(",").map((e) => e.trim());
 	expect(
