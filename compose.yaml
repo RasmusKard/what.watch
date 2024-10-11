@@ -15,15 +15,14 @@ services:
       - ./:/usr/src/app/
 
   db:
-    env_file: ".env"
     image: mysql
     restart: always
     volumes:
       - db-data:/var/lib/mysql
       - ./sql_initialize/:/docker-entrypoint-initdb.d/
     environment:
-      - MYSQL_DATABASE=${DB_DATABASE_NAME}
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE='dataset_sql'
+      - MYSQL_ROOT_PASSWORD='1234'
     expose:
       - 3306
     ports:
