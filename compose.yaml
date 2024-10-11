@@ -3,13 +3,16 @@ services:
     env_file: ".env"
     build:
       context: .
+      target: dev
     environment:
       NODE_ENV: production
     ports:
       - "3000:3000"
     depends_on:
-      - db
-    command: ["./wait-for-it.sh", "db:3306", "--", "node", "server.js"]
+      db:
+        condition: service_healthy
+    volumes:
+      - ./:/usr/src/app/
 
   db:
     env_file: ".env"
@@ -26,9 +29,9 @@ services:
     ports:
       - "3307:3306"  
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", 'mysqladmin', 'ping', '-h', '127.0.0.1', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
       interval: 10s
-      timeout: 50s
-      retries: 5
+      timeout: 100s
+      retries: 10
 volumes:
   db-data: 

@@ -5,7 +5,7 @@
   "main": "script.js",
   "type": "module",
   "scripts": {
-    "devStart": "nodemon server.js"
+    "devStart": "nodemon -L server.js"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +18,7 @@
     "nouislider": "^15.8.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.47.2",
+    "@playwright/test": "^1.48.0",
     "@types/node": "^22.7.4",
     "nodemon": "^3.1.5"
   }
