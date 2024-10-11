@@ -112,8 +112,12 @@ async function submitMethod({ userInput, res }) {
 				}
 			})
 			.modify((query) => {
-				if (Array.isArray(yearRange) && yearRange.length) {
-					yearRange = yearRange.map((x) => Math.floor(x));
+				if (
+					Array.isArray(yearRange) &&
+					yearRange.length &&
+					(yearRange[0] !== 1894 ||
+						yearRange[1] !== new Date().getFullYear())
+				) {
 					query.andWhereBetween("title.startYear", yearRange);
 				}
 			})
