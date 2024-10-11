@@ -3,7 +3,7 @@ services:
     env_file: ".env"
     build:
       context: .
-      target: dev
+      target: prod
     environment:
       NODE_ENV: production
     ports:
