@@ -2,9 +2,7 @@ name: E2E Tests
 
 on:
     push:
-        branches: [69-deploy-the-site]
-
-    workflow_dispatch:
+        branches: []
 
 jobs:
     e2e-tests:
