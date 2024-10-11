@@ -17,10 +17,8 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 	npm ci --omit=dev
 
 # Install the system dependencies needed by Playwright.
-RUN npx playwright install-deps
+RUN npx playwright install-deps && npx playwright install
 
-# Install the Playwright CLI.
-RUN npx playwright install
 
 # Copy everything from the current directory to the working directory inside the container.
 COPY . .
