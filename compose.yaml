@@ -1,6 +1,5 @@
 services:
   server:
-    env_file: ".env"
     build:
       context: .
       target: prod
