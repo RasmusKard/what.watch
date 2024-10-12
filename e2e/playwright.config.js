@@ -9,14 +9,14 @@ export default defineConfig({
 
 	// test may sometimes fail due to query params randomization
 	// (fails on sql return 0 results)
-	retries: 5,
+	retries: 3,
 
 	workers: process.env.CI ? 1 : undefined,
 
 	reporter: "html",
 
 	use: {
-		trace: "on",
+		trace: "on-first-retry",
 	},
 
 	projects: [

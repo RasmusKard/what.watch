@@ -15,12 +15,24 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Start local environment with Docker Compose
-              run: docker compose up -d
+              run: docker compose up
 
-            - name: Build E2E Docker image
+            - name: Playwright install
               working-directory: e2e
-              run: docker build -t playwright-tests .
+              run: |
+                  npm ci
+                  npx playwright install-deps
+                  npx playwright install
 
-            - name: Run E2E tests
+            - name: Playwright run
               working-directory: e2e
-              run: docker run --name playwright-tests --network=host playwright-tests npm run e2etest
+              run: |
+                  npm run e2etest
+
+            # - name: Build E2E Docker image
+            #   working-directory: e2e
+            #   run: docker build -t playwright-tests .
+
+            # - name: Run E2E tests
+            #   working-directory: e2e
+            #   run: docker run --name playwright-tests --network=host playwright-tests npm run e2etest
