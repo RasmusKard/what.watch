@@ -14,7 +14,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 
 	use: {
-		trace: "on-first-retry",
+		trace: "on",
 	},
 
 	projects: [

@@ -18,8 +18,8 @@ services:
       - db-data:/var/lib/mysql
       - ./sql_initialize/:/docker-entrypoint-initdb.d/
     environment:
-      - MYSQL_DATABASE='dataset_sql'
-      - MYSQL_ROOT_PASSWORD='1234'
+      - MYSQL_DATABASE=dataset_sql
+      - MYSQL_ROOT_PASSWORD=1234
     expose:
       - 3306
     ports:
