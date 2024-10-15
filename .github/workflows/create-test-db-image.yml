@@ -1,8 +1,6 @@
 name: Create MYSQL image with data for testing
 
-on:
-  push:
-    branches: []
+on: workflow_dispatch
 
 env:
   IMAGE_NAME: mysql_testing_database

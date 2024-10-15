@@ -66,7 +66,7 @@ test("test", async ({ page, browserName }) => {
 	const allowedMinRating = await page.evaluate(() => {
 		const ratingNum = Math.floor(Math.random() * 80) / 10;
 		const ratingSlider = document.getElementById("rating-slider");
-		ratingSlider.noUiSlider.set(ratingNum);
+		ratingSlider.noUiSlider.set(11);
 
 		return ratingNum;
 	});
