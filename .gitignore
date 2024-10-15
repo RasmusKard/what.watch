@@ -8,3 +8,4 @@ plans.md
 /blob-report/
 /playwright/.cache/
 /e2e/test-results
+/e2e/playwright-report

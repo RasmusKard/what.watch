@@ -14,8 +14,9 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 
 	use: {
-		trace: "on",
+		trace: "retain-on-failure",
 	},
+	reporter: [["html", { open: "never" }]],
 
 	projects: [
 		{
