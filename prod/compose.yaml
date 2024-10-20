@@ -12,15 +12,14 @@ services:
   db:
     image: ghcr.io/rasmuskard/mysql_testing_database:69-deploy-the-site
     restart: always
+    env_file: ".env"
     volumes:
       - db-data:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=dataset_sql
-      - MYSQL_ROOT_PASSWORD=1234
-    expose:
-      - 3306
+      - MYSQL_DATABASE=${MYSQL_DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
     ports:
-      - "3307:3306"  
+      - "3306:3306"  
     healthcheck:
       test: ["CMD", 'mysqladmin', 'ping', '-h', '127.0.0.1', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
       interval: 10s

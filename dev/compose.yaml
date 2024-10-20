@@ -1,0 +1,30 @@
+services:
+  server:
+    build:
+      context: .
+      target: ${BUILD_TARGET:-prod}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: ghcr.io/rasmuskard/mysql_testing_database:69-deploy-the-site
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=dataset_sql
+      - MYSQL_ROOT_PASSWORD=1234
+    expose:
+      - 3306
+    ports:
+      - "3307:3306"  
+    healthcheck:
+      test: ["CMD", 'mysqladmin', 'ping', '-h', '127.0.0.1', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
+      interval: 10s
+      timeout: 100s
+      retries: 10
+volumes:
+  db-data: 

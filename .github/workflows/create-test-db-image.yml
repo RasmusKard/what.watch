@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./create-testing-db
+        working-directory: ./dev/create-testing-db
 
     permissions:
       packages: write

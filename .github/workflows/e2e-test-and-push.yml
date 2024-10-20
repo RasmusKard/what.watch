@@ -26,6 +26,7 @@ jobs:
           node-version: lts/*
 
       - name: Start local environment with Docker Compose
+        working-directory: dev
         run: docker compose up -d
 
       - name: Playwright install
@@ -47,9 +48,11 @@ jobs:
           retention-days: 30
 
       - name: Login to github registry
+        working-directory: dev
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push image
+        working-directory: dev
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$SERVER_IMAGE_NAME
 
