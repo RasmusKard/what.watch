@@ -1,10 +1,8 @@
 services:
   server:
-    build:
-      context: .
-      target: prod
-    environment:
-      NODE_ENV: production
+    env_file: ".env"
+    image: ghcr.io/rasmuskard/randwatch-server:69-deploy-the-site
+    restart: on-failure
     ports:
       - "3000:3000"
     depends_on:

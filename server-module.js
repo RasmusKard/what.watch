@@ -115,8 +115,7 @@ async function submitMethod({ userInput, res }) {
 				if (
 					Array.isArray(yearRange) &&
 					yearRange.length &&
-					(yearRange[0] !== 1894 ||
-						yearRange[1] !== new Date().getFullYear())
+					(yearRange[0] !== 1894 || yearRange[1] !== new Date().getFullYear())
 				) {
 					query.andWhereBetween("title.startYear", yearRange);
 				}
@@ -150,11 +149,7 @@ async function submitMethod({ userInput, res }) {
 					function () {
 						this.select("tg.tconst")
 							.from("title_genres as tg")
-							.join(
-								"genres_ref as gf",
-								"tg.genres",
-								"gf.genres_id"
-							)
+							.join("genres_ref as gf", "tg.genres", "gf.genres_id")
 							.where("tg.tconst", tconst)
 							.groupBy("tg.tconst")
 							.select(
@@ -187,7 +182,6 @@ function getDataFromTmdbApi({ tconst }) {
 			Authorization: process.env.TMDB_API_KEY,
 		},
 	};
-
 	const response = fetch(url, options)
 		.then((res) => res.json())
 		.catch((err) => console.error("error:" + err));
