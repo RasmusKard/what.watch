@@ -1,22 +1,33 @@
-**CD PREP**
+# **CD Prep**
 
-Dependencies needed on destination (those that aren't included in Docker image):
+### Dependencies Needed on Destination
 
-1. Nginx
-2. Docker + Docker compose
-3. https://github.com/adnanh/webhook
+_(These are not included in the Docker image)_
 
-_Setup_
+- **Nginx**
+- **Docker + Docker Compose**
+- [adnanh/webhook](https://github.com/adnanh/webhook)
 
-1. Download dependencies above
-2. Setup Nginx [Guide for Ubuntu 22.04](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-22-04)
-3. Build Docker images
-4. Setup Nginx to reverse proxy the application
-5. Setup adnanh/webhook to listen for Github Webhook (Only allow verified Github IPs through with Nginx)
+### Setup Steps
 
-**CD WORKFLOW**
+1. Install the dependencies listed above.
+2. Set up Nginx:
+   - Follow this [guide for Ubuntu 22.04](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-22-04).
+3. Build the Docker images.
+4. Configure Nginx to reverse proxy the application.
+5. Configure `adnanh/webhook` to listen for GitHub webhooks:
+   - Ensure that only **verified GitHub IPs** are allowed through Nginx, blocking all others with a `403 Forbidden`.
 
-1. On Github repo release webhook posts to server \*(1)
-2. Adnanh/webhook triggers redeploy.sh (docker compose build)
+---
 
-(1) Only verified Github IPs are accepted by Nginx in the webhook route, everything else gets 403
+# **CD Workflow**
+
+1. **GitHub Release:** When a new release is made, the GitHub webhook posts to the server.  
+   \* (1)
+2. **Webhook Trigger:** `adnanh/webhook` triggers the `redeploy.sh` script, which runs `docker compose build`.
+
+---
+
+### Notes:
+
+- **(1)**: Only requests from **verified GitHub IPs** are allowed by Nginx on the webhook route. All other requests are blocked with a `403 Forbidden` response.
