@@ -1,7 +1,6 @@
 import express from "express";
 import path from "node:path";
 import "dotenv/config";
-import exec from "child_process";
 import {
 	submitMethod,
 	retrieveMethod,
@@ -60,18 +59,6 @@ app.post("/api/tconst", async (req, res) => {
 	}
 
 	res.status(404).end();
-});
-
-app.use("/webhook", express.json());
-app.post("/webhook", (req, res) => {
-	exec("redeploy.sh", (error, stdout, stderr) => {
-		if (error) {
-			console.error(`redeploy failed: ${error}`);
-			return;
-		}
-		console.error(`stderr: ${stderr}`);
-	});
-	res.send("Success");
 });
 
 app.listen(3000);
