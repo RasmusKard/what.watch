@@ -1,8 +1,10 @@
 services:
   server:
+    container_name: randwatch-server
     build:
       context: .
       target: ${BUILD_TARGET:-prod}
+    image: randwatch-server
     ports:
       - "3000:3000"
     depends_on:
@@ -10,6 +12,7 @@ services:
         condition: service_healthy
 
   db:
+    container_name: randwatch-db
     image: ghcr.io/rasmuskard/mysql_testing_database:69-deploy-the-site
     restart: always
     volumes:
