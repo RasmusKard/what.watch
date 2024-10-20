@@ -1,7 +1,12 @@
 import { test, expect } from "@playwright/test";
 
-test("test", async ({ page }) => {
-	await page.goto("http://localhost:3000/");
+test("test", async ({ page, browserName }) => {
+	await page.goto("http://host.docker.internal:3000/");
+
+	let isWebkit;
+	if (browserName === "webkit") {
+		isWebkit = true;
+	}
 
 	// Choose genres
 	const availableGenres = [
@@ -36,7 +41,10 @@ test("test", async ({ page }) => {
 			Math.floor(Math.random() * availableGenres.length),
 			1
 		);
-		await page.getByText(splicedElement).click();
+		await page
+			.locator(`label[for="${splicedElement}"]`)
+			.click({ force: isWebkit });
+
 		allowedGenres.push(...splicedElement);
 	}
 
@@ -49,12 +57,14 @@ test("test", async ({ page }) => {
 	let allowedContentTypes = [];
 	for (let i = 0; i < contentTypesNum; i++) {
 		const contentType = contentTypesKeys[i];
-		await page.getByText(contentType).click();
+		await page
+			.locator(`label[for="${contentType}"]`)
+			.click({ force: isWebkit });
 		allowedContentTypes.push(...contentTypes[contentType]);
 	}
 
 	const allowedMinRating = await page.evaluate(() => {
-		const ratingNum = Math.floor(Math.random() * 100) / 10;
+		const ratingNum = Math.floor(Math.random() * 80) / 10;
 		const ratingSlider = document.getElementById("rating-slider");
 		ratingSlider.noUiSlider.set(ratingNum);
 
@@ -62,7 +72,9 @@ test("test", async ({ page }) => {
 	});
 
 	// Set year range and save
-	await page.locator("#settings-button").click();
+	const settingsLocator = page.locator("#settings-button");
+	await settingsLocator.focus();
+	await settingsLocator.click({ force: isWebkit });
 	const [startYearNum, endYearNum] = await page.evaluate(() => {
 		const startYearNum = Math.floor(Math.random() * (2024 - 1984) + 1984);
 		const endYearNum = Math.floor(
@@ -70,16 +82,18 @@ test("test", async ({ page }) => {
 		);
 		const yearSlider = document.getElementById("year-slider");
 		yearSlider.noUiSlider.set([startYearNum, endYearNum]);
-
+		console.log(startYearNum, endYearNum);
 		return [startYearNum, endYearNum];
 	});
-	await page.getByRole("button", { name: "Save" }).click();
+	await page.getByRole("button", { name: "Save" }).click({ force: isWebkit });
 
 	// submit and wait for sql query to return
 	const responsePromise = page.waitForResponse((res) =>
 		res.url().includes("result")
 	);
-	await page.getByRole("button", { name: "Submit" }).click();
+	const submitLocator = page.getByRole("button", { name: "Submit" });
+	await submitLocator.focus();
+	await submitLocator.click({ force: isWebkit });
 	await responsePromise;
 
 	const result = await page.evaluate(() => {

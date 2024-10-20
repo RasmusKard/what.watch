@@ -7,3 +7,5 @@ plans.md
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+dev/tests/e2e/test-results
+dev/tests/e2e/playwright-report

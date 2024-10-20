@@ -89,9 +89,7 @@ function populateFormWithSessionData({
 		const formElements = formElement.elements;
 		for (const [key, value] of Object.entries(formData)) {
 			const formEle = formElements[key];
-			if (
-				Object.prototype.isPrototypeOf.call(NodeList.prototype, formEle)
-			) {
+			if (Object.prototype.isPrototypeOf.call(NodeList.prototype, formEle)) {
 				formEle.forEach((element) => {
 					if (value.includes(element.value)) {
 						element.checked = true;
@@ -141,9 +139,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			sessionStorage.setItem(sessionStorageName, formDataObjStr);
 		} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
 			formDataObj = JSON.parse(sessionItem);
-			formDataObj["seenIds"] = JSON.parse(
-				sessionStorage.getItem("seenIds")
-			);
+			formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
 			formDataObjStr = JSON.stringify(formDataObj);
 			document.getElementById("page-container").style.background = "";
 		} else {
@@ -161,10 +157,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		const seenIds = sessionStorage.getItem("seenIds");
 		if (e.submitter.id === "form-submit") {
-			sessionStorage.setItem(
-				"seenIds",
-				JSON.stringify([response["tconst"]])
-			);
+			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
 		} else if (e.submitter.id === "form-resubmit" && seenIds !== null) {
 			const seenIdsObj = JSON.parse(seenIds);
 			seenIdsObj.push(response["tconst"]);

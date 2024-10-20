@@ -1,0 +1,31 @@
+services:
+  server:
+    container_name: randwatch-server
+    env_file: ".env"
+    image: ghcr.io/rasmuskard/randwatch-server:69-deploy-the-site
+    restart: on-failure
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: randwatch-db
+    image: ghcr.io/rasmuskard/mysql_testing_database:69-deploy-the-site
+    restart: always
+    env_file: ".env"
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"  
+    healthcheck:
+      test: ["CMD", 'mysqladmin', 'ping', '-h', '127.0.0.1', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
+      interval: 10s
+      timeout: 100s
+      retries: 10
+volumes:
+  db-data: 

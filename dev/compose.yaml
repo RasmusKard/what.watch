@@ -1,10 +1,10 @@
 services:
   server:
+    container_name: randwatch-server
     build:
       context: .
-      target: prod
-    environment:
-      NODE_ENV: production
+      target: ${BUILD_TARGET:-prod}
+    image: randwatch-server
     ports:
       - "3000:3000"
     depends_on:
@@ -12,14 +12,14 @@ services:
         condition: service_healthy
 
   db:
-    image: mysql
+    container_name: randwatch-db
+    image: ghcr.io/rasmuskard/mysql_testing_database:69-deploy-the-site
     restart: always
     volumes:
       - db-data:/var/lib/mysql
-      - ./sql_initialize/:/docker-entrypoint-initdb.d/
     environment:
-      - MYSQL_DATABASE='dataset_sql'
-      - MYSQL_ROOT_PASSWORD='1234'
+      - MYSQL_DATABASE=dataset_sql
+      - MYSQL_ROOT_PASSWORD=1234
     expose:
       - 3306
     ports:

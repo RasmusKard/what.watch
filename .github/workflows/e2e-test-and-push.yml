@@ -1,0 +1,70 @@
+name: E2E test and push image to Github
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  SERVER_IMAGE_NAME: randwatch-server
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-24.04
+
+    timeout-minutes: 10
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Start local environment with Docker Compose
+        working-directory: dev
+        run: docker compose up -d
+
+        # Create and run docker image using playwright image + tests in current folder
+      - name: Playwright build docker image and run tests
+        working-directory: dev/tests/e2e
+        run: |
+          docker build -t playwright-testing .
+          docker run -it --name=playwright-testing -d --ipc=host --add-host host.docker.internal:host-gateway playwright-testing
+
+      - name: Playwright run tests
+        run: docker exec playwright-testing npx playwright test
+
+      - name: If Playwright failed upload test report
+        uses: actions/upload-artifact@v4
+        if: ${{ cancelled() }}
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 30
+
+      - name: Login to github registry
+        working-directory: dev
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        working-directory: dev
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$SERVER_IMAGE_NAME
+
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          [ "$VERSION" == "main" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $SERVER_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
