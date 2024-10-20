@@ -13,7 +13,7 @@ services:
 
   db:
     container_name: randwatch-db
-    image: ghcr.io/rasmuskard/mysql_testing_database:69-deploy-the-site
+    image: ghcr.io/rasmuskard/mysql_testing_database:latest
     restart: always
     volumes:
       - db-data:/var/lib/mysql
