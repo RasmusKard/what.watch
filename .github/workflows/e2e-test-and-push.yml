@@ -1,8 +1,9 @@
 name: E2E test and push image to Github
 
 on:
-  push:
-    branches: []
+  release:
+    types: [published]
+  workflow_dispatch:
 
 env:
   SERVER_IMAGE_NAME: randwatch-server
