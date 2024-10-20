@@ -7,8 +7,8 @@ const dbConfig = {
 		host: "db",
 		port: 3306,
 		user: "root",
-		password: "1234",
-		database: "dataset_sql",
+		password: process.env.MYSQL_PASSWORD || "1234",
+		database: process.env.MYSQL_DB_NAME || "dataset_sql",
 	},
 };
 
