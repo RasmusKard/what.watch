@@ -28,7 +28,7 @@ jobs:
 
       - name: Start local environment with Docker Compose
         working-directory: dev
-        run: docker compose up -d
+        run: docker compose -f compose.yaml up -d
 
         # Create and run docker image using playwright image + tests in current folder
       - name: Playwright build docker image and run tests
