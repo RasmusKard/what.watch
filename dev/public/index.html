@@ -335,12 +335,26 @@
 		</template>
 
 		<template id="results-template">
-			<button
-				type="button"
-				class="secondary-button svg-button"
-				id="home-button"
-				onclick="window.location.href = '/'"
-			></button>
+			<div id="navbar-container">
+				<button
+					type="button"
+					class="secondary-button svg-button"
+					id="back-button"
+					onclick="history.back()"
+				></button>
+				<button
+					type="button"
+					class="secondary-button svg-button"
+					id="home-button"
+					onclick="window.location.href = '/'"
+				></button>
+				<button
+					type="button"
+					class="secondary-button svg-button"
+					id="forward-button"
+					onclick="history.forward()"
+				></button>
+			</div>
 			<div id="title-container">
 				<h1 id="primary-title"></h1>
 				<p id="title-info"></p>

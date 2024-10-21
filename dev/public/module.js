@@ -114,10 +114,23 @@ async function checkUrlParams() {
 	const urlParams = new URLSearchParams(document.location.search);
 	const tconstParam = urlParams.get("tconst");
 	if (tconstParam !== null) {
-		await fetchSqlAndReplaceContainer({
+		const response = await fetchSqlAndReplaceContainer({
 			reqType: "retrieve",
 			body: JSON.stringify({ tconst: tconstParam }),
 		});
+
+		const tmdbResponse = await getTmdbApiData({
+			tconst: response["tconst"],
+		});
+		if (tmdbResponse) {
+			if (tmdbResponse["overview"]) {
+				document.getElementById("title-overview").textContent =
+					tmdbResponse["overview"];
+			}
+			if (tmdbResponse["poster_path"]) {
+				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tmdbResponse["poster_path"]}"), linear-gradient(#504f4f, #070707)`;
+			}
+		}
 	}
 }
 
@@ -182,10 +195,23 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 function listenToPopState() {
 	window.addEventListener("popstate", async (e) => {
 		if (e.state) {
-			await fetchSqlAndReplaceContainer({
+			const response = await fetchSqlAndReplaceContainer({
 				reqType: "retrieve",
 				body: JSON.stringify(e.state),
 			});
+
+			const tmdbResponse = await getTmdbApiData({
+				tconst: response["tconst"],
+			});
+			if (tmdbResponse) {
+				if (tmdbResponse["overview"]) {
+					document.getElementById("title-overview").textContent =
+						tmdbResponse["overview"];
+				}
+				if (tmdbResponse["poster_path"]) {
+					document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tmdbResponse["poster_path"]}"), linear-gradient(#504f4f, #070707)`;
+				}
+			}
 		} else if (e.state === null) {
 			location.reload();
 		}
