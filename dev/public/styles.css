@@ -226,10 +226,24 @@ input[type="checkbox"] {
 	background-image: url("./settings.svg");
 }
 
+#navbar-container {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+}
+
 #home-button {
 	background-image: url("./home.svg");
-	align-self: flex-start;
 	margin: 0;
+}
+
+#back-button {
+	background-image: url("./back-arrow.svg");
+	margin: 0;
+}
+
+#forward-button {
+	background-image: url("./forward-arrow.svg");
 }
 
 .svg-button {

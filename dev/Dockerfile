@@ -12,7 +12,6 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     npm ci --include=dev
 USER node
 COPY . .
-VOLUME ["/usr/src/app/public"]
 CMD npm run nodemon
 
 FROM base as prod
