@@ -6,7 +6,6 @@ import {
 	retrieveMethod,
 	getDataFromTmdbApi,
 } from "./server-module.js";
-import { stderr } from "node:process";
 const app = express();
 const __dirname = import.meta.dirname;
 
