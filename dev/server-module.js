@@ -162,6 +162,7 @@ async function submitMethod({ userInput, res }) {
 					"tg.tconst"
 				)
 				.select("tg.genres");
+			chosenRowAllDetails[0]["rowCount"] = Object.keys(output).length;
 			res.json(chosenRowAllDetails[0]);
 		} else {
 			res.status(404).end();

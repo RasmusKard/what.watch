@@ -153,12 +153,47 @@ function addSettingsListener() {
 
 		// add overlay so elements behind settings are blocked from view
 		const overlayElement = document.createElement("div");
-		overlayElement.id = "settings-overlay";
+		overlayElement.id = "overlay";
 		document.body.appendChild(overlayElement);
 
 		settingsSaveListener();
 	});
 }
+
+function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
+	// max num minus end num divided by stepcount is scramble step size
+	// get int stepsize to keep scrambling time consistent using stepcount
+	const totalDiff = maxNum - endNum;
+	const stepSize = Math.floor(totalDiff / animationStepCount);
+	if (stepSize > 0) {
+		let randArr = [];
+		let randSum = 0;
+		for (let i = 0; i < animationStepCount; i++) {
+			// 0 exclusive generation
+			const randNum = 1 - Math.random();
+			randSum += randNum;
+			randArr.push(randNum);
+		}
+
+		const factor = totalDiff / randSum;
+		let sum = 0;
+		for (let i = 0; i < animationStepCount; i++) {
+			randArr[i] *= factor;
+			randArr[i] = Math.floor(randArr[i]);
+			sum += randArr[i];
+		}
+
+		return randArr;
+	} else {
+		return false;
+	}
+}
+
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function animateFiltering({ endNum, animationStepCount, maxNum }) {}
 
 function addSubmitListener({ formContainerId, sessionStorageName }) {
 	const formElement = document.getElementById(formContainerId);
@@ -174,8 +209,26 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		});
 
 		// Fade out container and remove poster image if present
-		formElement.style.opacity = 0;
+
 		document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
+
+		// Open loading overlay with total row count of DB
+		const overlayElement = document.createElement("div");
+		overlayElement.id = "overlay";
+		document.body.appendChild(overlayElement);
+		const loadingTemplate = document.getElementById("loading-template");
+		const loadingTemplateClone = loadingTemplate.content.cloneNode(true);
+
+		const loadingMessage =
+			loadingTemplateClone.getElementById("loading-message");
+		loadingMessage.innerText = "Finding you something to watch!";
+
+		const loadingNumber = loadingTemplateClone.getElementById("loading-number");
+		const maxRowCount = 476818;
+		loadingNumber.innerText = maxRowCount;
+
+		const formContainer = document.getElementById("form-container");
+		formContainer.appendChild(loadingTemplateClone);
 
 		const response = await fetchFromSql({
 			fetchBody: formDataObjStr,
@@ -185,12 +238,34 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			return;
 		}
 
+		const stepArr = getAnimationStepArr({
+			endNum: response["rowCount"],
+			animationStepCount: 7,
+			maxNum: maxRowCount,
+		});
+
+		let currentRowCount = maxRowCount;
+
+		for (const step of stepArr) {
+			currentRowCount -= step;
+			loadingNumber.innerText = currentRowCount;
+			await sleep(350);
+		}
+
+		// start counting down to result row count
+		// when reached say found blablalba
+
 		populateResultsToTemplate({
 			resultsObj: response,
 			templateId: "#results-template",
 			containerSelector: formElement,
 		});
+
+		getAndSetTmdbApiData({
+			tconstObj: response,
+		});
 		formElement.style.opacity = 1;
+		overlayElement.remove();
 
 		const state = { tconst: response["tconst"] };
 		history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
@@ -206,9 +281,6 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		}
 
 		// Get movie/tv show poster and overview
-		getAndSetTmdbApiData({
-			tconstObj: response,
-		});
 	});
 }
 
@@ -373,7 +445,7 @@ function formDataToObj(formElement) {
 function settingsSaveListener() {
 	const settingsSaveButton = document.getElementById("save-settings");
 	settingsSaveButton.addEventListener("click", (e) => {
-		const settingsForm = document.getElementById("settings-form");
+		const settingsForm = document.querySelector(".overlay-element");
 
 		const settingsData = new FormData(settingsForm);
 
@@ -381,7 +453,7 @@ function settingsSaveListener() {
 			localStorage.setItem(key, value);
 		}
 
-		const settingsOverlay = document.getElementById("settings-overlay");
+		const settingsOverlay = document.getElementById("overlay");
 		settingsForm.remove();
 		settingsOverlay.remove();
 	});

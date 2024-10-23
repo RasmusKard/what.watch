@@ -298,7 +298,7 @@
 		</div>
 
 		<template id="settings-template">
-			<form id="settings-form" action="">
+			<form class="overlay-element" action="">
 				<fieldset id="settings-body">
 					<legend>Settings</legend>
 					<fieldset>
@@ -332,6 +332,18 @@
 					<button id="save-settings" type="button">Save</button>
 				</fieldset>
 			</form>
+		</template>
+
+		<template id="loading-template">
+			<div id="loading-container" class="overlay-element">
+				<fieldset>
+					<span class="loader" id="loading-message"></span>
+				</fieldset>
+				<div>
+					<p>Total number of available suggestions:</p>
+					<p id="loading-number"></p>
+				</div>
+			</div>
 		</template>
 
 		<template id="results-template">
