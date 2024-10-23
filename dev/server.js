@@ -12,7 +12,7 @@ const __dirname = import.meta.dirname;
 app.use("/node_modules", express.static(__dirname + "/node_modules/"));
 app.use(express.static("public"));
 app.use("/result", express.json());
-app.use("/api/tconst", express.text());
+app.use("/api/tconst", express.json());
 
 async function mainFunc(req, res) {
 	// handle GET request with URL search params
@@ -44,9 +44,9 @@ app.post("/result", mainFunc);
 app.get("/result", mainFunc);
 
 app.post("/api/tconst", async (req, res) => {
-	const tconst = req.body;
+	const tconstObj = req.body;
 
-	const result = await getDataFromTmdbApi({ tconst: tconst });
+	const result = await getDataFromTmdbApi({ tconstObj: tconstObj });
 
 	for (const arr of Object.values(result)) {
 		if (Array.isArray(arr) && arr.length > 0) {

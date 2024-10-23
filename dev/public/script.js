@@ -8,7 +8,7 @@ import {
 } from "./module.js";
 
 // checks if url contains tconst, if so querys db and changes dom (for GET requests with param)
-checkUrlParams();
+checkUrlParams({ formContainerId: "form-container" });
 
 // Add rating slider and set initial value
 const ratingSlider = document.getElementById("rating-slider");

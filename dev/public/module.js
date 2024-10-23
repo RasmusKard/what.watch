@@ -3,27 +3,27 @@
 //
 //
 
-async function checkUrlParams() {
+async function checkUrlParams({ formContainerId }) {
 	const urlParams = new URLSearchParams(document.location.search);
 	const tconstParam = urlParams.get("tconst");
 	if (tconstParam !== null) {
-		const response = await fetchSqlAndReplaceContainer({
+		const formElement = document.getElementById(formContainerId);
+		formElement.style.opacity = 0;
+
+		const tconstObj = { tconst: tconstParam };
+		const response = await fetchFromSql({
+			fetchBody: JSON.stringify(tconstObj),
 			reqType: "retrieve",
-			body: JSON.stringify({ tconst: tconstParam }),
 		});
 
-		const tmdbResponse = await getTmdbApiData({
-			tconst: response["tconst"],
+		populateResultsToTemplate({
+			resultsObj: response,
+			templateId: "#results-template",
+			containerSelector: formElement,
 		});
-		if (tmdbResponse) {
-			if (tmdbResponse["overview"]) {
-				document.getElementById("title-overview").textContent =
-					tmdbResponse["overview"];
-			}
-			if (tmdbResponse["poster_path"]) {
-				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tmdbResponse["poster_path"]}"), linear-gradient(#504f4f, #070707)`;
-			}
-		}
+		formElement.style.opacity = 1;
+
+		getAndSetTmdbApiData({ tconstObj: tconstObj });
 	}
 }
 
@@ -156,7 +156,6 @@ function addSettingsListener() {
 		overlayElement.id = "settings-overlay";
 		document.body.appendChild(overlayElement);
 
-		// add settings save listener
 		settingsSaveListener();
 	});
 }
@@ -182,6 +181,9 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			fetchBody: formDataObjStr,
 			reqType: "submit",
 		});
+		if (!response) {
+			return;
+		}
 
 		populateResultsToTemplate({
 			resultsObj: response,
@@ -205,7 +207,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		// Get movie/tv show poster and overview
 		getAndSetTmdbApiData({
-			tconst: response["tconst"],
+			tconstObj: response,
 		});
 	});
 }
@@ -232,7 +234,7 @@ function listenToPopState({ formContainerId }) {
 			});
 			formElement.style.opacity = 1;
 
-			getAndSetTmdbApiData({ tconst: currentTconst["tconst"] });
+			getAndSetTmdbApiData({ tconstObj: currentTconst });
 		} else if (currentTconst === null) {
 			location.reload();
 		}
@@ -278,10 +280,13 @@ function populateResultsToTemplate({
 	containerSelector.replaceChildren(newTemplate);
 }
 
-async function getAndSetTmdbApiData({ tconst }) {
+async function getAndSetTmdbApiData({ tconstObj }) {
 	const apiResponse = await fetch("/api/tconst", {
+		headers: {
+			"Content-Type": "application/json",
+		},
 		method: "POST",
-		body: tconst,
+		body: JSON.stringify(tconstObj),
 	})
 		.then((response) => {
 			if (response.ok) {
@@ -324,6 +329,7 @@ async function fetchFromSql({ fetchBody, reqType }) {
 			window.alert("Nothing was found, please try again.");
 			window.location.href = "/";
 			console.error(e);
+			return false;
 		});
 
 	return response;

@@ -128,7 +128,6 @@ async function submitMethod({ userInput, res }) {
 					query.andWhere("title.numVotes", ">=", 1000);
 				}
 			});
-
 		if (Array.isArray(output) && output.length) {
 			const outputKeys = Object.keys(output);
 			const randIndex = Math.floor(Math.random() * outputKeys.length);
@@ -173,7 +172,8 @@ async function submitMethod({ userInput, res }) {
 	}
 }
 
-function getDataFromTmdbApi({ tconst }) {
+function getDataFromTmdbApi({ tconstObj }) {
+	const tconst = tconstObj["tconst"];
 	const url = `https://api.themoviedb.org/3/find/${tconst}?external_source=imdb_id`;
 	const options = {
 		method: "GET",
