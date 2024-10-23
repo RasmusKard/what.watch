@@ -63,7 +63,6 @@ function createSlider({
 
 function populateFormWithSessionData({
 	ratingSliderId,
-	ratingSliderValueId,
 	formContainerId,
 	sessionStorageName,
 }) {
@@ -169,32 +168,27 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		// Submit: get form data and insert it into sessionStorage
 		// Re-submit: get form data from sessionStorage
-		const sessionItem = sessionStorage.getItem(sessionStorageName);
-		let formDataObj;
-		let formDataObjStr;
-		if (e.submitter.id === "form-submit") {
-			formDataObj = formDataToObj(formElement);
-			formDataObj["settings"] = {
-				minvotes: localStorage.getItem("minvotes"),
-				yearrange: JSON.parse(localStorage.getItem("yearrange")),
-			};
-			formDataObjStr = JSON.stringify(formDataObj);
-			sessionStorage.setItem(sessionStorageName, formDataObjStr);
-		} else if (e.submitter.id === "form-resubmit" && sessionItem !== null) {
-			formDataObj = JSON.parse(sessionItem);
-			formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
-			formDataObjStr = JSON.stringify(formDataObj);
-			document.getElementById("page-container").style.background = "";
-		} else {
-			// Handle session storage expiry on form resubmit
-			window.alert("Nothing was found, please try again.");
-			window.location.href = "/";
-		}
-
-		const response = await fetchSqlAndReplaceContainer({
-			reqType: "submit",
-			body: formDataObjStr,
+		const formDataObjStr = storeOrGetFormData({
+			sessionStorageName: sessionStorageName,
+			formElement: formElement,
+			event: e,
 		});
+
+		// Fade out container and remove poster image if present
+		formElement.style.opacity = 0;
+		document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
+
+		const response = await fetchFromSql({
+			fetchBody: formDataObjStr,
+			reqType: "submit",
+		});
+
+		populateResultsToTemplate({
+			resultsObj: response,
+			templateId: "#results-template",
+			containerSelector: formElement,
+		});
+		formElement.style.opacity = 1;
 
 		const state = { tconst: response["tconst"] };
 		history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
@@ -210,42 +204,36 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		}
 
 		// Get movie/tv show poster and overview
-		const tmdbResponse = await getTmdbApiData({
+		getAndSetTmdbApiData({
 			tconst: response["tconst"],
 		});
-		if (tmdbResponse) {
-			if (tmdbResponse["overview"]) {
-				document.getElementById("title-overview").textContent =
-					tmdbResponse["overview"];
-			}
-			if (tmdbResponse["poster_path"]) {
-				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tmdbResponse["poster_path"]}"), linear-gradient(#504f4f, #070707)`;
-			}
-		}
 	});
 }
 
-function listenToPopState() {
+function listenToPopState({ formContainerId }) {
 	window.addEventListener("popstate", async (e) => {
-		if (e.state) {
-			const response = await fetchSqlAndReplaceContainer({
+		const currentTconst = e.state;
+		if (currentTconst) {
+			const formElement = document.getElementById(formContainerId);
+			formElement.style.opacity = 0;
+			document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
+
+			const currentTconstStr = JSON.stringify(currentTconst);
+
+			const response = await fetchFromSql({
+				fetchBody: currentTconstStr,
 				reqType: "retrieve",
-				body: JSON.stringify(e.state),
 			});
 
-			const tmdbResponse = await getTmdbApiData({
-				tconst: response["tconst"],
+			populateResultsToTemplate({
+				resultsObj: response,
+				templateId: "#results-template",
+				containerSelector: formElement,
 			});
-			if (tmdbResponse) {
-				if (tmdbResponse["overview"]) {
-					document.getElementById("title-overview").textContent =
-						tmdbResponse["overview"];
-				}
-				if (tmdbResponse["poster_path"]) {
-					document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tmdbResponse["poster_path"]}"), linear-gradient(#504f4f, #070707)`;
-				}
-			}
-		} else if (e.state === null) {
+			formElement.style.opacity = 1;
+
+			getAndSetTmdbApiData({ tconst: currentTconst["tconst"] });
+		} else if (currentTconst === null) {
 			location.reload();
 		}
 	});
@@ -290,7 +278,7 @@ function populateResultsToTemplate({
 	containerSelector.replaceChildren(newTemplate);
 }
 
-async function getTmdbApiData({ tconst }) {
+async function getAndSetTmdbApiData({ tconst }) {
 	const apiResponse = await fetch("/api/tconst", {
 		method: "POST",
 		body: tconst,
@@ -304,21 +292,27 @@ async function getTmdbApiData({ tconst }) {
 			return false;
 		});
 
-	return apiResponse;
+	if (apiResponse) {
+		const tconstOverview = apiResponse["overview"];
+		if (tconstOverview) {
+			const overViewElement = document.getElementById("title-overview");
+			overViewElement.textContent = tconstOverview;
+		}
+		const tconstPosterPath = apiResponse["poster_path"];
+		if (tconstPosterPath) {
+			document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tconstPosterPath}"), linear-gradient(#504f4f, #070707)`;
+		}
+	}
 }
 
-async function fetchSqlAndReplaceContainer({ reqType, body }) {
-	const formElement = document.querySelector("#form-container");
-	formElement.style.opacity = 0;
-	// remove old poster image
-	document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
+async function fetchFromSql({ fetchBody, reqType }) {
 	const response = await fetch("/result", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			"request-type": reqType,
 		},
-		body: body,
+		body: fetchBody,
 	})
 		.then((response) => {
 			if (response.ok) {
@@ -331,14 +325,34 @@ async function fetchSqlAndReplaceContainer({ reqType, body }) {
 			window.location.href = "/";
 			console.error(e);
 		});
-	populateResultsToTemplate({
-		resultsObj: response,
-		templateId: "#results-template",
-		containerSelector: formElement,
-	});
-	formElement.style.opacity = 1;
 
 	return response;
+}
+
+function storeOrGetFormData({ sessionStorageName, formElement, event }) {
+	const sessionItem = sessionStorage.getItem(sessionStorageName);
+	let formDataObjStr;
+	if (event.submitter.id === "form-submit") {
+		const formDataObj = formDataToObj(formElement);
+		formDataObj["settings"] = {
+			minvotes: localStorage.getItem("minvotes"),
+			yearrange: JSON.parse(localStorage.getItem("yearrange")),
+		};
+		formDataObjStr = JSON.stringify(formDataObj);
+		sessionStorage.setItem(sessionStorageName, formDataObjStr);
+	} else if (event.submitter.id === "form-resubmit" && sessionItem !== null) {
+		const formDataObj = JSON.parse(sessionItem);
+		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
+		formDataObjStr = JSON.stringify(formDataObj);
+		document.getElementById("page-container").style.background = "";
+	} else {
+		// Handle session storage expiry on form resubmit
+		window.alert("Nothing was found, please try again.");
+		window.location.href = "/";
+		return;
+	}
+
+	return formDataObjStr;
 }
 
 function formDataToObj(formElement) {
@@ -369,12 +383,11 @@ function settingsSaveListener() {
 
 export {
 	formDataToObj,
-	fetchSqlAndReplaceContainer,
 	createSlider,
 	checkUrlParams,
 	populateFormWithSessionData,
 	addSubmitListener,
 	listenToPopState,
-	getTmdbApiData,
+	getAndSetTmdbApiData,
 	addSettingsListener,
 };

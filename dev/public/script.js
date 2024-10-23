@@ -56,4 +56,4 @@ addSubmitListener({
 });
 
 // when user moves backwards or forwards use history API state to populate page
-listenToPopState();
+listenToPopState({ formContainerId: "form-container" });
