@@ -11,8 +11,9 @@ async function checkUrlParams({ formContainerId }) {
 		formElement.style.opacity = 0;
 
 		const tconstObj = { tconst: tconstParam };
+		const fetchParam = new URLSearchParams(tconstObj).toString();
 		const response = await fetchFromSql({
-			fetchBody: JSON.stringify(tconstObj),
+			fetchBody: fetchParam,
 			reqType: "retrieve",
 		});
 
@@ -191,11 +192,13 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		// Open loading overlay with total row count of DB
 		if (e.submitter.id === "form-submit") {
-			const formDataObjStr = storeFormData({
+			const formDataObj = storeFormData({
 				sessionStorageName: sessionStorageName,
 				formElement: formElement,
 			});
+			const urlParams = formDataToUrlParams({ formDataObj: formDataObj });
 			sessionStorage.removeItem("seenIds");
+			sessionStorage.removeItem("tconstArr");
 
 			const maxRowCount = 476818;
 
@@ -215,19 +218,26 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			formElement.appendChild(loadingTemplateClone);
 
 			const tconstArr = await fetchFromSql({
-				fetchBody: formDataObjStr,
+				fetchBody: urlParams,
 				reqType: "submit",
 			});
 			if (!tconstArr) {
 				return;
 			}
-			sessionStorage.setItem("tconstArr", JSON.stringify(tconstArr));
+			try {
+				sessionStorage.setItem("tconstArr", JSON.stringify(tconstArr));
+			} catch (error) {
+				console.error(error);
+			}
 			const randTconstAndRowCount = pickRandomId(tconstArr);
 			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
+
 			const resultRowCount = randTconstAndRowCount["rowCount"];
 
+			const tconstParam = new URLSearchParams(randTconstObj).toString();
+
 			const response = await fetchFromSql({
-				fetchBody: JSON.stringify(randTconstObj),
+				fetchBody: tconstParam,
 				reqType: "retrieve",
 			});
 
@@ -266,12 +276,24 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		} else if (e.submitter.id === "form-resubmit") {
 			formElement.style.opacity = 0;
 
-			const tconstArr = JSON.parse(sessionStorage.getItem("tconstArr"));
+			let tconstArr = JSON.parse(sessionStorage.getItem("tconstArr"));
+
+			if (!tconstArr) {
+				const formDataObj = getFormData({
+					sessionStorageName: sessionStorageName,
+				});
+				const urlParams = formDataToUrlParams({ formDataObj: formDataObj });
+
+				tconstArr = await fetchFromSql({
+					fetchBody: urlParams,
+					reqType: "submit",
+				});
+			}
 			const randTconstAndRowCount = pickRandomId(tconstArr);
 			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
-
+			const tconstParam = new URLSearchParams(randTconstObj).toString();
 			const response = await fetchFromSql({
-				fetchBody: JSON.stringify(randTconstObj),
+				fetchBody: tconstParam,
 				reqType: "retrieve",
 			});
 
@@ -317,11 +339,11 @@ function listenToPopState({ formContainerId }) {
 			const formElement = document.getElementById(formContainerId);
 			formElement.style.opacity = 0;
 			document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
-
-			const currentTconstStr = JSON.stringify(currentTconst);
+			console.log(currentTconst);
+			const tconstParam = new URLSearchParams(currentTconst).toString();
 
 			const response = await fetchFromSql({
-				fetchBody: currentTconstStr,
+				fetchBody: tconstParam,
 				reqType: "retrieve",
 			});
 
@@ -368,14 +390,19 @@ async function animateLoadingOverlay({
 	});
 
 	let currentRowCount = maxRowCount;
-
-	for (const step of stepArr) {
-		currentRowCount -= step;
-		loadingNumber.innerText = currentRowCount;
+	if (stepArr) {
+		for (const step of stepArr) {
+			currentRowCount -= step;
+			loadingNumber.innerText = currentRowCount;
+			await sleep(500);
+		}
+		loadingNumber.style.color = "green";
+		await sleep(500);
+	} else {
+		loadingNumber.innerText = endNum;
+		loadingNumber.style.color = "green";
 		await sleep(500);
 	}
-	loadingNumber.style.color = "green";
-	await sleep(500);
 }
 
 function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
@@ -466,13 +493,13 @@ async function getAndSetTmdbApiData({ tconstObj, templateElement }) {
 }
 
 async function fetchFromSql({ fetchBody, reqType }) {
-	const response = await fetch("/result", {
-		method: "POST",
+	const response = await fetch(`/result?${fetchBody}`, {
+		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
 			"request-type": reqType,
 		},
-		body: fetchBody,
+		cache: "no-cache",
 	})
 		.then((response) => {
 			if (response.ok) {
@@ -490,38 +517,45 @@ async function fetchFromSql({ fetchBody, reqType }) {
 	return response;
 }
 
-function storeOrGetFormData({ sessionStorageName, formElement, event }) {
-	const sessionItem = sessionStorage.getItem(sessionStorageName);
-	let formDataObjStr;
-	if (event.submitter.id === "form-submit") {
-		const formDataObj = formDataToObj(formElement);
-		formDataObj["settings"] = {
-			minvotes: localStorage.getItem("minvotes"),
-			yearrange: JSON.parse(localStorage.getItem("yearrange")),
-		};
-		formDataObjStr = JSON.stringify(formDataObj);
-		sessionStorage.setItem(sessionStorageName, formDataObjStr);
-	} else if (event.submitter.id === "form-resubmit" && sessionItem !== null) {
-		const formDataObj = JSON.parse(sessionItem);
-		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
-		formDataObjStr = JSON.stringify(formDataObj);
-	} else {
-		// Handle session storage expiry on form resubmit
-		window.alert("Nothing was found, please try again.");
-		window.location.href = "/";
-		return;
-	}
+// function storeOrGetFormData({ sessionStorageName, formElement, event }) {
+// 	const sessionItem = sessionStorage.getItem(sessionStorageName);
+// 	let formDataObjStr;
+// 	if (event.submitter.id === "form-submit") {
+// 		const formDataObj = formDataToObj(formElement);
+// 		formDataObj["settings"] = {
+// 			minvotes: localStorage.getItem("minvotes"),
+// 			yearrange: JSON.parse(localStorage.getItem("yearrange")),
+// 		};
+// 		formDataObjStr = JSON.stringify(formDataObj);
+// 		sessionStorage.setItem(sessionStorageName, formDataObjStr);
+// 	} else if (event.submitter.id === "form-resubmit" && sessionItem !== null) {
+// 		const formDataObj = JSON.parse(sessionItem);
+// 		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
+// 		formDataObjStr = JSON.stringify(formDataObj);
+// 	} else {
+// 		// Handle session storage expiry on form resubmit
+// 		window.alert("Nothing was found, please try again.");
+// 		window.location.href = "/";
+// 		return;
+// 	}
 
-	return formDataObjStr;
+// 	return formDataObjStr;
+// }
+
+function formDataToUrlParams({ formDataObj }) {
+	for (const [key, value] of Object.entries(formDataObj)) {
+		formDataObj[key] = JSON.stringify(value);
+	}
+	const urlParams = new URLSearchParams(formDataObj).toString();
+
+	return urlParams;
 }
 
 function getFormData({ sessionStorageName }) {
 	const sessionItem = sessionStorage.getItem(sessionStorageName);
-	let formDataObjStr;
+	let formDataObj;
 	if (sessionItem !== null) {
-		const formDataObj = JSON.parse(sessionItem);
-		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
-		formDataObjStr = JSON.stringify(formDataObj);
+		formDataObj = JSON.parse(sessionItem);
 	} else {
 		// Handle session storage expiry on form resubmit
 		window.alert("Nothing was found, please try again.");
@@ -529,19 +563,26 @@ function getFormData({ sessionStorageName }) {
 		return;
 	}
 
-	return formDataObjStr;
+	return formDataObj;
 }
 
 function storeFormData({ sessionStorageName, formElement }) {
 	const formDataObj = formDataToObj(formElement);
 	formDataObj["settings"] = {
-		minvotes: localStorage.getItem("minvotes"),
+		minvotes: JSON.parse(localStorage.getItem("minvotes")),
 		yearrange: JSON.parse(localStorage.getItem("yearrange")),
 	};
 	const formDataObjStr = JSON.stringify(formDataObj);
 	sessionStorage.setItem(sessionStorageName, formDataObjStr);
 
-	return formDataObjStr;
+	return formDataObj;
+
+	// for (const [key, value] of Object.entries(formDataObj)) {
+	// 	formDataObj[key] = JSON.stringify(value);
+	// }
+	// const urlParams = new URLSearchParams(formDataObj).toString();
+
+	// return urlParams;
 }
 
 function formDataToObj(formElement) {
@@ -550,6 +591,7 @@ function formDataToObj(formElement) {
 	for (const key of formData.keys()) {
 		formDataObj[key] = formData.getAll(key);
 	}
+
 	return formDataObj;
 }
 

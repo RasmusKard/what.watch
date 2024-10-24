@@ -11,20 +11,11 @@ const __dirname = import.meta.dirname;
 
 app.use("/node_modules", express.static(__dirname + "/node_modules/"));
 app.use(express.static("public"));
-app.use("/result", express.json());
 app.use("/api/tconst", express.json());
 
 async function mainFunc(req, res) {
-	// handle GET request with URL search params
-	if (req.method === "GET") {
-		res.sendFile(path.join(__dirname, "public", "index.html"));
-		return;
-	}
-
-	const userInput = req.body;
-
-	// if sessionStorage has expired return error code (frontend returns to index page)
-	if (Object.keys(userInput).length === 0) {
+	// if GET params are empty return 404
+	if (Object.keys(req.query).length === 0) {
 		res.status(404).end();
 		return;
 	}
@@ -33,9 +24,17 @@ async function mainFunc(req, res) {
 	// retrieve = tconst to sql
 	const header = req.get("request-type");
 	if (header === "submit") {
+		const urlParams = Object.entries(req.query);
+		const userInput = {};
+		for (const [key, value] of urlParams) {
+			userInput[key] = JSON.parse(value);
+		}
 		submitMethod({ userInput: userInput, res: res });
 	} else if (header === "retrieve") {
-		retrieveMethod({ tconst: req.body["tconst"], res: res });
+		retrieveMethod({ tconst: req.query.tconst, res: res });
+	} else if (header === undefined) {
+		res.sendFile(path.join(__dirname, "public", "index.html"));
+		return;
 	}
 }
 

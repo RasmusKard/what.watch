@@ -124,12 +124,13 @@ async function submitMethod({ userInput, res }) {
 				if (minVotes) {
 					minVotes = Math.floor(minVotes);
 					query.andWhere("title.numVotes", ">=", minVotes);
-				} else {
+				} else if (minVotes !== 0) {
 					query.andWhere("title.numVotes", ">=", 1000);
 				}
 			});
 		if (Array.isArray(output) && output.length) {
 			const outputArr = output.map(({ tconst }) => tconst);
+			res.set("Cache-Control", "public, max-age=18000");
 			res.json(outputArr);
 		} else {
 			res.status(404).end();
