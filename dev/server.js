@@ -32,7 +32,7 @@ async function mainFunc(req, res) {
 		submitMethod({ userInput: userInput, res: res });
 	} else if (header === "retrieve") {
 		retrieveMethod({ tconst: req.query.tconst, res: res });
-	} else if (header === undefined) {
+	} else if (req.query.tconst && header === undefined) {
 		res.sendFile(path.join(__dirname, "public", "index.html"));
 		return;
 	}

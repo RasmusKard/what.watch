@@ -341,3 +341,7 @@ input[type="checkbox"] {
 		width: 100%;
 	}
 }
+
+#suggestion-count {
+	opacity: 0.7;
+}
