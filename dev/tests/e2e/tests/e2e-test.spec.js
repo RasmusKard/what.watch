@@ -82,19 +82,15 @@ test("test", async ({ page, browserName }) => {
 		);
 		const yearSlider = document.getElementById("year-slider");
 		yearSlider.noUiSlider.set([startYearNum, endYearNum]);
-		console.log(startYearNum, endYearNum);
 		return [startYearNum, endYearNum];
 	});
 	await page.getByRole("button", { name: "Save" }).click({ force: isWebkit });
 
-	// submit and wait for sql query to return
-	const responsePromise = page.waitForResponse((res) =>
-		res.url().includes("result")
-	);
+	// submit and wait for redirect to results page
 	const submitLocator = page.getByRole("button", { name: "Submit" });
 	await submitLocator.focus();
 	await submitLocator.click({ force: isWebkit });
-	await responsePromise;
+	await page.waitForURL("**/result**");
 
 	const result = await page.evaluate(() => {
 		const titleInfo = document.getElementById("title-info");
