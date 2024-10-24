@@ -11,8 +11,9 @@ async function checkUrlParams({ formContainerId }) {
 		formElement.style.opacity = 0;
 
 		const tconstObj = { tconst: tconstParam };
+		const fetchParam = new URLSearchParams(tconstObj).toString();
 		const response = await fetchFromSql({
-			fetchBody: JSON.stringify(tconstObj),
+			fetchBody: fetchParam,
 			reqType: "retrieve",
 		});
 
@@ -171,6 +172,16 @@ function addSettingsListener() {
 	});
 }
 
+function pickRandomId(arr) {
+	const seenIds = sessionStorage.getItem("seenIds");
+	if (seenIds && seenIds.length > 0) {
+		arr = arr.filter((tconst) => !seenIds.includes(tconst));
+	}
+	const arrLength = arr.length;
+	const randIndex = Math.floor(Math.random() * arrLength);
+	return { tconst: arr[randIndex], rowCount: arrLength };
+}
+
 function addSubmitListener({ formContainerId, sessionStorageName }) {
 	const formElement = document.getElementById(formContainerId);
 	formElement.addEventListener("submit", async (e) => {
@@ -181,10 +192,13 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		// Open loading overlay with total row count of DB
 		if (e.submitter.id === "form-submit") {
-			const formDataObjStr = storeFormData({
+			const formDataObj = storeFormData({
 				sessionStorageName: sessionStorageName,
 				formElement: formElement,
 			});
+			const urlParams = formDataToUrlParams({ formDataObj: formDataObj });
+			sessionStorage.removeItem("seenIds");
+			sessionStorage.removeItem("tconstArr");
 
 			const maxRowCount = 476818;
 
@@ -203,23 +217,39 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 			formElement.appendChild(loadingTemplateClone);
 
-			const response = await fetchFromSql({
-				fetchBody: formDataObjStr,
+			const tconstArr = await fetchFromSql({
+				fetchBody: urlParams,
 				reqType: "submit",
 			});
-			if (!response) {
+			if (!tconstArr) {
 				return;
 			}
+			try {
+				sessionStorage.setItem("tconstArr", JSON.stringify(tconstArr));
+			} catch (error) {
+				console.error(error);
+			}
+			const randTconstAndRowCount = pickRandomId(tconstArr);
+			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
+
+			const resultRowCount = randTconstAndRowCount["rowCount"];
+
+			const tconstParam = new URLSearchParams(randTconstObj).toString();
+
+			const response = await fetchFromSql({
+				fetchBody: tconstParam,
+				reqType: "retrieve",
+			});
 
 			const resultsTemplate = document.getElementById("results-template");
 			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
 			// Concurrently show loading animation and create documentFragment of results
 			const [a, b, posterPath] = await Promise.all([
 				animateLoadingOverlay({
-					response: response,
 					animationStepCount: 5,
 					maxRowCount: maxRowCount,
 					loadingNumber: loadingNumber,
+					endNum: resultRowCount,
 				}),
 				populateResultsToTemplate({
 					resultsObj: response,
@@ -244,18 +274,28 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			//
 			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
 		} else if (e.submitter.id === "form-resubmit") {
-			const formDataObjStr = getFormData({
-				sessionStorageName: sessionStorageName,
-			});
 			formElement.style.opacity = 0;
 
-			const response = await fetchFromSql({
-				fetchBody: formDataObjStr,
-				reqType: "submit",
-			});
-			if (!response) {
-				return;
+			let tconstArr = JSON.parse(sessionStorage.getItem("tconstArr"));
+
+			if (!tconstArr) {
+				const formDataObj = getFormData({
+					sessionStorageName: sessionStorageName,
+				});
+				const urlParams = formDataToUrlParams({ formDataObj: formDataObj });
+
+				tconstArr = await fetchFromSql({
+					fetchBody: urlParams,
+					reqType: "submit",
+				});
 			}
+			const randTconstAndRowCount = pickRandomId(tconstArr);
+			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
+			const tconstParam = new URLSearchParams(randTconstObj).toString();
+			const response = await fetchFromSql({
+				fetchBody: tconstParam,
+				reqType: "retrieve",
+			});
 
 			const resultsTemplate = document.getElementById("results-template");
 			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
@@ -276,13 +316,18 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			formElement.style.opacity = 1;
 			if (posterPath) {
 				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
+			} else {
+				document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
 			}
 
 			// History API
 			const state = { tconst: response["tconst"] };
 			history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
 			//
-			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
+			const seenIds = sessionStorage.getItem("seenIds");
+			const seenIdsObj = JSON.parse(seenIds);
+			seenIdsObj.push(response["tconst"]);
+			sessionStorage.setItem("seenIds", JSON.stringify(seenIdsObj));
 		}
 	});
 }
@@ -294,11 +339,11 @@ function listenToPopState({ formContainerId }) {
 			const formElement = document.getElementById(formContainerId);
 			formElement.style.opacity = 0;
 			document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
-
-			const currentTconstStr = JSON.stringify(currentTconst);
+			console.log(currentTconst);
+			const tconstParam = new URLSearchParams(currentTconst).toString();
 
 			const response = await fetchFromSql({
-				fetchBody: currentTconstStr,
+				fetchBody: tconstParam,
 				reqType: "retrieve",
 			});
 
@@ -333,26 +378,31 @@ function listenToPopState({ formContainerId }) {
 //
 
 async function animateLoadingOverlay({
-	response,
 	animationStepCount,
 	maxRowCount,
 	loadingNumber,
+	endNum,
 }) {
 	const stepArr = getAnimationStepArr({
-		endNum: response["rowCount"],
+		endNum: endNum,
 		animationStepCount: animationStepCount,
 		maxNum: maxRowCount,
 	});
 
 	let currentRowCount = maxRowCount;
-
-	for (const step of stepArr) {
-		currentRowCount -= step;
-		loadingNumber.innerText = currentRowCount;
+	if (stepArr) {
+		for (const step of stepArr) {
+			currentRowCount -= step;
+			loadingNumber.innerText = currentRowCount;
+			await sleep(500);
+		}
+		loadingNumber.style.color = "green";
+		await sleep(500);
+	} else {
+		loadingNumber.innerText = endNum;
+		loadingNumber.style.color = "green";
 		await sleep(500);
 	}
-	loadingNumber.style.color = "green";
-	await sleep(500);
 }
 
 function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
@@ -377,6 +427,8 @@ function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
 			randArr[i] = Math.floor(randArr[i]);
 			sum += randArr[i];
 		}
+		const diff = totalDiff - sum;
+		randArr[animationStepCount - 1] += diff;
 
 		return randArr;
 	} else {
@@ -441,13 +493,13 @@ async function getAndSetTmdbApiData({ tconstObj, templateElement }) {
 }
 
 async function fetchFromSql({ fetchBody, reqType }) {
-	const response = await fetch("/result", {
-		method: "POST",
+	const response = await fetch(`/result?${fetchBody}`, {
+		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
 			"request-type": reqType,
 		},
-		body: fetchBody,
+		cache: "no-cache",
 	})
 		.then((response) => {
 			if (response.ok) {
@@ -465,38 +517,45 @@ async function fetchFromSql({ fetchBody, reqType }) {
 	return response;
 }
 
-function storeOrGetFormData({ sessionStorageName, formElement, event }) {
-	const sessionItem = sessionStorage.getItem(sessionStorageName);
-	let formDataObjStr;
-	if (event.submitter.id === "form-submit") {
-		const formDataObj = formDataToObj(formElement);
-		formDataObj["settings"] = {
-			minvotes: localStorage.getItem("minvotes"),
-			yearrange: JSON.parse(localStorage.getItem("yearrange")),
-		};
-		formDataObjStr = JSON.stringify(formDataObj);
-		sessionStorage.setItem(sessionStorageName, formDataObjStr);
-	} else if (event.submitter.id === "form-resubmit" && sessionItem !== null) {
-		const formDataObj = JSON.parse(sessionItem);
-		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
-		formDataObjStr = JSON.stringify(formDataObj);
-	} else {
-		// Handle session storage expiry on form resubmit
-		window.alert("Nothing was found, please try again.");
-		window.location.href = "/";
-		return;
-	}
+// function storeOrGetFormData({ sessionStorageName, formElement, event }) {
+// 	const sessionItem = sessionStorage.getItem(sessionStorageName);
+// 	let formDataObjStr;
+// 	if (event.submitter.id === "form-submit") {
+// 		const formDataObj = formDataToObj(formElement);
+// 		formDataObj["settings"] = {
+// 			minvotes: localStorage.getItem("minvotes"),
+// 			yearrange: JSON.parse(localStorage.getItem("yearrange")),
+// 		};
+// 		formDataObjStr = JSON.stringify(formDataObj);
+// 		sessionStorage.setItem(sessionStorageName, formDataObjStr);
+// 	} else if (event.submitter.id === "form-resubmit" && sessionItem !== null) {
+// 		const formDataObj = JSON.parse(sessionItem);
+// 		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
+// 		formDataObjStr = JSON.stringify(formDataObj);
+// 	} else {
+// 		// Handle session storage expiry on form resubmit
+// 		window.alert("Nothing was found, please try again.");
+// 		window.location.href = "/";
+// 		return;
+// 	}
 
-	return formDataObjStr;
+// 	return formDataObjStr;
+// }
+
+function formDataToUrlParams({ formDataObj }) {
+	for (const [key, value] of Object.entries(formDataObj)) {
+		formDataObj[key] = JSON.stringify(value);
+	}
+	const urlParams = new URLSearchParams(formDataObj).toString();
+
+	return urlParams;
 }
 
 function getFormData({ sessionStorageName }) {
 	const sessionItem = sessionStorage.getItem(sessionStorageName);
-	let formDataObjStr;
+	let formDataObj;
 	if (sessionItem !== null) {
-		const formDataObj = JSON.parse(sessionItem);
-		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
-		formDataObjStr = JSON.stringify(formDataObj);
+		formDataObj = JSON.parse(sessionItem);
 	} else {
 		// Handle session storage expiry on form resubmit
 		window.alert("Nothing was found, please try again.");
@@ -504,19 +563,26 @@ function getFormData({ sessionStorageName }) {
 		return;
 	}
 
-	return formDataObjStr;
+	return formDataObj;
 }
 
 function storeFormData({ sessionStorageName, formElement }) {
 	const formDataObj = formDataToObj(formElement);
 	formDataObj["settings"] = {
-		minvotes: localStorage.getItem("minvotes"),
+		minvotes: JSON.parse(localStorage.getItem("minvotes")),
 		yearrange: JSON.parse(localStorage.getItem("yearrange")),
 	};
 	const formDataObjStr = JSON.stringify(formDataObj);
 	sessionStorage.setItem(sessionStorageName, formDataObjStr);
 
-	return formDataObjStr;
+	return formDataObj;
+
+	// for (const [key, value] of Object.entries(formDataObj)) {
+	// 	formDataObj[key] = JSON.stringify(value);
+	// }
+	// const urlParams = new URLSearchParams(formDataObj).toString();
+
+	// return urlParams;
 }
 
 function formDataToObj(formElement) {
@@ -525,6 +591,7 @@ function formDataToObj(formElement) {
 	for (const key of formData.keys()) {
 		formDataObj[key] = formData.getAll(key);
 	}
+
 	return formDataObj;
 }
 
