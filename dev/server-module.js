@@ -129,41 +129,8 @@ async function submitMethod({ userInput, res }) {
 				}
 			});
 		if (Array.isArray(output) && output.length) {
-			const outputKeys = Object.keys(output);
-			const randIndex = Math.floor(Math.random() * outputKeys.length);
-			const chosenRow = output[outputKeys[randIndex]];
-
-			const tconst = chosenRow["tconst"];
-			const chosenRowAllDetails = await connection("title as t")
-				.select(
-					"t.tconst",
-					"t.primaryTitle",
-					"t.startYear",
-					"t.averageRating",
-					"tf.titleType_str"
-				)
-				.join("titleType_ref as tf", "t.titleType", "tf.titleType_id")
-				.where("t.tconst", tconst)
-				.join(
-					function () {
-						this.select("tg.tconst")
-							.from("title_genres as tg")
-							.join("genres_ref as gf", "tg.genres", "gf.genres_id")
-							.where("tg.tconst", tconst)
-							.groupBy("tg.tconst")
-							.select(
-								connection.raw(
-									'GROUP_CONCAT(gf.genres_str SEPARATOR ", ") as genres'
-								)
-							)
-							.as("tg");
-					},
-					"t.tconst",
-					"tg.tconst"
-				)
-				.select("tg.genres");
-			chosenRowAllDetails[0]["rowCount"] = Object.keys(output).length;
-			res.json(chosenRowAllDetails[0]);
+			const outputArr = output.map(({ tconst }) => tconst);
+			res.json(outputArr);
 		} else {
 			res.status(404).end();
 			return;

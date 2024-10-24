@@ -171,6 +171,16 @@ function addSettingsListener() {
 	});
 }
 
+function pickRandomId(arr) {
+	const seenIds = sessionStorage.getItem("seenIds");
+	if (seenIds && seenIds.length > 0) {
+		arr = arr.filter((tconst) => !seenIds.includes(tconst));
+	}
+	const arrLength = arr.length;
+	const randIndex = Math.floor(Math.random() * arrLength);
+	return { tconst: arr[randIndex], rowCount: arrLength };
+}
+
 function addSubmitListener({ formContainerId, sessionStorageName }) {
 	const formElement = document.getElementById(formContainerId);
 	formElement.addEventListener("submit", async (e) => {
@@ -185,6 +195,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 				sessionStorageName: sessionStorageName,
 				formElement: formElement,
 			});
+			sessionStorage.removeItem("seenIds");
 
 			const maxRowCount = 476818;
 
@@ -203,23 +214,32 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 			formElement.appendChild(loadingTemplateClone);
 
-			const response = await fetchFromSql({
+			const tconstArr = await fetchFromSql({
 				fetchBody: formDataObjStr,
 				reqType: "submit",
 			});
-			if (!response) {
+			if (!tconstArr) {
 				return;
 			}
+			sessionStorage.setItem("tconstArr", JSON.stringify(tconstArr));
+			const randTconstAndRowCount = pickRandomId(tconstArr);
+			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
+			const resultRowCount = randTconstAndRowCount["rowCount"];
+
+			const response = await fetchFromSql({
+				fetchBody: JSON.stringify(randTconstObj),
+				reqType: "retrieve",
+			});
 
 			const resultsTemplate = document.getElementById("results-template");
 			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
 			// Concurrently show loading animation and create documentFragment of results
 			const [a, b, posterPath] = await Promise.all([
 				animateLoadingOverlay({
-					response: response,
 					animationStepCount: 5,
 					maxRowCount: maxRowCount,
 					loadingNumber: loadingNumber,
+					endNum: resultRowCount,
 				}),
 				populateResultsToTemplate({
 					resultsObj: response,
@@ -244,18 +264,16 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			//
 			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
 		} else if (e.submitter.id === "form-resubmit") {
-			const formDataObjStr = getFormData({
-				sessionStorageName: sessionStorageName,
-			});
 			formElement.style.opacity = 0;
 
+			const tconstArr = JSON.parse(sessionStorage.getItem("tconstArr"));
+			const randTconstAndRowCount = pickRandomId(tconstArr);
+			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
+
 			const response = await fetchFromSql({
-				fetchBody: formDataObjStr,
-				reqType: "submit",
+				fetchBody: JSON.stringify(randTconstObj),
+				reqType: "retrieve",
 			});
-			if (!response) {
-				return;
-			}
 
 			const resultsTemplate = document.getElementById("results-template");
 			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
@@ -276,13 +294,18 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			formElement.style.opacity = 1;
 			if (posterPath) {
 				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
+			} else {
+				document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
 			}
 
 			// History API
 			const state = { tconst: response["tconst"] };
 			history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
 			//
-			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
+			const seenIds = sessionStorage.getItem("seenIds");
+			const seenIdsObj = JSON.parse(seenIds);
+			seenIdsObj.push(response["tconst"]);
+			sessionStorage.setItem("seenIds", JSON.stringify(seenIdsObj));
 		}
 	});
 }
@@ -333,13 +356,13 @@ function listenToPopState({ formContainerId }) {
 //
 
 async function animateLoadingOverlay({
-	response,
 	animationStepCount,
 	maxRowCount,
 	loadingNumber,
+	endNum,
 }) {
 	const stepArr = getAnimationStepArr({
-		endNum: response["rowCount"],
+		endNum: endNum,
 		animationStepCount: animationStepCount,
 		maxNum: maxRowCount,
 	});
@@ -377,6 +400,8 @@ function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
 			randArr[i] = Math.floor(randArr[i]);
 			sum += randArr[i];
 		}
+		const diff = totalDiff - sum;
+		randArr[animationStepCount - 1] += diff;
 
 		return randArr;
 	} else {
