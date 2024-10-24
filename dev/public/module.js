@@ -16,14 +16,25 @@ async function checkUrlParams({ formContainerId }) {
 			reqType: "retrieve",
 		});
 
-		populateResultsToTemplate({
-			resultsObj: response,
-			templateId: "#results-template",
-			containerSelector: formElement,
-		});
-		formElement.style.opacity = 1;
+		const resultsTemplate = document.getElementById("results-template");
+		const newResultsTemplate = resultsTemplate.content.cloneNode(true);
 
-		getAndSetTmdbApiData({ tconstObj: tconstObj });
+		const [b, posterPath] = await Promise.all([
+			populateResultsToTemplate({
+				resultsObj: response,
+				templateElement: newResultsTemplate,
+			}),
+			getAndSetTmdbApiData({
+				tconstObj: response,
+				templateElement: newResultsTemplate,
+			}),
+		]);
+
+		formElement.replaceChildren(newResultsTemplate);
+		formElement.style.opacity = 1;
+		if (posterPath) {
+			document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
+		}
 	}
 }
 
@@ -168,19 +179,13 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		// Submit: get form data and insert it into sessionStorage
 		// Re-submit: get form data from sessionStorage
 
-		let formDataObjStr;
-		if (e.submitter.id === "form-resubmit") {
-			formDataObjStr = getFormData({ sessionStorageName: sessionStorageName });
-			formElement.style.opacity = 0;
-		} else if (e.submitter.id === "form-submit") {
-			formDataObjStr = storeFormData({
+		// Open loading overlay with total row count of DB
+		if (e.submitter.id === "form-submit") {
+			const formDataObjStr = storeFormData({
 				sessionStorageName: sessionStorageName,
 				formElement: formElement,
 			});
-		}
 
-		// Open loading overlay with total row count of DB
-		if (e.submitter.id === "form-submit") {
 			const maxRowCount = 476818;
 
 			const overlayElement = document.createElement("div");
@@ -198,11 +203,51 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 			formElement.appendChild(loadingTemplateClone);
 
-			// DO APPENDLOADINGOVERLAY AND FETCHFROMSQL AT THE SAME TIME
-			// FETCHFROMSQL.THEN() DO ANIMATION AND POPULATERESULTSTOTEMPLAT EAND GETTMDBAPIDATA AT THE SAME TIME
+			const response = await fetchFromSql({
+				fetchBody: formDataObjStr,
+				reqType: "submit",
+			});
+			if (!response) {
+				return;
+			}
 
-			// const formContainer = document.getElementById("form-container");
-			// formContainer.appendChild(loadingTemplateClone);
+			const resultsTemplate = document.getElementById("results-template");
+			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
+			// Concurrently show loading animation and create documentFragment of results
+			const [a, b, posterPath] = await Promise.all([
+				animateLoadingOverlay({
+					response: response,
+					animationStepCount: 3,
+					maxRowCount: maxRowCount,
+					loadingNumber: loadingNumber,
+				}),
+				populateResultsToTemplate({
+					resultsObj: response,
+					templateElement: newResultsTemplate,
+				}),
+				getAndSetTmdbApiData({
+					tconstObj: response,
+					templateElement: newResultsTemplate,
+				}),
+			]);
+
+			overlayElement.remove();
+			// Add created documentFragment
+			formElement.replaceChildren(newResultsTemplate);
+			if (posterPath) {
+				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
+			}
+
+			// History API
+			const state = { tconst: response["tconst"] };
+			history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
+			//
+			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
+		} else if (e.submitter.id === "form-resubmit") {
+			const formDataObjStr = getFormData({
+				sessionStorageName: sessionStorageName,
+			});
+			formElement.style.opacity = 0;
 
 			const response = await fetchFromSql({
 				fetchBody: formDataObjStr,
@@ -214,14 +259,8 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 			const resultsTemplate = document.getElementById("results-template");
 			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
-			const [a, b, posterPath] = await Promise.all([
-				animateLoadingOverlay({
-					response: response,
-					animationStepCount: 7,
-					maxRowCount: maxRowCount,
-					loadingNumber: loadingNumber,
-					overlayElement: overlayElement,
-				}),
+
+			const [b, posterPath] = await Promise.all([
 				populateResultsToTemplate({
 					resultsObj: response,
 					templateElement: newResultsTemplate,
@@ -231,63 +270,20 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 					templateElement: newResultsTemplate,
 				}),
 			]);
-			// animateLoadingOverlay({
-			// 	response: response,
-			// 	animationStepCount: 7,
-			// 	maxRowCount: maxRowCount,
-			// 	loadingNumber: loadingNumber,
-			// 	overlayElement: overlayElement,
-			// });
 
-			// await populateResultsToTemplate({
-			// 	resultsObj: response,
-			// 	templateElement: newResultsTemplate,
-			// });
-
-			// const posterPath = await getAndSetTmdbApiData({
-			// 	tconstObj: response,
-			// 	templateElement: newResultsTemplate,
-			// });
-
+			// Add created documentFragment
 			formElement.replaceChildren(newResultsTemplate);
+			formElement.style.opacity = 1;
 			if (posterPath) {
 				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
 			}
-		}
 
-		// const response = await fetchFromSql({
-		// 	fetchBody: formDataObjStr,
-		// 	reqType: "submit",
-		// });
-		// if (!response) {
-		// 	return;
-		// }
-
-		// start counting down to result row count
-		// when reached say found blablalba
-
-		// populateResultsToTemplate({
-		// 	resultsObj: response,
-		// 	templateId: "#results-template",
-		// 	containerSelector: formElement,
-		// });
-
-		formElement.style.opacity = 1;
-
-		const state = { tconst: response["tconst"] };
-		history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
-
-		// Handle not suggesting already seen content by adding seenIds to sessionStorage
-		const seenIds = sessionStorage.getItem("seenIds");
-		if (e.submitter.id === "form-submit") {
+			// History API
+			const state = { tconst: response["tconst"] };
+			history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
+			//
 			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
-		} else if (e.submitter.id === "form-resubmit" && seenIds !== null) {
-			const seenIdsObj = JSON.parse(seenIds);
-			seenIdsObj.push(response["tconst"]);
-			sessionStorage.setItem("seenIds", JSON.stringify(seenIdsObj));
 		}
-
-		// Get movie/tv show poster and overview
 	});
 }
 
@@ -306,14 +302,25 @@ function listenToPopState({ formContainerId }) {
 				reqType: "retrieve",
 			});
 
-			populateResultsToTemplate({
-				resultsObj: response,
-				templateId: "#results-template",
-				containerSelector: formElement,
-			});
-			formElement.style.opacity = 1;
+			const resultsTemplate = document.getElementById("results-template");
+			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
 
-			getAndSetTmdbApiData({ tconstObj: currentTconst });
+			const [b, posterPath] = await Promise.all([
+				populateResultsToTemplate({
+					resultsObj: response,
+					templateElement: newResultsTemplate,
+				}),
+				getAndSetTmdbApiData({
+					tconstObj: response,
+					templateElement: newResultsTemplate,
+				}),
+			]);
+
+			formElement.replaceChildren(newResultsTemplate);
+			formElement.style.opacity = 1;
+			if (posterPath) {
+				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
+			}
 		} else if (currentTconst === null) {
 			location.reload();
 		}
@@ -330,7 +337,6 @@ async function animateLoadingOverlay({
 	animationStepCount,
 	maxRowCount,
 	loadingNumber,
-	overlayElement,
 }) {
 	const stepArr = getAnimationStepArr({
 		endNum: response["rowCount"],
@@ -343,12 +349,9 @@ async function animateLoadingOverlay({
 	for (const step of stepArr) {
 		currentRowCount -= step;
 		loadingNumber.innerText = currentRowCount;
-		await sleep(350);
+		await sleep(500);
 	}
-
 	loadingNumber.style.color = "green";
-	await sleep(1000);
-	overlayElement.remove();
 }
 
 function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
@@ -433,9 +436,6 @@ async function getAndSetTmdbApiData({ tconstObj, templateElement }) {
 			overViewElement.textContent = tconstOverview;
 		}
 		return apiResponse["poster_path"];
-		if (tconstPosterPath) {
-			document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tconstPosterPath}"), linear-gradient(#504f4f, #070707)`;
-		}
 	}
 }
 
