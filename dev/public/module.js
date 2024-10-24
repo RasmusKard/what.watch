@@ -160,41 +160,6 @@ function addSettingsListener() {
 	});
 }
 
-function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
-	// max num minus end num divided by stepcount is scramble step size
-	// get int stepsize to keep scrambling time consistent using stepcount
-	const totalDiff = maxNum - endNum;
-	const stepSize = Math.floor(totalDiff / animationStepCount);
-	if (stepSize > 0) {
-		let randArr = [];
-		let randSum = 0;
-		for (let i = 0; i < animationStepCount; i++) {
-			// 0 exclusive generation
-			const randNum = 1 - Math.random();
-			randSum += randNum;
-			randArr.push(randNum);
-		}
-
-		const factor = totalDiff / randSum;
-		let sum = 0;
-		for (let i = 0; i < animationStepCount; i++) {
-			randArr[i] *= factor;
-			randArr[i] = Math.floor(randArr[i]);
-			sum += randArr[i];
-		}
-
-		return randArr;
-	} else {
-		return false;
-	}
-}
-
-function sleep(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function animateFiltering({ endNum, animationStepCount, maxNum }) {}
-
 function addSubmitListener({ formContainerId, sessionStorageName }) {
 	const formElement = document.getElementById(formContainerId);
 	formElement.addEventListener("submit", async (e) => {
@@ -202,70 +167,112 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		// Submit: get form data and insert it into sessionStorage
 		// Re-submit: get form data from sessionStorage
-		const formDataObjStr = storeOrGetFormData({
-			sessionStorageName: sessionStorageName,
-			formElement: formElement,
-			event: e,
-		});
 
-		// Fade out container and remove poster image if present
-
-		document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
+		let formDataObjStr;
+		if (e.submitter.id === "form-resubmit") {
+			formDataObjStr = getFormData({ sessionStorageName: sessionStorageName });
+			formElement.style.opacity = 0;
+		} else if (e.submitter.id === "form-submit") {
+			formDataObjStr = storeFormData({
+				sessionStorageName: sessionStorageName,
+				formElement: formElement,
+			});
+		}
 
 		// Open loading overlay with total row count of DB
-		const overlayElement = document.createElement("div");
-		overlayElement.id = "overlay";
-		document.body.appendChild(overlayElement);
-		const loadingTemplate = document.getElementById("loading-template");
-		const loadingTemplateClone = loadingTemplate.content.cloneNode(true);
+		if (e.submitter.id === "form-submit") {
+			const maxRowCount = 476818;
 
-		const loadingMessage =
-			loadingTemplateClone.getElementById("loading-message");
-		loadingMessage.innerText = "Finding you something to watch!";
+			const overlayElement = document.createElement("div");
+			overlayElement.id = "overlay";
+			document.body.appendChild(overlayElement);
+			const loadingTemplate = document.getElementById("loading-template");
+			const loadingTemplateClone = loadingTemplate.content.cloneNode(true);
 
-		const loadingNumber = loadingTemplateClone.getElementById("loading-number");
-		const maxRowCount = 476818;
-		loadingNumber.innerText = maxRowCount;
+			const loadingMessage =
+				loadingTemplateClone.getElementById("loading-message");
+			const loadingNumber =
+				loadingTemplateClone.getElementById("loading-number");
+			loadingMessage.innerText = "Finding you something to watch!";
+			loadingNumber.innerText = maxRowCount;
 
-		const formContainer = document.getElementById("form-container");
-		formContainer.appendChild(loadingTemplateClone);
+			formElement.appendChild(loadingTemplateClone);
 
-		const response = await fetchFromSql({
-			fetchBody: formDataObjStr,
-			reqType: "submit",
-		});
-		if (!response) {
-			return;
+			// DO APPENDLOADINGOVERLAY AND FETCHFROMSQL AT THE SAME TIME
+			// FETCHFROMSQL.THEN() DO ANIMATION AND POPULATERESULTSTOTEMPLAT EAND GETTMDBAPIDATA AT THE SAME TIME
+
+			// const formContainer = document.getElementById("form-container");
+			// formContainer.appendChild(loadingTemplateClone);
+
+			const response = await fetchFromSql({
+				fetchBody: formDataObjStr,
+				reqType: "submit",
+			});
+			if (!response) {
+				return;
+			}
+
+			const resultsTemplate = document.getElementById("results-template");
+			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
+			const [a, b, posterPath] = await Promise.all([
+				animateLoadingOverlay({
+					response: response,
+					animationStepCount: 7,
+					maxRowCount: maxRowCount,
+					loadingNumber: loadingNumber,
+					overlayElement: overlayElement,
+				}),
+				populateResultsToTemplate({
+					resultsObj: response,
+					templateElement: newResultsTemplate,
+				}),
+				getAndSetTmdbApiData({
+					tconstObj: response,
+					templateElement: newResultsTemplate,
+				}),
+			]);
+			// animateLoadingOverlay({
+			// 	response: response,
+			// 	animationStepCount: 7,
+			// 	maxRowCount: maxRowCount,
+			// 	loadingNumber: loadingNumber,
+			// 	overlayElement: overlayElement,
+			// });
+
+			// await populateResultsToTemplate({
+			// 	resultsObj: response,
+			// 	templateElement: newResultsTemplate,
+			// });
+
+			// const posterPath = await getAndSetTmdbApiData({
+			// 	tconstObj: response,
+			// 	templateElement: newResultsTemplate,
+			// });
+
+			formElement.replaceChildren(newResultsTemplate);
+			if (posterPath) {
+				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
+			}
 		}
 
-		const stepArr = getAnimationStepArr({
-			endNum: response["rowCount"],
-			animationStepCount: 7,
-			maxNum: maxRowCount,
-		});
-
-		let currentRowCount = maxRowCount;
-
-		for (const step of stepArr) {
-			currentRowCount -= step;
-			loadingNumber.innerText = currentRowCount;
-			await sleep(350);
-		}
+		// const response = await fetchFromSql({
+		// 	fetchBody: formDataObjStr,
+		// 	reqType: "submit",
+		// });
+		// if (!response) {
+		// 	return;
+		// }
 
 		// start counting down to result row count
 		// when reached say found blablalba
 
-		populateResultsToTemplate({
-			resultsObj: response,
-			templateId: "#results-template",
-			containerSelector: formElement,
-		});
+		// populateResultsToTemplate({
+		// 	resultsObj: response,
+		// 	templateId: "#results-template",
+		// 	containerSelector: formElement,
+		// });
 
-		getAndSetTmdbApiData({
-			tconstObj: response,
-		});
 		formElement.style.opacity = 1;
-		overlayElement.remove();
 
 		const state = { tconst: response["tconst"] };
 		history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
@@ -318,6 +325,65 @@ function listenToPopState({ formContainerId }) {
 //
 //
 
+async function animateLoadingOverlay({
+	response,
+	animationStepCount,
+	maxRowCount,
+	loadingNumber,
+	overlayElement,
+}) {
+	const stepArr = getAnimationStepArr({
+		endNum: response["rowCount"],
+		animationStepCount: animationStepCount,
+		maxNum: maxRowCount,
+	});
+
+	let currentRowCount = maxRowCount;
+
+	for (const step of stepArr) {
+		currentRowCount -= step;
+		loadingNumber.innerText = currentRowCount;
+		await sleep(350);
+	}
+
+	loadingNumber.style.color = "green";
+	await sleep(1000);
+	overlayElement.remove();
+}
+
+function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
+	// max num minus end num divided by stepcount is scramble step size
+	// get int stepsize to keep scrambling time consistent using stepcount
+	const totalDiff = maxNum - endNum;
+	const stepSize = Math.floor(totalDiff / animationStepCount);
+	if (stepSize > 0) {
+		let randArr = [];
+		let randSum = 0;
+		for (let i = 0; i < animationStepCount; i++) {
+			// 0 exclusive generation
+			const randNum = 1 - Math.random();
+			randSum += randNum;
+			randArr.push(randNum);
+		}
+
+		const factor = totalDiff / randSum;
+		let sum = 0;
+		for (let i = 0; i < animationStepCount; i++) {
+			randArr[i] *= factor;
+			randArr[i] = Math.floor(randArr[i]);
+			sum += randArr[i];
+		}
+
+		return randArr;
+	} else {
+		return false;
+	}
+}
+
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function populateSettingsFromLocalStorage() {
 	const settingsSliders = [
 		document.getElementById("minvotes-slider"),
@@ -332,27 +398,18 @@ function populateSettingsFromLocalStorage() {
 	}
 }
 
-function populateResultsToTemplate({
-	templateId,
-	resultsObj,
-	containerSelector,
-}) {
-	const template = document.querySelector(templateId);
-	const newTemplate = template.content.cloneNode(true);
-
-	const title = newTemplate.querySelector("#primary-title");
+async function populateResultsToTemplate({ resultsObj, templateElement }) {
+	const title = templateElement.querySelector("#primary-title");
 	title.innerText = resultsObj["primaryTitle"];
 
-	const titleInfo = newTemplate.querySelector("#title-info");
+	const titleInfo = templateElement.querySelector("#title-info");
 	titleInfo.innerText = `${resultsObj["averageRating"]}⭐ | ${resultsObj["startYear"]} | ${resultsObj["genres"]} | ${resultsObj["titleType_str"]}`;
 
-	const imdbLink = newTemplate.querySelector("#imdb-link");
+	const imdbLink = templateElement.querySelector("#imdb-link");
 	imdbLink.href = `http://www.imdb.com/title/${resultsObj["tconst"]}`;
-
-	containerSelector.replaceChildren(newTemplate);
 }
 
-async function getAndSetTmdbApiData({ tconstObj }) {
+async function getAndSetTmdbApiData({ tconstObj, templateElement }) {
 	const apiResponse = await fetch("/api/tconst", {
 		headers: {
 			"Content-Type": "application/json",
@@ -372,10 +429,10 @@ async function getAndSetTmdbApiData({ tconstObj }) {
 	if (apiResponse) {
 		const tconstOverview = apiResponse["overview"];
 		if (tconstOverview) {
-			const overViewElement = document.getElementById("title-overview");
+			const overViewElement = templateElement.getElementById("title-overview");
 			overViewElement.textContent = tconstOverview;
 		}
-		const tconstPosterPath = apiResponse["poster_path"];
+		return apiResponse["poster_path"];
 		if (tconstPosterPath) {
 			document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${tconstPosterPath}"), linear-gradient(#504f4f, #070707)`;
 		}
@@ -422,13 +479,41 @@ function storeOrGetFormData({ sessionStorageName, formElement, event }) {
 		const formDataObj = JSON.parse(sessionItem);
 		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
 		formDataObjStr = JSON.stringify(formDataObj);
-		document.getElementById("page-container").style.background = "";
 	} else {
 		// Handle session storage expiry on form resubmit
 		window.alert("Nothing was found, please try again.");
 		window.location.href = "/";
 		return;
 	}
+
+	return formDataObjStr;
+}
+
+function getFormData({ sessionStorageName }) {
+	const sessionItem = sessionStorage.getItem(sessionStorageName);
+	let formDataObjStr;
+	if (sessionItem !== null) {
+		const formDataObj = JSON.parse(sessionItem);
+		formDataObj["seenIds"] = JSON.parse(sessionStorage.getItem("seenIds"));
+		formDataObjStr = JSON.stringify(formDataObj);
+	} else {
+		// Handle session storage expiry on form resubmit
+		window.alert("Nothing was found, please try again.");
+		window.location.href = "/";
+		return;
+	}
+
+	return formDataObjStr;
+}
+
+function storeFormData({ sessionStorageName, formElement }) {
+	const formDataObj = formDataToObj(formElement);
+	formDataObj["settings"] = {
+		minvotes: localStorage.getItem("minvotes"),
+		yearrange: JSON.parse(localStorage.getItem("yearrange")),
+	};
+	const formDataObjStr = JSON.stringify(formDataObj);
+	sessionStorage.setItem(sessionStorageName, formDataObjStr);
 
 	return formDataObjStr;
 }
