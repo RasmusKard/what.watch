@@ -101,7 +101,7 @@ function populateFormWithSessionData({
 			ratingSlider.id + "-value"
 		);
 		const storageValue = JSON.parse(formData[ratingSliderInput.name]);
-		if (storageValue) {
+		if (storageValue !== null) {
 			ratingSlider.noUiSlider.set(storageValue);
 		}
 	}
@@ -217,7 +217,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			const [a, b, posterPath] = await Promise.all([
 				animateLoadingOverlay({
 					response: response,
-					animationStepCount: 3,
+					animationStepCount: 5,
 					maxRowCount: maxRowCount,
 					loadingNumber: loadingNumber,
 				}),
@@ -352,6 +352,7 @@ async function animateLoadingOverlay({
 		await sleep(500);
 	}
 	loadingNumber.style.color = "green";
+	await sleep(500);
 }
 
 function getAnimationStepArr({ endNum, animationStepCount, maxNum }) {
@@ -395,7 +396,7 @@ function populateSettingsFromLocalStorage() {
 	for (const slider of settingsSliders) {
 		const sliderInput = document.getElementById(slider.id + "-value");
 		const storageValue = JSON.parse(localStorage.getItem(sliderInput.name));
-		if (storageValue) {
+		if (storageValue !== null) {
 			slider.noUiSlider.set(storageValue);
 		}
 	}
