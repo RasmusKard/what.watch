@@ -30,11 +30,6 @@ jobs:
         working-directory: dev
         run: docker compose -f compose.yaml up -d --build
 
-      - name: Cache Playwright image
-        uses: ScribeMD/docker-cache@0.5.0
-        with:
-          key: docker-${{ runner.os }}-${{ './dev/tests/e2e/Dockerfile' }}
-
       - name: Playwright build and run docker image
         working-directory: dev/tests/e2e
         run: |
