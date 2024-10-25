@@ -47,7 +47,7 @@ body {
 	color: white;
 	font-family: "Roboto", sans-serif;
 	--base-small-font: clamp(0.6rem, 1.5vw + 0.15rem, 1rem);
-	--base-big-font: clamp(1rem, 3vw + 0.6rem, 2rem);
+	--base-big-font: clamp(1.5rem, 3vw + 0.6rem, 2rem);
 	--base-tiny-font: clamp(0.4rem, 1vw + 0.075rem, 0.5rem);
 	--base-medium-font: clamp(0.8rem, 2vw + 0.15rem, 1.5rem);
 	font-size: var(--base-small-font);
@@ -84,6 +84,7 @@ fieldset {
 	gap: 1.5rem;
 	max-width: 700px;
 	min-width: 250px;
+	min-height: 500px;
 	max-height: 1000px;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
@@ -204,6 +205,10 @@ input[type="checkbox"] {
 	background: none;
 }
 
+#year-slider .noUi-tooltip {
+	font-size: 0.65rem;
+}
+
 #primary-title {
 	font-size: var(--base-big-font);
 }
@@ -217,6 +222,7 @@ input[type="checkbox"] {
 
 #title-overview {
 	font-size: var(--base-small-font);
+	min-height: clamp(200px, 40vh, 500px);
 }
 
 #imdb-logo {
@@ -344,4 +350,11 @@ input[type="checkbox"] {
 
 #suggestion-count {
 	opacity: 0.7;
+}
+/* don't overlap handles */
+#year-slider .noUi-handle-lower {
+	right: 0;
+}
+#year-slider .noUi-handle-upper {
+	right: -34px;
 }

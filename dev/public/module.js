@@ -199,6 +199,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 
 		// Open loading overlay with total row count of DB
 		if (e.submitter.id === "form-submit") {
+			const maxRowCount = 476818;
 			const formDataObj = storeFormData({
 				sessionStorageName: sessionStorageName,
 				formElement: formElement,
@@ -207,27 +208,19 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			sessionStorage.removeItem("seenIds");
 			sessionStorage.removeItem("tconstArr");
 
-			const maxRowCount = 476818;
+			const tconstArrAndAnimationObj = await Promise.all([
+				await fetchFromSql({
+					fetchBody: urlParams,
+					reqType: "submit",
+				}),
+				await addAnimationOverlay({
+					maxRowCount: maxRowCount,
+					formElement: formElement,
+				}),
+			]);
+			const tconstArr = tconstArrAndAnimationObj[0];
+			const animationObj = tconstArrAndAnimationObj[1];
 
-			const overlayElement = document.createElement("div");
-			overlayElement.id = "overlay";
-			document.body.appendChild(overlayElement);
-			const loadingTemplate = document.getElementById("loading-template");
-			const loadingTemplateClone = loadingTemplate.content.cloneNode(true);
-
-			const loadingMessage =
-				loadingTemplateClone.getElementById("loading-message");
-			const loadingNumber =
-				loadingTemplateClone.getElementById("loading-number");
-			loadingMessage.innerText = "Finding you something to watch!";
-			loadingNumber.innerText = maxRowCount;
-
-			formElement.appendChild(loadingTemplateClone);
-
-			const tconstArr = await fetchFromSql({
-				fetchBody: urlParams,
-				reqType: "submit",
-			});
 			if (!tconstArr) {
 				return;
 			}
@@ -238,43 +231,20 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			}
 			const randTconstAndRowCount = pickRandomId(tconstArr);
 			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
-
 			const resultRowCount = randTconstAndRowCount["rowCount"];
 
-			const tconstParam = new URLSearchParams(randTconstObj).toString();
-
-			const response = await fetchFromSql({
-				fetchBody: tconstParam,
-				reqType: "retrieve",
-			});
-
-			const resultsTemplate = document.getElementById("results-template");
-			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
-			// Concurrently show loading animation and create documentFragment of results
-			const [a, b, posterPath] = await Promise.all([
-				animateLoadingOverlay({
+			const response = await fetchWithTconstAndPopulateResults({
+				formElement: formElement,
+				resultRowCount: resultRowCount,
+				fetchObj: randTconstObj,
+				animateFunction: animateLoadingOverlay({
 					animationStepCount: 3,
 					maxRowCount: maxRowCount,
-					loadingNumber: loadingNumber,
+					loadingNumber: animationObj["loadingNumber"],
 					endNum: resultRowCount,
 				}),
-				populateResultsToTemplate({
-					resultsObj: response,
-					templateElement: newResultsTemplate,
-					rowCount: resultRowCount,
-				}),
-				getAndSetTmdbApiData({
-					tconstObj: response,
-					templateElement: newResultsTemplate,
-				}),
-			]);
-
-			overlayElement.remove();
-			// Add created documentFragment
-			formElement.replaceChildren(newResultsTemplate);
-			if (posterPath) {
-				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
-			}
+			});
+			animationObj["overlayElement"].remove();
 
 			// History API
 			const state = { tconst: response["tconst"] };
@@ -284,8 +254,8 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 		} else if (e.submitter.id === "form-resubmit") {
 			formElement.style.opacity = 0;
 
+			// If query result array of content IDs isn't in sessionStorage query DB again for it
 			let tconstArr = JSON.parse(sessionStorage.getItem("tconstArr"));
-
 			if (!tconstArr) {
 				const formDataObj = getFormData({
 					sessionStorageName: sessionStorageName,
@@ -297,38 +267,16 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 					reqType: "submit",
 				});
 			}
+
+			// Choose random ID from array and populate results with it
 			const randTconstAndRowCount = pickRandomId(tconstArr);
 			const randTconstObj = { tconst: randTconstAndRowCount["tconst"] };
 			const resultRowCount = randTconstAndRowCount["rowCount"];
-			const tconstParam = new URLSearchParams(randTconstObj).toString();
-			const response = await fetchFromSql({
-				fetchBody: tconstParam,
-				reqType: "retrieve",
+			const response = await fetchWithTconstAndPopulateResults({
+				formElement: formElement,
+				resultRowCount: resultRowCount,
+				fetchObj: randTconstObj,
 			});
-
-			const resultsTemplate = document.getElementById("results-template");
-			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
-
-			const [b, posterPath] = await Promise.all([
-				populateResultsToTemplate({
-					resultsObj: response,
-					templateElement: newResultsTemplate,
-					rowCount: resultRowCount,
-				}),
-				getAndSetTmdbApiData({
-					tconstObj: response,
-					templateElement: newResultsTemplate,
-				}),
-			]);
-
-			// Add created documentFragment
-			formElement.replaceChildren(newResultsTemplate);
-			formElement.style.opacity = 1;
-			if (posterPath) {
-				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
-			} else {
-				document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
-			}
 
 			// History API
 			const state = { tconst: response["tconst"] };
@@ -348,33 +296,13 @@ function listenToPopState({ formContainerId }) {
 		if (currentTconst) {
 			const formElement = document.getElementById(formContainerId);
 			formElement.style.opacity = 0;
-			document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
-			const tconstParam = new URLSearchParams(currentTconst).toString();
 
-			const response = await fetchFromSql({
-				fetchBody: tconstParam,
-				reqType: "retrieve",
+			fetchWithTconstAndPopulateResults({
+				formElement: formElement,
+				fetchObj: currentTconst,
 			});
 
-			const resultsTemplate = document.getElementById("results-template");
-			const newResultsTemplate = resultsTemplate.content.cloneNode(true);
-
-			const [b, posterPath] = await Promise.all([
-				populateResultsToTemplate({
-					resultsObj: response,
-					templateElement: newResultsTemplate,
-				}),
-				getAndSetTmdbApiData({
-					tconstObj: response,
-					templateElement: newResultsTemplate,
-				}),
-			]);
-
-			formElement.replaceChildren(newResultsTemplate);
 			formElement.style.opacity = 1;
-			if (posterPath) {
-				document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
-			}
 		} else if (currentTconst === null) {
 			location.reload();
 		}
@@ -385,6 +313,69 @@ function listenToPopState({ formContainerId }) {
 //
 //
 //
+
+async function fetchWithTconstAndPopulateResults({
+	formElement,
+	resultRowCount,
+	animateFunction,
+	fetchObj,
+}) {
+	const response = await fetchFromSql({
+		fetchBody: fetchObj,
+		reqType: "retrieve",
+	});
+
+	const resultsTemplate = document.getElementById("results-template");
+	const newResultsTemplate = resultsTemplate.content.cloneNode(true);
+
+	const promiseArr = [
+		populateResultsToTemplate({
+			resultsObj: response,
+			templateElement: newResultsTemplate,
+			rowCount: resultRowCount,
+		}),
+		getAndSetTmdbApiData({
+			tconstObj: response,
+			templateElement: newResultsTemplate,
+		}),
+	];
+	if (animateFunction) {
+		promiseArr.unshift(animateFunction);
+	}
+	const promiseResults = await Promise.all(promiseArr);
+
+	// Add created documentFragment
+	formElement.replaceChildren(newResultsTemplate);
+	formElement.style.opacity = 1;
+	const posterPath = promiseResults[promiseResults.length - 1];
+	if (posterPath) {
+		document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
+	} else {
+		document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
+	}
+
+	return response;
+}
+
+async function addAnimationOverlay({ maxRowCount, formElement }) {
+	const overlayElement = document.createElement("div");
+	overlayElement.id = "overlay";
+	document.body.appendChild(overlayElement);
+	const loadingTemplate = document.getElementById("loading-template");
+	const loadingTemplateClone = await loadingTemplate.content.cloneNode(true);
+
+	const loadingMessage = loadingTemplateClone.getElementById("loading-message");
+	const loadingNumber = loadingTemplateClone.getElementById("loading-number");
+	loadingMessage.innerText = "Finding you something to watch!";
+	loadingNumber.innerText = maxRowCount;
+
+	formElement.appendChild(loadingTemplateClone);
+
+	return {
+		overlayElement: overlayElement,
+		loadingNumber: loadingNumber,
+	};
+}
 
 async function animateLoadingOverlay({
 	animationStepCount,
@@ -511,6 +502,10 @@ async function getAndSetTmdbApiData({ tconstObj, templateElement }) {
 }
 
 async function fetchFromSql({ fetchBody, reqType }) {
+	if (reqType === "retrieve") {
+		fetchBody = new URLSearchParams(fetchBody).toString();
+	}
+
 	const response = await fetch(`/result?${fetchBody}`, {
 		method: "GET",
 		headers: {
