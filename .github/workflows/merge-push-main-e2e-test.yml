@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Start local environment with Docker Compose
+      - name: Build and start Randwatch-server and Randwatch-db
         working-directory: dev
         run: docker compose -f compose.yaml up -d --build
 
@@ -35,14 +35,13 @@ jobs:
         with:
           key: docker-${{ runner.os }}-${{ './dev/tests/e2e/Dockerfile' }}
 
-        # Create and run docker image using playwright image + tests in current folder
-      - name: Playwright build docker image and run tests
+      - name: Playwright build and run docker image
         working-directory: dev/tests/e2e
         run: |
           docker build -t playwright-testing .
           docker run -it --name=playwright-testing -d --ipc=host --add-host host.docker.internal:host-gateway playwright-testing
 
-      - name: Playwright run tests
+      - name: Playwright run E2E test
         run: docker exec playwright-testing npx playwright test
 
       - name: If Playwright failed upload test report
