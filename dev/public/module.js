@@ -11,31 +11,11 @@ async function checkUrlParams({ formContainerId }) {
 		formElement.style.opacity = 0;
 
 		const tconstObj = { tconst: tconstParam };
-		const fetchParam = new URLSearchParams(tconstObj).toString();
-		const response = await fetchFromSql({
-			fetchBody: fetchParam,
-			reqType: "retrieve",
+		await fetchWithTconstAndPopulateResults({
+			formElement: formElement,
+			fetchObj: tconstObj,
 		});
-
-		const resultsTemplate = document.getElementById("results-template");
-		const newResultsTemplate = resultsTemplate.content.cloneNode(true);
-
-		const [b, posterPath] = await Promise.all([
-			populateResultsToTemplate({
-				resultsObj: response,
-				templateElement: newResultsTemplate,
-			}),
-			getAndSetTmdbApiData({
-				tconstObj: response,
-				templateElement: newResultsTemplate,
-			}),
-		]);
-
-		formElement.replaceChildren(newResultsTemplate);
 		formElement.style.opacity = 1;
-		if (posterPath) {
-			document.body.style.backgroundImage = `url("https://image.tmdb.org/t/p/original${posterPath}"), linear-gradient(#504f4f, #070707)`;
-		}
 	}
 }
 
