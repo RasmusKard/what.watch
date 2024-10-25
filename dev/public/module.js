@@ -174,10 +174,8 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 	formElement.addEventListener("submit", async (e) => {
 		e.preventDefault();
 
-		// Submit: get form data and insert it into sessionStorage
-		// Re-submit: get form data from sessionStorage
-
-		// Open loading overlay with total row count of DB
+		// INITIAL SUBMIT FUNCTIONALITY
+		//
 		if (e.submitter.id === "form-submit") {
 			const maxRowCount = 476818;
 			const formDataObj = storeFormData({
@@ -231,7 +229,10 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			history.pushState(state, "", `/result?tconst=${response["tconst"]}`);
 			//
 			sessionStorage.setItem("seenIds", JSON.stringify([response["tconst"]]));
-		} else if (e.submitter.id === "form-resubmit") {
+		}
+		// RE-SUBMIT FUNCTIONALITY
+		//
+		else if (e.submitter.id === "form-resubmit") {
 			formElement.style.opacity = 0;
 
 			// If query result array of content IDs isn't in sessionStorage query DB again for it

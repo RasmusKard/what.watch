@@ -1,4 +1,4 @@
-name: E2E test and push image to Github
+name: (Release) E2E test and push Docker image to Github
 
 on:
   release:
@@ -30,6 +30,10 @@ jobs:
         working-directory: dev
         run: docker compose -f compose.yaml up -d --build
 
+      - name: Cache Playwright image
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: docker-${{ runner.os }}-${{ './dev/tests/e2e/Dockerfile' }}
         # Create and run docker image using playwright image + tests in current folder
       - name: Playwright build docker image and run tests
         working-directory: dev/tests/e2e
