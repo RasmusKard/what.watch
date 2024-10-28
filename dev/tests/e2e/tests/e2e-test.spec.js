@@ -37,15 +37,13 @@ test("test", async ({ page, browserName }) => {
 	);
 	const allowedGenres = [];
 	for (let i = 0; i < genresNum; i++) {
-		const splicedElement = availableGenres.splice(
+		const randomGenre = availableGenres.splice(
 			Math.floor(Math.random() * availableGenres.length),
 			1
 		);
-		await page
-			.locator(`label[for="${splicedElement}"]`)
-			.click({ force: isWebkit });
+		await page.getByText(randomGenre).click({ force: isWebkit });
 
-		allowedGenres.push(...splicedElement);
+		allowedGenres.push(...randomGenre);
 	}
 
 	const contentTypes = {
@@ -57,9 +55,7 @@ test("test", async ({ page, browserName }) => {
 	let allowedContentTypes = [];
 	for (let i = 0; i < contentTypesNum; i++) {
 		const contentType = contentTypesKeys[i];
-		await page
-			.locator(`label[for="${contentType}"]`)
-			.click({ force: isWebkit });
+		await page.getByText(contentType).click({ force: isWebkit });
 		allowedContentTypes.push(...contentTypes[contentType]);
 	}
 

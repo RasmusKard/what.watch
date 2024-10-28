@@ -1,4 +1,4 @@
-name: (Merge or push to Main) E2E test
+name: (open pull-request or push to main) E2E test
 
 on:
   pull_request:
