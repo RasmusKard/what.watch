@@ -60,10 +60,20 @@ jobs:
 
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            VERSION=$(echo $VERSION | sed -e 's/^v//')
+            TAGS=("$VERSION" "latest")
+          elif [ "$VERSION" == "main" ]; then
+            VERSION=latest
+            TAGS=("$VERSION")
+          else
+            TAGS=("$VERSION")
+          fi
 
-          [ "$VERSION" == "main" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag $SERVER_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+
+          for tag in "${TAGS[@]}"; do
+            docker tag $SERVER_IMAGE_NAME $IMAGE_ID:$tag
+            docker push $IMAGE_ID:$tag
+          done
