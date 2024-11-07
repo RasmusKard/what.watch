@@ -44,5 +44,5 @@ jobs:
         if: ${{ failure() }}
         with:
           name: playwright-report
-          path: e2e/playwright-report/
+          path: dev/tests/e2e/playwright-report/
           retention-days: 30
