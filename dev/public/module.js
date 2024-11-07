@@ -582,10 +582,12 @@ function getFormData({ sessionStorageName }) {
 function storeFormData({ sessionStorageName, formElement }) {
 	const formDataObj = formDataToObj(formElement);
 	const settings = JSON.parse(localStorage.getItem("settings"));
-	formDataObj["settings"] = {
-		minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
-		yearrange: JSON.parse(settings[LOCALSTORAGE_NAMES["yearSlider"]]),
-	};
+	if (settings !== null) {
+		formDataObj["settings"] = {
+			minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
+			yearrange: JSON.parse(settings[LOCALSTORAGE_NAMES["yearSlider"]]),
+		};
+	}
 	const formDataObjStr = JSON.stringify(formDataObj);
 	sessionStorage.setItem(sessionStorageName, formDataObjStr);
 
