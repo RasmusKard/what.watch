@@ -260,8 +260,8 @@ input[type="checkbox"] {
 	align-items: flex-start;
 }
 
-#settings-year,
-#settings-votes {
+#year-slider-text,
+#minvotes-slider-text {
 	font-size: var(--base-tiny-font);
 	opacity: 0.6;
 }

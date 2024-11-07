@@ -3,6 +3,11 @@
 //
 //
 
+const LOCALSTORAGE_NAMES = {
+	yearSlider: "yearrange",
+	minVotesSlider: "minvotes",
+};
+
 async function checkUrlParams({ formContainerId }) {
 	const urlParams = new URLSearchParams(document.location.search);
 	const tconstParam = urlParams.get("tconst");
@@ -85,6 +90,21 @@ function populateFormWithSessionData({
 		if (storageValue !== null) {
 			ratingSlider.noUiSlider.set(storageValue);
 		}
+	}
+
+	const sliderArrOfObj = getSettingsValuesFromLocalStorage();
+	populateSettingsValueText({ sliderArrOfObj: sliderArrOfObj });
+}
+
+function populateSettingsValueText({ sliderArrOfObj }) {
+	for (const sliderObj of sliderArrOfObj) {
+		const sliderLocalStorageValue = sliderObj["sliderValue"];
+		const sliderTextValue =
+			sliderLocalStorageValue !== null ? sliderLocalStorageValue : null;
+
+		const sliderId = sliderObj["sliderId"];
+		const sliderText = document.getElementById(sliderId + "-text");
+		sliderText.innerText = `${sliderObj["localStorageName"]}: ${sliderTextValue}`;
 	}
 }
 
@@ -425,16 +445,36 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function populateSettingsFromLocalStorage() {
-	const settingsSliders = [
-		document.getElementById("minvotes-slider"),
-		document.getElementById("year-slider"),
+function getSettingsValuesFromLocalStorage() {
+	const sliderArr = [
+		["minvotes-slider", LOCALSTORAGE_NAMES["minVotesSlider"]],
+		["year-slider", LOCALSTORAGE_NAMES["yearSlider"]],
 	];
-	for (const slider of settingsSliders) {
-		const sliderInput = document.getElementById(slider.id + "-value");
-		const storageValue = JSON.parse(localStorage.getItem(sliderInput.name));
-		if (storageValue !== null) {
-			slider.noUiSlider.set(storageValue);
+
+	let sliderValueArrOfObj = [];
+	const settingsObj = JSON.parse(localStorage.getItem("settings"));
+	if (settingsObj !== null) {
+		for (const [sliderId, localStorageName] of sliderArr) {
+			const slider = document.getElementById(sliderId);
+			const storageValue = JSON.parse(settingsObj[localStorageName]);
+			sliderValueArrOfObj.push({
+				slider: slider,
+				sliderValue: storageValue,
+				sliderId: sliderId,
+				localStorageName: localStorageName,
+			});
+		}
+	}
+	return sliderValueArrOfObj;
+}
+
+function populateSettingsFromLocalStorage() {
+	const sliderValueArr = getSettingsValuesFromLocalStorage();
+
+	for (const sliderObj of sliderValueArr) {
+		const sliderValue = sliderObj["sliderValue"];
+		if (sliderValue !== null) {
+			sliderObj["slider"].noUiSlider.set(sliderValue);
 		}
 	}
 }
@@ -541,9 +581,10 @@ function getFormData({ sessionStorageName }) {
 
 function storeFormData({ sessionStorageName, formElement }) {
 	const formDataObj = formDataToObj(formElement);
+	const settings = JSON.parse(localStorage.getItem("settings"));
 	formDataObj["settings"] = {
-		minvotes: JSON.parse(localStorage.getItem("minvotes")),
-		yearrange: JSON.parse(localStorage.getItem("yearrange")),
+		minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
+		yearrange: JSON.parse(settings[LOCALSTORAGE_NAMES["yearSlider"]]),
 	};
 	const formDataObjStr = JSON.stringify(formDataObj);
 	sessionStorage.setItem(sessionStorageName, formDataObjStr);
@@ -569,14 +610,19 @@ function settingsSaveListener() {
 			const settingsForm = document.querySelector(".overlay-element");
 
 			const settingsData = new FormData(settingsForm);
-
+			let settingsObj = {};
 			for (let [key, value] of settingsData.entries()) {
-				localStorage.setItem(key, value);
+				settingsObj[key] = value;
 			}
+
+			localStorage.setItem("settings", JSON.stringify(settingsObj));
 
 			const settingsOverlay = document.getElementById("overlay");
 			settingsForm.remove();
 			settingsOverlay.remove();
+
+			const sliderArrOfObj = getSettingsValuesFromLocalStorage();
+			populateSettingsValueText({ sliderArrOfObj: sliderArrOfObj });
 		},
 		{ passive: true }
 	);
