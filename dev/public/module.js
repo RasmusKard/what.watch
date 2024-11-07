@@ -90,66 +90,70 @@ function populateFormWithSessionData({
 
 function addSettingsListener() {
 	const settingsButton = document.getElementById("settings-button");
-	settingsButton.addEventListener("click", (e) => {
-		// clone settings template
-		const settingsTemplate = document.getElementById("settings-template");
-		const settingsFormClone = settingsTemplate.content.cloneNode(true);
-		const formContainer = document.getElementById("form-container");
-		formContainer.appendChild(settingsFormClone);
+	settingsButton.addEventListener(
+		"click",
+		(e) => {
+			// clone settings template
+			const settingsTemplate = document.getElementById("settings-template");
+			const settingsFormClone = settingsTemplate.content.cloneNode(true);
+			const formContainer = document.getElementById("form-container");
+			formContainer.appendChild(settingsFormClone);
 
-		// add minvotes slider
-		createSlider({
-			slider: document.getElementById("minvotes-slider"),
-			sliderValue: document.getElementById("minvotes-slider-value"),
-			tooltips: {
-				to: (value) => Math.floor(value),
-			},
-			start: 5000,
-			connect: "lower",
-			step: 20,
-			range: {
-				min: 0,
-				max: 100000,
-			},
-			format: {
-				to: (value) => Math.floor(value),
+			// add minvotes slider
+			createSlider({
+				slider: document.getElementById("minvotes-slider"),
+				sliderValue: document.getElementById("minvotes-slider-value"),
+				tooltips: {
+					to: (value) => Math.floor(value),
+				},
+				start: 5000,
+				connect: "lower",
+				step: 20,
+				range: {
+					min: 0,
+					max: 100000,
+				},
+				format: {
+					to: (value) => Math.floor(value),
 
-				from: (value) => Number(value),
-			},
-		});
+					from: (value) => Number(value),
+				},
+			});
 
-		// add year slider ranging from the year of first content available in DB to current year
-		const currentYear = new Date().getFullYear();
-		createSlider({
-			slider: document.getElementById("year-slider"),
-			sliderValue: document.getElementById("year-slider-value"),
-			tooltips: {
-				to: (value) => value,
-			},
-			start: [1965, currentYear],
-			connect: true,
-			step: 1,
-			range: {
-				min: [1894],
-				max: [currentYear],
-			},
-			format: {
-				to: (value) => Math.floor(value),
+			// add year slider ranging from the year of first content available in DB to current year
+			const currentYear = new Date().getFullYear();
+			createSlider({
+				slider: document.getElementById("year-slider"),
+				sliderValue: document.getElementById("year-slider-value"),
+				tooltips: {
+					to: (value) => value,
+				},
+				start: [1965, currentYear],
+				connect: true,
+				step: 1,
+				range: {
+					min: [1894],
+					max: [currentYear],
+				},
+				format: {
+					to: (value) => Math.floor(value),
 
-				from: (value) => Number(value),
-			},
-			array: true,
-		});
+					from: (value) => Number(value),
+				},
+				array: true,
+			});
 
-		populateSettingsFromLocalStorage();
+			populateSettingsFromLocalStorage();
 
-		// add overlay so elements behind settings are blocked from view
-		const overlayElement = document.createElement("div");
-		overlayElement.id = "overlay";
-		document.body.appendChild(overlayElement);
+			// add overlay so elements behind settings are blocked from view
+			const overlayElement = document.createElement("div");
+			overlayElement.id = "overlay";
+			document.body.appendChild(overlayElement);
 
-		settingsSaveListener();
-	});
+			settingsSaveListener();
+		},
+		{ passive: true }
+	);
 }
 
 function pickRandomId(arr) {
@@ -216,7 +220,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 				resultRowCount: resultRowCount,
 				fetchObj: randTconstObj,
 				animateFunction: animateLoadingOverlay({
-					animationStepCount: 3,
+					animationStepCount: 8,
 					maxRowCount: maxRowCount,
 					loadingNumber: animationObj["loadingNumber"],
 					endNum: resultRowCount,
@@ -375,10 +379,10 @@ async function animateLoadingOverlay({
 		for (const step of stepArr) {
 			currentRowCount -= step;
 			loadingNumber.innerText = currentRowCount;
-			await sleep(600);
+			await sleep(150);
 		}
 		loadingNumber.style.color = "green";
-		await sleep(1500);
+		await sleep(1200);
 	} else {
 		loadingNumber.innerText = endNum;
 		loadingNumber.style.color = "green";
@@ -559,19 +563,29 @@ function formDataToObj(formElement) {
 
 function settingsSaveListener() {
 	const settingsSaveButton = document.getElementById("save-settings");
-	settingsSaveButton.addEventListener("click", (e) => {
-		const settingsForm = document.querySelector(".overlay-element");
+	settingsSaveButton.addEventListener(
+		"click",
+		(e) => {
+			const settingsForm = document.querySelector(".overlay-element");
 
-		const settingsData = new FormData(settingsForm);
+			const settingsData = new FormData(settingsForm);
 
-		for (let [key, value] of settingsData.entries()) {
-			localStorage.setItem(key, value);
-		}
+			for (let [key, value] of settingsData.entries()) {
+				localStorage.setItem(key, value);
+			}
 
-		const settingsOverlay = document.getElementById("overlay");
-		settingsForm.remove();
-		settingsOverlay.remove();
-	});
+			const settingsOverlay = document.getElementById("overlay");
+			settingsForm.remove();
+			settingsOverlay.remove();
+		},
+		{ passive: true }
+	);
+}
+
+function genreCheckboxEventListener() {
+	// input check event
+	// if input unchecked do nothing
+	//
 }
 
 export {

@@ -15,86 +15,17 @@
 		<script type="module" defer src="script.js"></script>
 		<link rel="stylesheet" href="styles.css" />
 
-		<link
-			rel="apple-touch-icon"
-			sizes="57x57"
-			href="/favicon/apple-icon-57x57.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="60x60"
-			href="/favicon/apple-icon-60x60.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="72x72"
-			href="/favicon/apple-icon-72x72.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="76x76"
-			href="/favicon/apple-icon-76x76.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="114x114"
-			href="/favicon/apple-icon-114x114.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="120x120"
-			href="/favicon/apple-icon-120x120.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="144x144"
-			href="/favicon/apple-icon-144x144.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="152x152"
-			href="/favicon/apple-icon-152x152.png"
-		/>
-		<link
-			rel="apple-touch-icon"
-			sizes="180x180"
-			href="/favicon/apple-icon-180x180.png"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="192x192"
-			href="/favicon/android-icon-192x192.png"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="32x32"
-			href="/favicon/favicon-32x32.png"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="96x96"
-			href="/favicon/favicon-96x96.png"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="16x16"
-			href="/favicon/favicon-16x16.png"
-		/>
-		<link rel="manifest" href="/favicon/manifest.json" />
-		<meta name="msapplication-TileColor" content="#ffffff" />
-		<meta
-			name="msapplication-TileImage"
-			content="/favicon/ms-icon-144x144.png"
-		/>
-		<meta name="theme-color" content="#ffffff" />
+		<link rel="icon" href="/favicon/favicon.ico" />
 	</head>
 	<body>
 		<div id="page-container">
 			<form id="form-container" method="post">
+				<div id="logo-container">
+					<img id="logo-image" src="./favicon/favicon-96x96.png" alt="" />
+					<h1 class="logo-header">WHAT.WATCH</h1>
+				</div>
+				<div style="width: 100%"><hr style="color: gold" /></div>
+				<!-- <div style="width: 100%"><hr /></div> -->
 				<div id="content-type-container" class="checkbox-container">
 					<label class="checkbox-button" for="Movie">
 						<input
@@ -115,7 +46,6 @@
 						TV Show 📺
 					</label>
 				</div>
-				<div style="width: 100%"><hr /></div>
 				<div id="genre-container" class="checkbox-container">
 					<label class="checkbox-button" for="Action">
 						<input type="checkbox" id="Action" name="genres" value="Action" />
@@ -263,7 +193,6 @@
 					</label>
 				</div>
 
-				<div style="width: 100%"><hr /></div>
 				<div id="rating-slider-container">
 					<label for="rating-slider">
 						<input
@@ -275,6 +204,7 @@
 						<div id="rating-slider"></div>
 					</label>
 				</div>
+				<div style="width: 100%"><hr /></div>
 				<button
 					form="form-container"
 					type="submit"
@@ -285,11 +215,15 @@
 				</button>
 
 				<div id="footer-flex">
-					<button
-						type="button"
-						class="secondary-button svg-button"
-						id="settings-button"
-					></button>
+					<div id="settings-container">
+						<p id="settings-votes">Min Votes: 214933</p>
+						<p id="settings-year">Year: 1894 to 2011</p>
+						<button
+							type="button"
+							class="secondary-button svg-button"
+							id="settings-button"
+						></button>
+					</div>
 					<button type="reset" id="reset-button" class="secondary-button">
 						Reset filters
 					</button>

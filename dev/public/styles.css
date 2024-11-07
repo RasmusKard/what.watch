@@ -84,11 +84,31 @@ fieldset {
 	gap: 1.5rem;
 	max-width: 700px;
 	min-width: 250px;
-	min-height: 500px;
 	max-height: 1000px;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
 	transition: opacity 1s;
+}
+
+.logo-header {
+	font-size: var(--base-big-font);
+	font-weight: bold;
+	color: transparent;
+	background-image: linear-gradient(#f5c518, #755d07);
+	background-clip: text;
+}
+
+#logo-container {
+	margin-top: -0.5rem;
+	margin-bottom: -1.5rem;
+	display: flex;
+	align-items: baseline;
+	gap: 0.4rem;
+	justify-content: space-between;
+}
+
+#logo-image {
+	height: var(--base-big-font);
 }
 
 .checkbox-button {
@@ -110,12 +130,12 @@ fieldset {
 
 @media (hover: hover) {
 	.checkbox-button:hover {
-		background-color: #7a7676;
+		background-color: #06ac2f;
 	}
 }
 
 .checkbox-button:has(> input:checked) {
-	background-color: #7a7676;
+	background-color: #034e16;
 }
 
 input[type="checkbox"] {
@@ -133,6 +153,7 @@ input[type="checkbox"] {
 #content-type-container {
 	font-size: var(--base-big-font);
 	grid-template-columns: 1fr 1fr;
+	margin-bottom: var(--base-big-font);
 }
 
 @media (max-width: 400px) {
@@ -231,6 +252,18 @@ input[type="checkbox"] {
 
 #settings-button {
 	background-image: url("./settings.svg");
+}
+
+#settings-container {
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+}
+
+#settings-year,
+#settings-votes {
+	font-size: var(--base-tiny-font);
+	opacity: 0.6;
 }
 
 #navbar-container {
