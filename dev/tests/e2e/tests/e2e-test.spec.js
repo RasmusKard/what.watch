@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("test", async ({ page, browserName }) => {
-	await page.goto("http://localhost:3000/");
+	await page.goto("http://host.docker.internal:3000/");
 
 	let isWebkit;
 	if (browserName === "webkit") {
