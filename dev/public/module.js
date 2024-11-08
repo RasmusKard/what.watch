@@ -601,6 +601,16 @@ function formDataToObj(formElement) {
 		formDataObj[key] = formData.getAll(key);
 	}
 
+	// for genre in genres
+	const formElements = formElement.elements;
+	let results = [];
+	for (const genre of formDataObj["genres"]) {
+		const isRecommend = formElements[genre].attributes.isrecommend.value;
+		results.push({ [genre]: isRecommend });
+	}
+	formDataObj["genres"] = results;
+	// formelement.elements get genre attribute value
+
 	return formDataObj;
 }
 
@@ -641,10 +651,10 @@ function genreCheckboxEventListener() {
 
 			// checked value is expected goal of event
 			// so if preventDefault is used checked value will still represent value as if the event went through
-			if (e.target.checked === false && isRecommendBool === false) {
-			} else if (e.target.checked === true) {
+			if (!e.target.checked && !isRecommendBool) {
+			} else if (e.target.checked) {
 				isRecommendAttr.value = "1";
-			} else if (e.target.checked === false) {
+			} else if (!e.target.checked) {
 				e.preventDefault();
 				isRecommendAttr.value = "0";
 			}
