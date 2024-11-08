@@ -68,13 +68,27 @@ function populateFormWithSessionData({
 
 	if (sessionStorageItem !== null) {
 		const formData = JSON.parse(sessionStorageItem);
-
+		const genreArrOfObj = formData["genres"];
+		let genreNameArr;
+		if (Array.isArray(genreArrOfObj) && genreArrOfObj.length) {
+			genreNameArr = genreArrOfObj.map((e) => e["genreName"]);
+		}
 		const formElements = formElement.elements;
 		for (const [key, value] of Object.entries(formData)) {
 			const formEle = formElements[key];
 			if (Object.prototype.isPrototypeOf.call(NodeList.prototype, formEle)) {
+				// if (formEle[0].name)
 				formEle.forEach((element) => {
-					if (value.includes(element.value)) {
+					if (
+						formEle[0].name === "genres" &&
+						genreNameArr.includes(element.value)
+					) {
+						element.checked = true;
+						const eleObj = genreArrOfObj.find(
+							(e) => e["genreName"] === element.value
+						);
+						element.attributes.isrecommend.value = eleObj["isRecommend"];
+					} else if (value.includes(element.value)) {
 						element.checked = true;
 					}
 				});
@@ -601,15 +615,15 @@ function formDataToObj(formElement) {
 		formDataObj[key] = formData.getAll(key);
 	}
 
-	// for genre in genres
-	const formElements = formElement.elements;
-	let results = [];
-	for (const genre of formDataObj["genres"]) {
-		const isRecommend = formElements[genre].attributes.isrecommend.value;
-		results.push({ [genre]: isRecommend });
+	let genresArrOfObj = [];
+	if (!!formDataObj["genres"]) {
+		const formElements = formElement.elements;
+		for (const genre of formDataObj["genres"]) {
+			const isRecommend = formElements[genre].attributes.isrecommend.value;
+			genresArrOfObj.push({ genreName: genre, isRecommend: isRecommend });
+		}
+		formDataObj["genres"] = genresArrOfObj;
 	}
-	formDataObj["genres"] = results;
-	// formelement.elements get genre attribute value
 
 	return formDataObj;
 }
@@ -645,7 +659,6 @@ function genreCheckboxEventListener() {
 	genreContainer.addEventListener("click", (e) => {
 		if (e.target.type === "checkbox") {
 			const checkbox = e.target;
-			console.log(e.target.checked);
 			const isRecommendAttr = checkbox.attributes.isrecommend;
 			const isRecommendBool = Boolean(parseInt(isRecommendAttr.value));
 

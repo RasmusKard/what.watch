@@ -73,13 +73,12 @@ async function submitMethod({ userInput, res }) {
 	let dontRecommendGenres = [];
 	if (typeof genres !== "undefined") {
 		for (const genre of genres) {
-			for (let [genreName, isRecommend] of Object.entries(genre)) {
-				isRecommend = parseInt(isRecommend);
-				if (!!isRecommend) {
-					recommendGenres.push(genreName);
-				} else {
-					dontRecommendGenres.push(genreName);
-				}
+			const isRecommend = parseInt(genre["isRecommend"]);
+			const genreName = genre["genreName"];
+			if (!!isRecommend) {
+				recommendGenres.push(genreName);
+			} else {
+				dontRecommendGenres.push(genreName);
 			}
 		}
 		let genresArrOfArr = [recommendGenres, dontRecommendGenres];
