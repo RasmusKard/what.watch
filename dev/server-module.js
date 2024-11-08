@@ -100,7 +100,7 @@ async function submitMethod({ userInput, res }) {
 		const output = await connection("title")
 			.select("title.tconst")
 			.modify((query) => {
-				if (!!recommendGenres) {
+				if (Array.isArray(recommendGenres) && recommendGenres.length) {
 					query.innerJoin(
 						connection("title_genres")
 							.select("tconst", "genres")
@@ -108,6 +108,16 @@ async function submitMethod({ userInput, res }) {
 							.as("matched_genres"),
 						"title.tconst",
 						"matched_genres.tconst"
+					);
+				}
+			})
+			.modify((query) => {
+				if (Array.isArray(dontRecommendGenres) && dontRecommendGenres.length) {
+					query.whereNotExists(
+						connection("title_genres")
+							.select("tconst", "genres")
+							.whereIn("title_genres.genres", dontRecommendGenres)
+							.whereRaw("title.tconst = title_genres.tconst")
 					);
 				}
 			})
