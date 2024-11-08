@@ -42,14 +42,15 @@ img {
 }
 
 /* NORMALIZE CSS END */
-
-body {
-	color: white;
-	font-family: "Roboto", sans-serif;
+:root {
 	--base-small-font: clamp(0.6rem, 1.5vw + 0.15rem, 1rem);
 	--base-big-font: clamp(1.5rem, 3vw + 0.6rem, 2rem);
 	--base-tiny-font: clamp(0.4rem, 1vw + 0.075rem, 0.5rem);
 	--base-medium-font: clamp(0.8rem, 2vw + 0.15rem, 1.5rem);
+}
+body {
+	color: white;
+	font-family: "Roboto", sans-serif;
 	font-size: var(--base-small-font);
 	background-repeat: no-repeat;
 	background-size: contain;
@@ -99,8 +100,8 @@ fieldset {
 }
 
 #logo-container {
-	margin-top: -0.5rem;
-	margin-bottom: -1.5rem;
+	margin-top: -0.7rem;
+	margin-bottom: -2rem;
 	display: flex;
 	align-items: baseline;
 	gap: 0.4rem;
@@ -130,12 +131,20 @@ fieldset {
 
 @media (hover: hover) {
 	.checkbox-button:hover {
-		background-color: #06ac2f;
+		opacity: 0.8;
 	}
 }
 
-.checkbox-button:has(> input:checked) {
+#content-type-container > .checkbox-button:has(> input:checked) {
 	background-color: #034e16;
+}
+
+#genre-container > .checkbox-button:has(> input:checked[isrecommend="1"]) {
+	background-color: #034e16;
+}
+
+#genre-container > .checkbox-button:has(> input:checked[isrecommend="0"]) {
+	background-color: red;
 }
 
 input[type="checkbox"] {
@@ -153,7 +162,6 @@ input[type="checkbox"] {
 #content-type-container {
 	font-size: var(--base-big-font);
 	grid-template-columns: 1fr 1fr;
-	margin-bottom: var(--base-big-font);
 }
 
 @media (max-width: 400px) {
@@ -171,7 +179,7 @@ input[type="checkbox"] {
 	font-size: var(--base-small-font);
 	gap: 0.4rem;
 	grid-template-columns: 1fr 1fr 1fr;
-	width: 90%;
+	width: 100%;
 }
 
 @media (max-width: 500px) {
@@ -194,6 +202,7 @@ input[type="checkbox"] {
 	display: flex;
 	width: 100%;
 	justify-content: space-between;
+	align-items: flex-end;
 	margin-top: -1.5rem;
 }
 

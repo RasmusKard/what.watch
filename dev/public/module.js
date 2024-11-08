@@ -68,13 +68,27 @@ function populateFormWithSessionData({
 
 	if (sessionStorageItem !== null) {
 		const formData = JSON.parse(sessionStorageItem);
-
+		const genreArrOfObj = formData["genres"];
+		let genreNameArr;
+		if (Array.isArray(genreArrOfObj) && genreArrOfObj.length) {
+			genreNameArr = genreArrOfObj.map((e) => e["genreName"]);
+		}
 		const formElements = formElement.elements;
 		for (const [key, value] of Object.entries(formData)) {
 			const formEle = formElements[key];
 			if (Object.prototype.isPrototypeOf.call(NodeList.prototype, formEle)) {
+				// if (formEle[0].name)
 				formEle.forEach((element) => {
-					if (value.includes(element.value)) {
+					if (
+						formEle[0].name === "genres" &&
+						genreNameArr.includes(element.value)
+					) {
+						element.checked = true;
+						const eleObj = genreArrOfObj.find(
+							(e) => e["genreName"] === element.value
+						);
+						element.attributes.isrecommend.value = eleObj["isRecommend"];
+					} else if (value.includes(element.value)) {
 						element.checked = true;
 					}
 				});
@@ -601,6 +615,16 @@ function formDataToObj(formElement) {
 		formDataObj[key] = formData.getAll(key);
 	}
 
+	let genresArrOfObj = [];
+	if (!!formDataObj["genres"]) {
+		const formElements = formElement.elements;
+		for (const genre of formDataObj["genres"]) {
+			const isRecommend = formElements[genre].attributes.isrecommend.value;
+			genresArrOfObj.push({ genreName: genre, isRecommend: isRecommend });
+		}
+		formDataObj["genres"] = genresArrOfObj;
+	}
+
 	return formDataObj;
 }
 
@@ -631,10 +655,34 @@ function settingsSaveListener() {
 }
 
 function genreCheckboxEventListener() {
+	const genreContainer = document.getElementById("genre-container");
+	genreContainer.addEventListener("click", (e) => {
+		if (e.target.type === "checkbox") {
+			const checkbox = e.target;
+			const isRecommendAttr = checkbox.attributes.isrecommend;
+			const isRecommendBool = Boolean(parseInt(isRecommendAttr.value));
+
+			// checked value is expected goal of event
+			// so if preventDefault is used checked value will still represent value as if the event went through
+			if (!e.target.checked && !isRecommendBool) {
+			} else if (e.target.checked) {
+				isRecommendAttr.value = "1";
+			} else if (!e.target.checked) {
+				e.preventDefault();
+				isRecommendAttr.value = "0";
+			}
+		}
+	});
+	// start isrecommend at 0
+	// first click = normal check (isrecommend to 1)
+	// second click = prevent check (isrecommend to 0)
+
 	// input check event
 	// if input unchecked do nothing
 	//
+	// genre checkboxes add bool attribute that says whether or not it's in recommend state (0 or 1)
 }
+genreCheckboxEventListener();
 
 export {
 	formDataToObj,

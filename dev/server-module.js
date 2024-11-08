@@ -69,26 +69,54 @@ async function submitMethod({ userInput, res }) {
 			refTable: "titleType_ref",
 		});
 	}
-
+	let recommendGenres = [];
+	let dontRecommendGenres = [];
 	if (typeof genres !== "undefined") {
-		genres = await strArrToIDArr({
-			strArray: genres,
-			refTable: "genres_ref",
-		});
+		for (const genre of genres) {
+			const isRecommend = parseInt(genre["isRecommend"]);
+			const genreName = genre["genreName"];
+			if (!!isRecommend) {
+				recommendGenres.push(genreName);
+			} else {
+				dontRecommendGenres.push(genreName);
+			}
+		}
+		let genresArrOfArr = [recommendGenres, dontRecommendGenres];
+		for (let i = 0; i < genresArrOfArr.length; i++) {
+			const genreArr = genresArrOfArr[i];
+			if (Array.isArray(genreArr) && genreArr.length) {
+				genresArrOfArr[i] = await strArrToIDArr({
+					strArray: genreArr,
+					refTable: "genres_ref",
+				});
+			}
+		}
+		recommendGenres = genresArrOfArr[0];
+		dontRecommendGenres = genresArrOfArr[1];
 	}
 
 	try {
 		const output = await connection("title")
 			.select("title.tconst")
 			.modify((query) => {
-				if (genres) {
+				if (Array.isArray(recommendGenres) && recommendGenres.length) {
 					query.innerJoin(
 						connection("title_genres")
 							.select("tconst", "genres")
-							.whereIn("title_genres.genres", genres)
+							.whereIn("title_genres.genres", recommendGenres)
 							.as("matched_genres"),
 						"title.tconst",
 						"matched_genres.tconst"
+					);
+				}
+			})
+			.modify((query) => {
+				if (Array.isArray(dontRecommendGenres) && dontRecommendGenres.length) {
+					query.whereNotExists(
+						connection("title_genres")
+							.select("tconst", "genres")
+							.whereIn("title_genres.genres", dontRecommendGenres)
+							.whereRaw("title.tconst = title_genres.tconst")
 					);
 				}
 			})
@@ -102,7 +130,7 @@ async function submitMethod({ userInput, res }) {
 				}
 			})
 			.modify((query) => {
-				if (minRating && minRating > 0) {
+				if (!!minRating && minRating > 0) {
 					query.andWhere("title.averageRating", ">=", minRating);
 				}
 			})
@@ -121,7 +149,7 @@ async function submitMethod({ userInput, res }) {
 				}
 			})
 			.modify((query) => {
-				if (minVotes) {
+				if (!!minVotes) {
 					minVotes = Math.floor(minVotes);
 					query.andWhere("title.numVotes", ">=", minVotes);
 				} else if (minVotes !== 0) {

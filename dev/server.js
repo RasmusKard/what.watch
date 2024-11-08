@@ -29,7 +29,6 @@ async function mainFunc(req, res) {
 		for (const [key, value] of urlParams) {
 			userInput[key] = JSON.parse(value);
 		}
-		console.log(userInput);
 		submitMethod({ userInput: userInput, res: res });
 	} else if (header === "retrieve") {
 		retrieveMethod({ tconst: req.query.tconst, res: res });

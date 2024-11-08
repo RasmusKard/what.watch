@@ -32,13 +32,30 @@ test("test", async ({ page, browserName }) => {
 		"War",
 		"Western",
 	];
-	const genresNum = Math.floor(
+	// TEST POSITIVE GENRES PROMPT
+	const allowedGenresNum = Math.floor(
 		Math.random() * Math.min(8, availableGenres.length)
 	);
 	const allowedGenres = [];
-	for (let i = 0; i < genresNum; i++) {
+	for (let i = 0; i < allowedGenresNum; i++) {
 		const randomGenre = availableGenres.splice(
 			Math.floor(Math.random() * availableGenres.length),
+			1
+		);
+		await page.getByText(randomGenre).click({ force: isWebkit });
+
+		allowedGenres.push(...randomGenre);
+	}
+
+	// TEST NEGATIVE GENRES PROMPT
+	const genresLeft = availableGenres.filter(
+		(genre) => !allowedGenres.includes(genre)
+	);
+	const notAllowedGenresNum = 2;
+	const notAllowedGenres = [];
+	for (let i = 0; i < notAllowedGenresNum; i++) {
+		const randomGenre = genresLeft.splice(
+			Math.floor(Math.random() * genresLeft.length),
 			1
 		);
 		await page.getByText(randomGenre).click({ force: isWebkit });
@@ -114,6 +131,15 @@ test("test", async ({ page, browserName }) => {
 				return allowedGenres.includes(genre);
 			})
 		).toBe(true);
+	}
+
+	if (!!notAllowedGenres.length) {
+		const genres = resultArr[2].split(",").map((e) => e.trim());
+		expect(
+			genres.some((genre) => {
+				return notAllowedGenres.includes(genre);
+			})
+		).toBe(false);
 	}
 
 	const contentType = resultArr[3].trim();
