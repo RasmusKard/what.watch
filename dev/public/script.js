@@ -18,7 +18,7 @@ createSlider({
 	sliderValue: ratingSliderValue,
 	tooltips: {
 		to: function (value) {
-			return `⭐ ${value}+`;
+			return `Rating: ⭐ ${value}+`;
 		},
 	},
 	start: [5],

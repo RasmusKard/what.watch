@@ -153,7 +153,6 @@ input[type="checkbox"] {
 #content-type-container {
 	font-size: var(--base-big-font);
 	grid-template-columns: 1fr 1fr;
-	margin-bottom: var(--base-big-font);
 }
 
 @media (max-width: 400px) {
@@ -171,7 +170,7 @@ input[type="checkbox"] {
 	font-size: var(--base-small-font);
 	gap: 0.4rem;
 	grid-template-columns: 1fr 1fr 1fr;
-	width: 90%;
+	width: 100%;
 }
 
 @media (max-width: 500px) {
@@ -194,6 +193,7 @@ input[type="checkbox"] {
 	display: flex;
 	width: 100%;
 	justify-content: space-between;
+	align-items: flex-end;
 	margin-top: -1.5rem;
 }
 
