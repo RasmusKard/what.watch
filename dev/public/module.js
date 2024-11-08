@@ -631,10 +631,35 @@ function settingsSaveListener() {
 }
 
 function genreCheckboxEventListener() {
+	const genreContainer = document.getElementById("genre-container");
+	genreContainer.addEventListener("click", (e) => {
+		if (e.target.type === "checkbox") {
+			const checkbox = e.target;
+			console.log(e.target.checked);
+			const isRecommendAttr = checkbox.attributes.isrecommend;
+			const isRecommendBool = Boolean(parseInt(isRecommendAttr.value));
+
+			// checked value is expected goal of event
+			// so if preventDefault is used checked value will still represent value as if the event went through
+			if (e.target.checked === false && isRecommendBool === false) {
+			} else if (e.target.checked === true) {
+				isRecommendAttr.value = "1";
+			} else if (e.target.checked === false) {
+				e.preventDefault();
+				isRecommendAttr.value = "0";
+			}
+		}
+	});
+	// start isrecommend at 0
+	// first click = normal check (isrecommend to 1)
+	// second click = prevent check (isrecommend to 0)
+
 	// input check event
 	// if input unchecked do nothing
 	//
+	// genre checkboxes add bool attribute that says whether or not it's in recommend state (0 or 1)
 }
+genreCheckboxEventListener();
 
 export {
 	formDataToObj,
