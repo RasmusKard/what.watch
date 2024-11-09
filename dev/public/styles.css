@@ -87,7 +87,7 @@ fieldset {
 	min-width: 250px;
 	max-height: 1000px;
 	width: 100%;
-	background-color: rgba(0, 0, 0, 0.7);
+	background-color: rgba(0, 0, 0, 0.85);
 	transition: opacity 1s;
 }
 

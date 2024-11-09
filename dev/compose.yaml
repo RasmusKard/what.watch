@@ -1,6 +1,7 @@
 services:
   server:
     container_name: randwatch-server
+    env_file: ".env"
     build:
       context: .
       target: ${BUILD_TARGET:-prod}
@@ -15,6 +16,7 @@ services:
     container_name: randwatch-db
     image: ghcr.io/rasmuskard/mysql_testing_database:latest
     restart: always
+    env_file: ".env"
     volumes:
       - db-data:/var/lib/mysql
     environment:
