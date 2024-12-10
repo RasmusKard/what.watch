@@ -106,7 +106,7 @@ function populateFormWithSessionData({
 		}
 	}
 
-	const sliderArrOfObj = getSettingsValuesFromLocalStorage();
+	const sliderArrOfObj = localStorageObjToSliderValues();
 	populateSettingsValueText({ sliderArrOfObj: sliderArrOfObj });
 }
 
@@ -188,6 +188,23 @@ function addSettingsListener() {
 			const imdbInfoDialog = document.getElementById("settings-imdb-info");
 			imdbButton.addEventListener("click", () => {
 				imdbInfoDialog.showModal();
+			});
+
+			const imdbSaveButton = document.getElementById("settings-imdb-save");
+			const imdbTextInput = document.getElementById("settings-imdb-url");
+			imdbSaveButton.addEventListener("click", () => {
+				const inputIsValid = imdbTextInput.validity.valid;
+				if (inputIsValid) {
+					const imdbUserId = imdbTextInput.value.match(/ur\d+/)[0];
+					localStorage.setItem("imdbUserId", imdbUserId);
+					imdbInfoDialog.close();
+					return;
+				}
+
+				const isTryAgain = confirm("Invalid URL, click OK to try again.");
+				if (!isTryAgain) {
+					imdbInfoDialog.close();
+				}
 			});
 
 			settingsSaveListener();
@@ -465,15 +482,26 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getSettingsValuesFromLocalStorage() {
+function getLocalStorageObj() {
+	let settingsObj = {};
+	const localStorageObj = { ...localStorage };
+	for (const [key, value] of Object.entries(localStorageObj)) {
+		settingsObj[key] = JSON.parse(value);
+	}
+
+	return settingsObj;
+}
+
+function localStorageObjToSliderValues() {
 	const sliderArr = [
 		["minvotes-slider", LOCALSTORAGE_NAMES["minVotesSlider"]],
 		["year-slider", LOCALSTORAGE_NAMES["yearSlider"]],
 	];
 
+	const settingsObj = getLocalStorageObj();
+
 	let sliderValueArrOfObj = [];
-	const settingsObj = JSON.parse(localStorage.getItem("settings"));
-	if (settingsObj !== null) {
+	if (Object.keys(settingsObj).length) {
 		for (const [sliderId, localStorageName] of sliderArr) {
 			const slider = document.getElementById(sliderId);
 			const storageValue = JSON.parse(settingsObj[localStorageName]);
@@ -485,11 +513,12 @@ function getSettingsValuesFromLocalStorage() {
 			});
 		}
 	}
+
 	return sliderValueArrOfObj;
 }
 
 function populateSettingsFromLocalStorage() {
-	const sliderValueArr = getSettingsValuesFromLocalStorage();
+	const sliderValueArr = localStorageObjToSliderValues();
 
 	for (const sliderObj of sliderValueArr) {
 		const sliderValue = sliderObj["sliderValue"];
@@ -601,7 +630,7 @@ function getFormData({ sessionStorageName }) {
 
 function storeFormData({ sessionStorageName, formElement }) {
 	const formDataObj = formDataToObj(formElement);
-	const settings = JSON.parse(localStorage.getItem("settings"));
+	const settings = getLocalStorageObj();
 	if (settings !== null) {
 		formDataObj["settings"] = {
 			minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
@@ -642,18 +671,15 @@ function settingsSaveListener() {
 			const settingsForm = document.querySelector(".overlay-element");
 
 			const settingsData = new FormData(settingsForm);
-			let settingsObj = {};
-			for (let [key, value] of settingsData.entries()) {
-				settingsObj[key] = value;
+			for (const [key, value] of settingsData.entries()) {
+				localStorage.setItem(key, JSON.stringify(value));
 			}
-
-			localStorage.setItem("settings", JSON.stringify(settingsObj));
 
 			const settingsOverlay = document.getElementById("overlay");
 			settingsForm.remove();
 			settingsOverlay.remove();
 
-			const sliderArrOfObj = getSettingsValuesFromLocalStorage();
+			const sliderArrOfObj = localStorageObjToSliderValues();
 			populateSettingsValueText({ sliderArrOfObj: sliderArrOfObj });
 		},
 		{ passive: true }
