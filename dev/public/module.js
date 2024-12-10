@@ -504,7 +504,7 @@ function localStorageObjToSliderValues() {
 	if (Object.keys(settingsObj).length) {
 		for (const [sliderId, localStorageName] of sliderArr) {
 			const slider = document.getElementById(sliderId);
-			const storageValue = JSON.parse(settingsObj[localStorageName]);
+			const storageValue = settingsObj[localStorageName];
 			sliderValueArrOfObj.push({
 				slider: slider,
 				sliderValue: storageValue,
@@ -633,8 +633,9 @@ function storeFormData({ sessionStorageName, formElement }) {
 	const settings = getLocalStorageObj();
 	if (settings !== null) {
 		formDataObj["settings"] = {
-			minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
-			yearrange: JSON.parse(settings[LOCALSTORAGE_NAMES["yearSlider"]]),
+			...settings,
+			// minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
+			// yearrange: JSON.parse(settings[LOCALSTORAGE_NAMES["yearSlider"]]),
 		};
 	}
 	const formDataObjStr = JSON.stringify(formDataObj);
@@ -672,7 +673,7 @@ function settingsSaveListener() {
 
 			const settingsData = new FormData(settingsForm);
 			for (const [key, value] of settingsData.entries()) {
-				localStorage.setItem(key, JSON.stringify(value));
+				localStorage.setItem(key, value);
 			}
 
 			const settingsOverlay = document.getElementById("overlay");
