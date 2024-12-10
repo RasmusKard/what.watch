@@ -59,6 +59,7 @@ async function submitMethod({ userInput, res }) {
 		yearRange = settings["yearrange"];
 	}
 
+	// convert contentType strings to IDs by querying SQL ref table
 	let titleTypes = [];
 	if (contentTypes) {
 		for (const contentType of contentTypes) {
@@ -69,6 +70,9 @@ async function submitMethod({ userInput, res }) {
 			refTable: "titleType_ref",
 		});
 	}
+
+	// Genres obj has "isRecommend" for each genre - 0 = false, 1 = true
+	// also converts genre strings to IDs by querying SQL ref table
 	let recommendGenres = [];
 	let dontRecommendGenres = [];
 	if (typeof genres !== "undefined") {

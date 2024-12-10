@@ -45,7 +45,7 @@ img {
 :root {
 	--base-small-font: clamp(0.6rem, 1.5vw + 0.15rem, 1rem);
 	--base-big-font: clamp(1.5rem, 3vw + 0.6rem, 2rem);
-	--base-tiny-font: clamp(0.4rem, 1vw + 0.075rem, 0.5rem);
+	--base-tiny-font: clamp(0.4rem, 1vw + 0.1rem, 0.65rem);
 	--base-medium-font: clamp(0.8rem, 2vw + 0.15rem, 1.5rem);
 }
 body {
@@ -130,6 +130,10 @@ fieldset {
 
 @media (hover: hover) {
 	.checkbox-button:hover {
+		opacity: 0.8;
+	}
+
+	#settings-imdb-icon:hover {
 		opacity: 0.8;
 	}
 }
@@ -320,6 +324,43 @@ input[type="checkbox"] {
 	align-items: center;
 	flex-direction: column;
 	gap: 1rem;
+}
+
+#settings-connect-container {
+	display: flex;
+	width: 100%;
+}
+
+#settings-imdb-container {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	font-size: var(--base-tiny-font);
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	padding: 0.5rem;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+#settings-imdb-info {
+	text-align: start;
+	font-size: var(--base-small-font);
+	line-height: 2rem;
+	color: white;
+	background-color: rgba(0, 0, 0, 1);
+	border: none;
+	box-shadow: 3px 3px 3px 3px #f5c518;
+}
+
+#settings-imdb-info::backdrop {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+#settings-imdb-icon {
+	height: 2rem;
+	width: 4rem;
+	background: url("imdb.svg");
+	background-size: cover;
+	border: none;
 }
 
 #settings-body > fieldset {

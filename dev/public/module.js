@@ -184,6 +184,12 @@ function addSettingsListener() {
 			overlayElement.id = "overlay";
 			document.body.appendChild(overlayElement);
 
+			const imdbButton = document.getElementById("settings-imdb-icon");
+			const imdbInfoDialog = document.getElementById("settings-imdb-info");
+			imdbButton.addEventListener("click", () => {
+				imdbInfoDialog.showModal();
+			});
+
 			settingsSaveListener();
 		},
 		{ passive: true }
