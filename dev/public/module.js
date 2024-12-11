@@ -248,11 +248,11 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			sessionStorage.removeItem("tconstArr");
 
 			const tconstArrAndAnimationObj = await Promise.all([
-				await fetchFromSql({
+				fetchFromSql({
 					fetchBody: urlParams,
 					reqType: "submit",
 				}),
-				await addAnimationOverlay({
+				addAnimationOverlay({
 					maxRowCount: maxRowCount,
 					formElement: formElement,
 				}),
