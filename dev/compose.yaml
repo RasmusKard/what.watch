@@ -11,6 +11,7 @@ services:
       db:
         condition: service_healthy
 
+
   db:
     container_name: randwatch-db
     image: ghcr.io/rasmuskard/mysql_testing_database:latest

@@ -1,6 +1,6 @@
 import { connection } from "./db.js";
 import "dotenv/config";
-
+import { WatchlistScraper } from "imdb-watchlist-scraper";
 const TITLETYPES = {
 	movie: ["movie", "tvMovie", "tvSpecial"],
 	tvSeries: ["tvMiniSeries", "tvSeries"],
@@ -46,19 +46,31 @@ async function retrieveMethod({ tconst, res }) {
 }
 
 async function submitMethod({ userInput, res }) {
+	// form filters
 	const contentTypes = userInput["content-types"];
 	const minRating = userInput["minrating"][0];
 	let genres = userInput["genres"];
-	const seenIds = userInput["seenIds"];
-	const settings = userInput["settings"];
 
-	let minVotes;
-	let yearRange;
-	if (settings) {
-		minVotes = settings["minvotes"];
-		yearRange = settings["yearrange"];
+	// Already suggested IDs
+	const alreadySuggestedIdArr = userInput["seenIds"];
+
+	// settings
+	const imdbUserId = userInput.settings.imdbUserId;
+	let minVotes = userInput.settings.minvotes;
+	const yearRange = userInput.settings.yearrange;
+
+	// IMDb watchlist IDs
+	let watchlistSeenIds;
+	console.log(imdbUserId, typeof imdbUserId);
+	if (imdbUserId !== undefined) {
+		console.log("test4334");
+		const imdbScraper = new WatchlistScraper({
+			userId: imdbUserId,
+			timeoutInMs: 180000,
+		});
+		watchlistSeenIds = imdbScraper.watchlistGrabIds({ isGrabAll: true });
+		console.log(await watchlistSeenIds);
 	}
-
 	// convert contentType strings to IDs by querying SQL ref table
 	let titleTypes = [];
 	if (contentTypes) {
@@ -139,8 +151,11 @@ async function submitMethod({ userInput, res }) {
 				}
 			})
 			.modify((query) => {
-				if (Array.isArray(seenIds) && seenIds.length) {
-					query.whereNotIn("title.tconst", seenIds);
+				if (
+					Array.isArray(alreadySuggestedIdArr) &&
+					alreadySuggestedIdArr.length
+				) {
+					query.whereNotIn("title.tconst", alreadySuggestedIdArr);
 				}
 			})
 			.modify((query) => {

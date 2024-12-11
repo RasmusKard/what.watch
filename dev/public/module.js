@@ -196,7 +196,7 @@ function addSettingsListener() {
 				const inputIsValid = imdbTextInput.validity.valid;
 				if (inputIsValid) {
 					const imdbUserId = imdbTextInput.value.match(/ur\d+/)[0];
-					localStorage.setItem("imdbUserId", imdbUserId);
+					localStorage.setItem("imdbUserId", JSON.stringify(imdbUserId));
 					imdbInfoDialog.close();
 					return;
 				}
