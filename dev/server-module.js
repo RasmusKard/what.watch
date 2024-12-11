@@ -47,9 +47,6 @@ async function retrieveMethod({ tconst, res }) {
 
 async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 	if (imdbUserId !== undefined) {
-		// check if userid exists in username_ref table
-		// YES = overwrite syncState to 1 - In Progress
-		// NO = create new row with syncState 1
 		await connection("username_ref")
 			.insert({
 				userId: imdbUserId,
@@ -76,8 +73,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 					tconst: id,
 				};
 			});
-			// on conflict of tconst + userid, ignore the row
-			// await connection.batchInsert("user_seen_content", arrOfInsertObj, 200);
+
 			await connection("user_seen_content")
 				.insert(arrOfInsertObj)
 				.onConflict()
@@ -109,8 +105,6 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				.merge();
 			console.log(error);
 			res.json({ isSyncSuccess: false });
-
-			// send res here with
 		}
 	}
 }
