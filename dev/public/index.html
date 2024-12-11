@@ -25,6 +25,7 @@
 					<h1 class="logo-header">WHAT.WATCH</h1>
 				</div>
 				<div style="width: 100%"><hr style="color: gold" /></div>
+				<div hidden id="user-welcome-message"></div>
 				<div id="content-type-container" class="checkbox-container">
 					<label class="checkbox-button" for="Movie">
 						<input
@@ -347,6 +348,54 @@
 								/>
 								<div id="year-slider"></div>
 							</label>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>Connect account</legend>
+						<div id="settings-connect-container">
+							<div id="settings-imdb-container">
+								<button type="button" id="settings-imdb-icon"></button>
+								<dialog id="settings-imdb-info">
+									<p>
+										1. Click here:
+										<a
+											target="_blank"
+											href="https://www.imdb.com/list/ratings/?ref_=nv_usr_rt_4"
+											>Your IMDb ratings</a
+										>
+									</p>
+
+									<div style="display: flex; gap: 1rem">
+										2. Check the top-right corner to make sure that your ratings
+										are public:
+										<img
+											src="imdb-public.png"
+											style="height: 1.5rem"
+											alt="Public checked to 'On'"
+										/>
+									</div>
+
+									<p>
+										3. Copy your URL (Should look something like:
+										https://www.imdb.com/user/ur125353232/ratings/)
+									</p>
+									<p>4. Paste below and click Save.</p>
+									<input
+										id="settings-imdb-url"
+										maxlength="70"
+										size="40"
+										type="text"
+										required
+										pattern="^\s*(https?:\/\/)?(www\.)?imdb\.com\/user\/ur\d+\/ratings\/?\s*$"
+									/>
+									<button id="settings-imdb-save" type="button" autofocus>
+										Save
+									</button>
+								</dialog>
+
+								<div id="settings-imdb-sync-time">Last Synced: Never</div>
+								<div hidden id="settings-imdb-sync-status"></div>
+							</div>
 						</div>
 					</fieldset>
 					<button id="save-settings" type="button">Save</button>

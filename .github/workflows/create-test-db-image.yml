@@ -6,7 +6,7 @@ env:
   IMAGE_NAME: mysql_testing_database
 
 jobs:
-  e2e-tests:
+  create-test-db:
     runs-on: ubuntu-24.04
     defaults:
       run:

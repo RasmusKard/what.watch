@@ -1,6 +1,6 @@
 import { connection } from "./db.js";
 import "dotenv/config";
-
+import { WatchlistScraper } from "imdb-watchlist-scraper";
 const TITLETYPES = {
 	movie: ["movie", "tvMovie", "tvSpecial"],
 	tvSeries: ["tvMiniSeries", "tvSeries"],
@@ -45,20 +45,86 @@ async function retrieveMethod({ tconst, res }) {
 	}
 }
 
+async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
+	if (imdbUserId !== undefined) {
+		await connection("username_ref")
+			.insert({
+				userId: imdbUserId,
+				syncState: "In Progress",
+			})
+			.onConflict("userId")
+			.merge();
+		try {
+			const imdbScraper = new WatchlistScraper({
+				userId: imdbUserId,
+				timeoutInMs: 180000,
+			});
+
+			const imdbScrapeObj = await imdbScraper.watchlistGrabIds();
+
+			// returns null on scrape fail/timeout
+			if (!imdbScrapeObj) {
+				throw new Error("Scraping failed");
+			}
+
+			const arrOfInsertObj = imdbScrapeObj.idArr.map((id) => {
+				return {
+					userId: imdbUserId,
+					tconst: id,
+				};
+			});
+
+			await connection("user_seen_content")
+				.insert(arrOfInsertObj)
+				.onConflict()
+				.ignore();
+
+			const lastSyncTime = new Date();
+			await connection("username_ref")
+				.insert({
+					userId: imdbUserId,
+					syncState: "Success",
+					username: imdbScrapeObj.username,
+					lastSync: lastSyncTime,
+				})
+				.onConflict("userId")
+				.merge();
+
+			res.json({
+				isSyncSuccess: true,
+				lastSyncTime: lastSyncTime,
+				imdbUsername: imdbScrapeObj.username,
+			});
+		} catch (error) {
+			await connection("username_ref")
+				.insert({
+					userId: imdbUserId,
+					syncState: "Failed",
+				})
+				.onConflict("userId")
+				.merge();
+			console.log(error);
+			res.json({ isSyncSuccess: false });
+		}
+	}
+}
+
+async function getHasImdbWatchlistAndSyncDate({ imdbUserId }) {}
 async function submitMethod({ userInput, res }) {
+	// form filters
 	const contentTypes = userInput["content-types"];
 	const minRating = userInput["minrating"][0];
 	let genres = userInput["genres"];
-	const seenIds = userInput["seenIds"];
-	const settings = userInput["settings"];
 
-	let minVotes;
-	let yearRange;
-	if (settings) {
-		minVotes = settings["minvotes"];
-		yearRange = settings["yearrange"];
-	}
+	// Already suggested IDs
+	const alreadySuggestedIdArr = userInput["seenIds"];
 
+	// settings
+	let minVotes = userInput.settings.minvotes;
+	const yearRange = userInput.settings.yearrange;
+	const imdbUserId = userInput.settings.imdbUserId;
+
+	// convert contentType strings to IDs by querying SQL ref table
 	let titleTypes = [];
 	if (contentTypes) {
 		for (const contentType of contentTypes) {
@@ -69,6 +135,9 @@ async function submitMethod({ userInput, res }) {
 			refTable: "titleType_ref",
 		});
 	}
+
+	// Genres obj has "isRecommend" for each genre - 0 = false, 1 = true
+	// also converts genre strings to IDs by querying SQL ref table
 	let recommendGenres = [];
 	let dontRecommendGenres = [];
 	if (typeof genres !== "undefined") {
@@ -135,8 +204,21 @@ async function submitMethod({ userInput, res }) {
 				}
 			})
 			.modify((query) => {
-				if (Array.isArray(seenIds) && seenIds.length) {
-					query.whereNotIn("title.tconst", seenIds);
+				if (
+					Array.isArray(alreadySuggestedIdArr) &&
+					alreadySuggestedIdArr.length
+				) {
+					query.whereNotIn("title.tconst", alreadySuggestedIdArr);
+				}
+			})
+			.modify((query) => {
+				if (imdbUserId !== undefined) {
+					query.whereNotIn(
+						"title.tconst",
+						connection("user_seen_content")
+							.select("tconst")
+							.where("userId", imdbUserId)
+					);
 				}
 			})
 			.modify((query) => {
@@ -207,4 +289,10 @@ function ifStringToArray(variable) {
 	return [variable];
 }
 
-export { submitMethod, retrieveMethod, getDataFromTmdbApi };
+export {
+	submitMethod,
+	retrieveMethod,
+	getDataFromTmdbApi,
+	scrapeImdbAndSendToSQL,
+	getHasImdbWatchlistAndSyncDate,
+};

@@ -106,7 +106,7 @@ function populateFormWithSessionData({
 		}
 	}
 
-	const sliderArrOfObj = getSettingsValuesFromLocalStorage();
+	const sliderArrOfObj = localStorageObjToSliderValues();
 	populateSettingsValueText({ sliderArrOfObj: sliderArrOfObj });
 }
 
@@ -184,10 +184,93 @@ function addSettingsListener() {
 			overlayElement.id = "overlay";
 			document.body.appendChild(overlayElement);
 
+			const imdbButton = document.getElementById("settings-imdb-icon");
+			const imdbInfoDialog = document.getElementById("settings-imdb-info");
+			imdbButton.addEventListener("click", () => {
+				imdbInfoDialog.showModal();
+			});
+
+			const imdbSaveButton = document.getElementById("settings-imdb-save");
+			const imdbTextInput = document.getElementById("settings-imdb-url");
+			imdbSaveButton.addEventListener("click", async () => {
+				const inputIsValid = imdbTextInput.validity.valid;
+				if (inputIsValid) {
+					const imdbUserId = imdbTextInput.value.match(/ur\d+/)[0];
+					localStorage.setItem("imdbUserId", JSON.stringify(imdbUserId));
+					imdbInfoDialog.close();
+
+					// change last sync to currently scraping
+					const syncStatusMessage = document.getElementById(
+						"settings-imdb-sync-status"
+					);
+					syncStatusMessage.innerText = "Sync Status: In Progress";
+					syncStatusMessage.style.color = "green";
+					syncStatusMessage.hidden = false;
+					const syncInfoObj = await scrapeImdbWatchlist({
+						imdbUserId: imdbUserId,
+					});
+					if (!!syncInfoObj.isSyncSuccess) {
+						syncStatusMessage.innerText = `Sync Status: Success`;
+						syncStatusMessage.style.color = "green";
+
+						const lastSyncTimeMessage = document.getElementById(
+							"settings-imdb-sync-time"
+						);
+
+						localStorage.setItem(
+							"imdbSyncTime",
+							JSON.stringify(syncInfoObj.lastSyncTime)
+						);
+
+						const lastSyncTime = new Date(syncInfoObj.lastSyncTime);
+						lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTime.toUTCString()}`;
+
+						localStorage.setItem(
+							"imdbUsername",
+							JSON.stringify(syncInfoObj.imdbUsername)
+						);
+					} else {
+						syncStatusMessage.innerText = `Sync Status: Failed`;
+						syncStatusMessage.style.color = "red";
+					}
+
+					localStorage.setItem(
+						"lastSyncStatus",
+						JSON.stringify(syncInfoObj.isSyncSuccess)
+					);
+
+					return;
+				}
+
+				const isTryAgain = confirm("Invalid URL, click OK to try again.");
+				if (!isTryAgain) {
+					imdbInfoDialog.close();
+				}
+			});
+
 			settingsSaveListener();
 		},
 		{ passive: true }
 	);
+}
+
+async function scrapeImdbWatchlist({ imdbUserId }) {
+	return fetch("/api/imdbratings", {
+		headers: {
+			"Content-Type": "application/json",
+			"request-type": "submit",
+		},
+		method: "POST",
+		body: JSON.stringify({ imdbUserId: imdbUserId }),
+	})
+		.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+		})
+		.catch((e) => {
+			return false;
+		});
 }
 
 function pickRandomId(arr) {
@@ -225,11 +308,11 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
 			sessionStorage.removeItem("tconstArr");
 
 			const tconstArrAndAnimationObj = await Promise.all([
-				await fetchFromSql({
+				fetchFromSql({
 					fetchBody: urlParams,
 					reqType: "submit",
 				}),
-				await addAnimationOverlay({
+				addAnimationOverlay({
 					maxRowCount: maxRowCount,
 					formElement: formElement,
 				}),
@@ -459,18 +542,29 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getSettingsValuesFromLocalStorage() {
+function getLocalStorageObj() {
+	let settingsObj = {};
+	const localStorageObj = { ...localStorage };
+	for (const [key, value] of Object.entries(localStorageObj)) {
+		settingsObj[key] = JSON.parse(value);
+	}
+
+	return settingsObj;
+}
+
+function localStorageObjToSliderValues() {
 	const sliderArr = [
 		["minvotes-slider", LOCALSTORAGE_NAMES["minVotesSlider"]],
 		["year-slider", LOCALSTORAGE_NAMES["yearSlider"]],
 	];
 
+	const settingsObj = getLocalStorageObj();
+
 	let sliderValueArrOfObj = [];
-	const settingsObj = JSON.parse(localStorage.getItem("settings"));
-	if (settingsObj !== null) {
+	if (Object.keys(settingsObj).length) {
 		for (const [sliderId, localStorageName] of sliderArr) {
 			const slider = document.getElementById(sliderId);
-			const storageValue = JSON.parse(settingsObj[localStorageName]);
+			const storageValue = settingsObj[localStorageName];
 			sliderValueArrOfObj.push({
 				slider: slider,
 				sliderValue: storageValue,
@@ -479,17 +573,41 @@ function getSettingsValuesFromLocalStorage() {
 			});
 		}
 	}
+
 	return sliderValueArrOfObj;
 }
 
 function populateSettingsFromLocalStorage() {
-	const sliderValueArr = getSettingsValuesFromLocalStorage();
+	const sliderValueArr = localStorageObjToSliderValues();
 
 	for (const sliderObj of sliderValueArr) {
 		const sliderValue = sliderObj["sliderValue"];
 		if (sliderValue !== null) {
 			sliderObj["slider"].noUiSlider.set(sliderValue);
 		}
+	}
+
+	const lastSyncTime = localStorage.getItem("imdbSyncTime");
+	if (!!lastSyncTime) {
+		const lastSyncTimeDate = new Date(JSON.parse(lastSyncTime)).toUTCString();
+
+		const lastSyncTimeMessage = document.getElementById(
+			"settings-imdb-sync-time"
+		);
+
+		lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTimeDate}`;
+	}
+
+	const lastSyncStatus = localStorage.getItem("lastSyncStatus");
+
+	if (lastSyncStatus !== undefined && JSON.parse(lastSyncStatus) === false) {
+		const syncStatusMessage = document.getElementById(
+			"settings-imdb-sync-status"
+		);
+
+		syncStatusMessage.innerText = `Last Sync Status: Failed`;
+		syncStatusMessage.style.color = "red";
+		syncStatusMessage.hidden = false;
 	}
 }
 
@@ -595,11 +713,10 @@ function getFormData({ sessionStorageName }) {
 
 function storeFormData({ sessionStorageName, formElement }) {
 	const formDataObj = formDataToObj(formElement);
-	const settings = JSON.parse(localStorage.getItem("settings"));
+	const settings = getLocalStorageObj();
 	if (settings !== null) {
 		formDataObj["settings"] = {
-			minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
-			yearrange: JSON.parse(settings[LOCALSTORAGE_NAMES["yearSlider"]]),
+			...settings,
 		};
 	}
 	const formDataObjStr = JSON.stringify(formDataObj);
@@ -636,18 +753,15 @@ function settingsSaveListener() {
 			const settingsForm = document.querySelector(".overlay-element");
 
 			const settingsData = new FormData(settingsForm);
-			let settingsObj = {};
-			for (let [key, value] of settingsData.entries()) {
-				settingsObj[key] = value;
+			for (const [key, value] of settingsData.entries()) {
+				localStorage.setItem(key, value);
 			}
-
-			localStorage.setItem("settings", JSON.stringify(settingsObj));
 
 			const settingsOverlay = document.getElementById("overlay");
 			settingsForm.remove();
 			settingsOverlay.remove();
 
-			const sliderArrOfObj = getSettingsValuesFromLocalStorage();
+			const sliderArrOfObj = localStorageObjToSliderValues();
 			populateSettingsValueText({ sliderArrOfObj: sliderArrOfObj });
 		},
 		{ passive: true }
