@@ -233,6 +233,12 @@ function addSettingsListener() {
 						syncStatusMessage.innerText = `Sync Status: Failed`;
 						syncStatusMessage.style.color = "red";
 					}
+
+					localStorage.setItem(
+						"lastSyncStatus",
+						JSON.stringify(syncInfoObj.isSyncSuccess)
+					);
+
 					return;
 				}
 
@@ -582,7 +588,7 @@ function populateSettingsFromLocalStorage() {
 	}
 
 	const lastSyncTime = localStorage.getItem("imdbSyncTime");
-	if (lastSyncTime !== undefined) {
+	if (!!lastSyncTime) {
 		const lastSyncTimeDate = new Date(JSON.parse(lastSyncTime)).toUTCString();
 
 		const lastSyncTimeMessage = document.getElementById(
@@ -590,6 +596,18 @@ function populateSettingsFromLocalStorage() {
 		);
 
 		lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTimeDate}`;
+	}
+
+	const lastSyncStatus = localStorage.getItem("lastSyncStatus");
+
+	if (lastSyncStatus !== undefined && JSON.parse(lastSyncStatus) === false) {
+		const syncStatusMessage = document.getElementById(
+			"settings-imdb-sync-status"
+		);
+
+		syncStatusMessage.innerText = `Last Sync Status: Failed`;
+		syncStatusMessage.style.color = "red";
+		syncStatusMessage.hidden = false;
 	}
 }
 

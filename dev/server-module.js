@@ -60,12 +60,15 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 		try {
 			const imdbScraper = new WatchlistScraper({
 				userId: imdbUserId,
-				timeoutInMs: 30000,
+				timeoutInMs: 180000,
 			});
-			const imdbScrapeObj = await imdbScraper.watchlistGrabIds({
-				isGrabAll: true,
-				isGrabUsername: true,
-			});
+
+			const imdbScrapeObj = await imdbScraper.watchlistGrabIds();
+
+			// returns null on scrape fail/timeout
+			if (!imdbScrapeObj) {
+				throw new Error("Scraping failed");
+			}
 
 			const arrOfInsertObj = imdbScrapeObj.idArr.map((id) => {
 				return {

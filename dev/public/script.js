@@ -37,7 +37,7 @@ createSlider({
 
 // Welcome user if username is present
 const username = localStorage.getItem("imdbUsername");
-if (username !== undefined) {
+if (!!username) {
 	const userWelcomeMessage = document.getElementById("user-welcome-message");
 	userWelcomeMessage.innerHTML = `Hey <strong>${JSON.parse(
 		username
