@@ -25,6 +25,7 @@
 					<h1 class="logo-header">WHAT.WATCH</h1>
 				</div>
 				<div style="width: 100%"><hr style="color: gold" /></div>
+				<div hidden id="user-welcome-message"></div>
 				<div id="content-type-container" class="checkbox-container">
 					<label class="checkbox-button" for="Movie">
 						<input
@@ -385,7 +386,7 @@
 										size="40"
 										type="text"
 										required
-										pattern="^(https?:\/\/)?(www\.)?imdb\.com\/user\/ur\d+\/ratings\/?$"
+										pattern="^\s*(https?:\/\/)?(www\.)?imdb\.com\/user\/ur\d+\/ratings\/?\s*$"
 									/>
 									<button id="settings-imdb-save" type="button" autofocus>
 										Save
@@ -393,6 +394,7 @@
 								</dialog>
 
 								<div id="settings-imdb-sync-time">Last Synced: Never</div>
+								<div hidden id="settings-imdb-sync-status"></div>
 							</div>
 						</div>
 					</fieldset>

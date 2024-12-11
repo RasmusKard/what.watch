@@ -192,12 +192,47 @@ function addSettingsListener() {
 
 			const imdbSaveButton = document.getElementById("settings-imdb-save");
 			const imdbTextInput = document.getElementById("settings-imdb-url");
-			imdbSaveButton.addEventListener("click", () => {
+			imdbSaveButton.addEventListener("click", async () => {
 				const inputIsValid = imdbTextInput.validity.valid;
 				if (inputIsValid) {
 					const imdbUserId = imdbTextInput.value.match(/ur\d+/)[0];
 					localStorage.setItem("imdbUserId", JSON.stringify(imdbUserId));
 					imdbInfoDialog.close();
+
+					// change last sync to currently scraping
+					const syncStatusMessage = document.getElementById(
+						"settings-imdb-sync-status"
+					);
+					syncStatusMessage.innerText = "Sync Status: In Progress";
+					syncStatusMessage.style.color = "green";
+					syncStatusMessage.hidden = false;
+					const syncInfoObj = await scrapeImdbWatchlist({
+						imdbUserId: imdbUserId,
+					});
+					if (!!syncInfoObj.isSyncSuccess) {
+						syncStatusMessage.innerText = `Sync Status: Success`;
+						syncStatusMessage.style.color = "green";
+
+						const lastSyncTimeMessage = document.getElementById(
+							"settings-imdb-sync-time"
+						);
+
+						localStorage.setItem(
+							"imdbSyncTime",
+							JSON.stringify(syncInfoObj.lastSyncTime)
+						);
+
+						const lastSyncTime = new Date(syncInfoObj.lastSyncTime);
+						lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTime.toUTCString()}`;
+
+						localStorage.setItem(
+							"imdbUsername",
+							JSON.stringify(syncInfoObj.imdbUsername)
+						);
+					} else {
+						syncStatusMessage.innerText = `Sync Status: Failed`;
+						syncStatusMessage.style.color = "red";
+					}
 					return;
 				}
 
@@ -211,6 +246,25 @@ function addSettingsListener() {
 		},
 		{ passive: true }
 	);
+}
+
+async function scrapeImdbWatchlist({ imdbUserId }) {
+	return fetch("/api/imdbratings", {
+		headers: {
+			"Content-Type": "application/json",
+			"request-type": "submit",
+		},
+		method: "POST",
+		body: JSON.stringify({ imdbUserId: imdbUserId }),
+	})
+		.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+		})
+		.catch((e) => {
+			return false;
+		});
 }
 
 function pickRandomId(arr) {
@@ -526,6 +580,17 @@ function populateSettingsFromLocalStorage() {
 			sliderObj["slider"].noUiSlider.set(sliderValue);
 		}
 	}
+
+	const lastSyncTime = localStorage.getItem("imdbSyncTime");
+	if (lastSyncTime !== undefined) {
+		const lastSyncTimeDate = new Date(JSON.parse(lastSyncTime)).toUTCString();
+
+		const lastSyncTimeMessage = document.getElementById(
+			"settings-imdb-sync-time"
+		);
+
+		lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTimeDate}`;
+	}
 }
 
 async function populateResultsToTemplate({
@@ -634,8 +699,6 @@ function storeFormData({ sessionStorageName, formElement }) {
 	if (settings !== null) {
 		formDataObj["settings"] = {
 			...settings,
-			// minvotes: JSON.parse(settings[LOCALSTORAGE_NAMES["minVotesSlider"]]),
-			// yearrange: JSON.parse(settings[LOCALSTORAGE_NAMES["yearSlider"]]),
 		};
 	}
 	const formDataObjStr = JSON.stringify(formDataObj);

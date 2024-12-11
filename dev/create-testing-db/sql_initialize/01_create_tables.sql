@@ -94,6 +94,19 @@ CREATE TABLE `title_genres` (
   KEY `fk_genres_ref_idx` (`genres`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+DROP TABLE IF EXISTS `user_seen_content`;
+CREATE TABLE `user_seen_content` (
+	`rowId` INT auto_increment NOT NULL,
+	`userId` varchar(20) NOT NULL,
+	`userName` varchar(100) NULL,
+	`tconst` varchar(12) NOT NULL,
+	CONSTRAINT `user_seen_content_pk` PRIMARY KEY (`rowId`)
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_0900_ai_ci;
+
+
 
 ALTER TABLE `title`
   ADD CONSTRAINT `fk_ref_titleType` FOREIGN KEY (`titleType`) REFERENCES `titleType_ref` (`titleType_id`);

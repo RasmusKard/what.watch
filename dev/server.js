@@ -5,6 +5,8 @@ import {
 	submitMethod,
 	retrieveMethod,
 	getDataFromTmdbApi,
+	scrapeImdbAndSendToSQL,
+	getHasImdbWatchlistAndSyncDate,
 } from "./server-module.js";
 const app = express();
 const __dirname = import.meta.dirname;
@@ -12,6 +14,7 @@ const __dirname = import.meta.dirname;
 app.use("/node_modules", express.static(__dirname + "/node_modules/"));
 app.use(express.static("public"));
 app.use("/api/tconst", express.json());
+app.use("/api/imdbratings", express.json());
 
 async function mainFunc(req, res) {
 	// if GET params are empty return 404
@@ -29,7 +32,6 @@ async function mainFunc(req, res) {
 		for (const [key, value] of urlParams) {
 			userInput[key] = JSON.parse(value);
 		}
-		console.log(userInput);
 		submitMethod({ userInput: userInput, res: res });
 	} else if (header === "retrieve") {
 		retrieveMethod({ tconst: req.query.tconst, res: res });
@@ -42,6 +44,24 @@ async function mainFunc(req, res) {
 app.post("/result", mainFunc);
 
 app.get("/result", mainFunc);
+
+app.post("/api/imdbratings", async (req, res) => {
+	let imdbUserId = req.body.imdbUserId;
+	if (imdbUserId === undefined) {
+		return;
+	}
+
+	// remove everything not alphanumeric
+	imdbUserId = imdbUserId.replace(/[^a-zA-Z0-9]/g, "");
+
+	const reqTypeHeader = req.get("request-type");
+	if (reqTypeHeader === "submit") {
+		scrapeImdbAndSendToSQL({ imdbUserId: imdbUserId, res: res });
+	} else if (reqTypeHeader === "retrieve") {
+		// get sync state, date and username
+		getHasImdbWatchlistAndSyncDate({ imdbUserId: imdbUserId });
+	}
+});
 
 app.post("/api/tconst", async (req, res) => {
 	const tconstObj = req.body;

@@ -90,6 +90,9 @@ fieldset {
 	background-color: rgba(0, 0, 0, 0.85);
 	transition: opacity 1s;
 }
+#user-welcome-message {
+	margin-top: -1.5rem;
+}
 
 .logo-header {
 	font-size: var(--base-big-font);
@@ -334,7 +337,8 @@ input[type="checkbox"] {
 #settings-imdb-container {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	align-items: flex-start;
+	gap: 0.3rem;
 	font-size: var(--base-tiny-font);
 	border: 2px solid rgba(255, 255, 255, 0.2);
 	padding: 0.5rem;

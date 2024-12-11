@@ -45,6 +45,74 @@ async function retrieveMethod({ tconst, res }) {
 	}
 }
 
+async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
+	if (imdbUserId !== undefined) {
+		// check if userid exists in username_ref table
+		// YES = overwrite syncState to 1 - In Progress
+		// NO = create new row with syncState 1
+		await connection("username_ref")
+			.insert({
+				userId: imdbUserId,
+				syncState: "In Progress",
+			})
+			.onConflict("userId")
+			.merge();
+		try {
+			const imdbScraper = new WatchlistScraper({
+				userId: imdbUserId,
+				timeoutInMs: 30000,
+			});
+			const imdbScrapeObj = await imdbScraper.watchlistGrabIds({
+				isGrabAll: true,
+				isGrabUsername: true,
+			});
+
+			const arrOfInsertObj = imdbScrapeObj.idArr.map((id) => {
+				return {
+					userId: imdbUserId,
+					tconst: id,
+				};
+			});
+			// on conflict of tconst + userid, ignore the row
+			// await connection.batchInsert("user_seen_content", arrOfInsertObj, 200);
+			await connection("user_seen_content")
+				.insert(arrOfInsertObj)
+				.onConflict()
+				.ignore();
+
+			const lastSyncTime = new Date();
+			await connection("username_ref")
+				.insert({
+					userId: imdbUserId,
+					syncState: "Success",
+					username: imdbScrapeObj.username,
+					lastSync: lastSyncTime,
+				})
+				.onConflict("userId")
+				.merge();
+
+			res.json({
+				isSyncSuccess: true,
+				lastSyncTime: lastSyncTime,
+				imdbUsername: imdbScrapeObj.username,
+			});
+		} catch (error) {
+			await connection("username_ref")
+				.insert({
+					userId: imdbUserId,
+					syncState: "Failed",
+				})
+				.onConflict("userId")
+				.merge();
+			console.log(error);
+			res.json({ isSyncSuccess: false });
+
+			// send res here with
+		}
+	}
+}
+
+async function getHasImdbWatchlistAndSyncDate({ imdbUserId }) {}
 async function submitMethod({ userInput, res }) {
 	// form filters
 	const contentTypes = userInput["content-types"];
@@ -55,22 +123,10 @@ async function submitMethod({ userInput, res }) {
 	const alreadySuggestedIdArr = userInput["seenIds"];
 
 	// settings
-	const imdbUserId = userInput.settings.imdbUserId;
 	let minVotes = userInput.settings.minvotes;
 	const yearRange = userInput.settings.yearrange;
+	const imdbUserId = userInput.settings.imdbUserId;
 
-	// IMDb watchlist IDs
-	let watchlistSeenIds;
-	console.log(imdbUserId, typeof imdbUserId);
-	if (imdbUserId !== undefined) {
-		console.log("test4334");
-		const imdbScraper = new WatchlistScraper({
-			userId: imdbUserId,
-			timeoutInMs: 180000,
-		});
-		watchlistSeenIds = imdbScraper.watchlistGrabIds({ isGrabAll: true });
-		console.log(await watchlistSeenIds);
-	}
 	// convert contentType strings to IDs by querying SQL ref table
 	let titleTypes = [];
 	if (contentTypes) {
@@ -159,6 +215,16 @@ async function submitMethod({ userInput, res }) {
 				}
 			})
 			.modify((query) => {
+				if (imdbUserId !== undefined) {
+					query.whereNotIn(
+						"title.tconst",
+						connection("user_seen_content")
+							.select("tconst")
+							.where("userId", imdbUserId)
+					);
+				}
+			})
+			.modify((query) => {
 				if (
 					Array.isArray(yearRange) &&
 					yearRange.length &&
@@ -226,4 +292,10 @@ function ifStringToArray(variable) {
 	return [variable];
 }
 
-export { submitMethod, retrieveMethod, getDataFromTmdbApi };
+export {
+	submitMethod,
+	retrieveMethod,
+	getDataFromTmdbApi,
+	scrapeImdbAndSendToSQL,
+	getHasImdbWatchlistAndSyncDate,
+};
