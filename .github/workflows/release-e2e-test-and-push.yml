@@ -21,11 +21,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-
       - name: Build and start Randwatch-server and Randwatch-db
         working-directory: dev
         run: docker compose -f compose.yaml up -d --build
