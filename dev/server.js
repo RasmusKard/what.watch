@@ -6,7 +6,7 @@ import {
 	retrieveMethod,
 	getDataFromTmdbApi,
 	scrapeImdbAndSendToSQL,
-	getHasImdbWatchlistAndSyncDate,
+	getUserImdbInfo,
 } from "./server-module.js";
 const app = express();
 const __dirname = import.meta.dirname;
@@ -59,7 +59,8 @@ app.post("/api/imdbratings", async (req, res) => {
 		scrapeImdbAndSendToSQL({ imdbUserId: imdbUserId, res: res });
 	} else if (reqTypeHeader === "retrieve") {
 		// get sync state, date and username
-		getHasImdbWatchlistAndSyncDate({ imdbUserId: imdbUserId });
+		const userInfo = await getUserImdbInfo({ imdbUserId: imdbUserId });
+		res.json(userInfo);
 	}
 });
 

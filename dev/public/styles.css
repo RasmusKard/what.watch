@@ -92,6 +92,13 @@ fieldset {
 }
 #user-welcome-message {
 	margin-top: -1.5rem;
+	color: #f5c518;
+	font-size: var(--base-small-font);
+}
+
+#user-seen-content-message {
+	font-size: var(--base-tiny-font);
+	opacity: 0.6;
 }
 
 .logo-header {
