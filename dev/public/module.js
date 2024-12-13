@@ -268,6 +268,7 @@ async function getAndSetSyncInfo() {
 	}
 
 	setUserInfo(userInfo);
+	ifSettingsOpenUpdateSyncInfo();
 	userWelcome();
 }
 
@@ -323,15 +324,15 @@ async function userWelcome() {
 			username
 		)}</strong>, lets find you something to watch! 📺`;
 		userWelcomeMessage.hidden = false;
-	}
 
-	const seenContentCount = localStorage.getItem("watchlistSeenCount");
-	if (!!seenContentCount) {
-		const seenContentMessage = document.getElementById(
-			"user-seen-content-message"
-		);
-		seenContentMessage.innerHTML += `(you have currently seen ${seenContentCount} movies/tv shows)`;
-		seenContentMessage.hidden = false;
+		const seenContentCount = localStorage.getItem("watchlistSeenCount");
+		if (!!seenContentCount) {
+			const seenContentMessage = document.getElementById(
+				"user-seen-content-message"
+			);
+			seenContentMessage.innerHTML = `(you have currently seen ${seenContentCount} movies/tv shows)`;
+			seenContentMessage.hidden = false;
+		}
 	}
 }
 

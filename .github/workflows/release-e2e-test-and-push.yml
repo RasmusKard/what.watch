@@ -7,7 +7,7 @@ on:
 
 env:
   SERVER_IMAGE_NAME: randwatch-server
-  IMAGE_NAME: mysql_testing_database
+  DB_IMAGE_NAME: mysql_testing_database
 
 jobs:
   create-test-db:
@@ -32,19 +32,29 @@ jobs:
 
       - name: Push image
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$DB_IMAGE_NAME
 
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            VERSION=$(echo $VERSION | sed -e 's/^v//')
+            TAGS=("$VERSION" "latest")
+          elif [ "$VERSION" == "main" ]; then
+            VERSION=latest
+            TAGS=("$VERSION")
+          else
+            TAGS=("$VERSION")
+          fi
 
-          [ "$VERSION" == "main" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+
+          for tag in "${TAGS[@]}"; do
+            docker tag $DB_IMAGE_NAME $IMAGE_ID:$tag
+            docker push $IMAGE_ID:$tag
+          done
   e2e-tests:
     runs-on: ubuntu-24.04
 

@@ -97,6 +97,7 @@ fieldset {
 }
 
 #user-seen-content-message {
+	margin-top: -1.5rem;
 	font-size: var(--base-tiny-font);
 	opacity: 0.6;
 }
