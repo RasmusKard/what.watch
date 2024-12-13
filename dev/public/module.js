@@ -113,12 +113,14 @@ function populateFormWithSessionData({
 function populateSettingsValueText({ sliderArrOfObj }) {
 	for (const sliderObj of sliderArrOfObj) {
 		const sliderLocalStorageValue = sliderObj["sliderValue"];
-		const sliderTextValue =
-			sliderLocalStorageValue !== null ? sliderLocalStorageValue : null;
+
+		if (!sliderLocalStorageValue) {
+			return;
+		}
 
 		const sliderId = sliderObj["sliderId"];
 		const sliderText = document.getElementById(sliderId + "-text");
-		sliderText.innerText = `${sliderObj["localStorageName"]}: ${sliderTextValue}`;
+		sliderText.innerText = `${sliderObj["localStorageName"]}: ${sliderLocalStorageValue}`;
 	}
 }
 
@@ -200,44 +202,20 @@ function addSettingsListener() {
 					imdbInfoDialog.close();
 
 					// change last sync to currently scraping
-					const syncStatusMessage = document.getElementById(
-						"settings-imdb-sync-status"
-					);
-					syncStatusMessage.innerText = "Sync Status: In Progress";
-					syncStatusMessage.style.color = "green";
-					syncStatusMessage.hidden = false;
+					localStorage.setItem("syncState", 1);
+					ifSettingsOpenUpdateSyncInfo();
+
 					const syncInfoObj = await scrapeImdbWatchlist({
 						imdbUserId: imdbUserId,
 					});
-					if (!!syncInfoObj.isSyncSuccess) {
-						syncStatusMessage.innerText = `Sync Status: Success`;
-						syncStatusMessage.style.color = "green";
 
-						const lastSyncTimeMessage = document.getElementById(
-							"settings-imdb-sync-time"
-						);
-
-						localStorage.setItem(
-							"imdbSyncTime",
-							JSON.stringify(syncInfoObj.lastSyncTime)
-						);
-
-						const lastSyncTime = new Date(syncInfoObj.lastSyncTime);
-						lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTime.toUTCString()}`;
-
-						localStorage.setItem(
-							"imdbUsername",
-							JSON.stringify(syncInfoObj.imdbUsername)
-						);
-					} else {
-						syncStatusMessage.innerText = `Sync Status: Failed`;
-						syncStatusMessage.style.color = "red";
+					if (!syncInfoObj) {
+						return;
 					}
 
-					localStorage.setItem(
-						"lastSyncStatus",
-						JSON.stringify(syncInfoObj.isSyncSuccess)
-					);
+					setUserInfo(syncInfoObj);
+
+					ifSettingsOpenUpdateSyncInfo();
 
 					return;
 				}
@@ -254,6 +232,101 @@ function addSettingsListener() {
 	);
 }
 
+// if sync state is 1 and localstorage has imdbuserid, get and update syncinfo
+// otherwise use localstorage
+async function getAndSetSyncInfo() {
+	// if user has imdb id in localstorage
+	const imdbUserId = localStorage.getItem("imdbUserId");
+	const syncState = localStorage.getItem("syncState");
+
+	// return early if userid isn't present
+	// or if last known syncState isn't "in progress" (meaning that user info is up to date)
+	if (!imdbUserId || (!!imdbUserId && syncState != 1)) {
+		return;
+	}
+
+	const userInfo = await fetch("/api/imdbratings", {
+		headers: {
+			"Content-Type": "application/json",
+			"request-type": "retrieve",
+		},
+		method: "POST",
+		body: JSON.stringify({ imdbUserId: imdbUserId }),
+	})
+		.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+		})
+		.catch((e) => {
+			const test = e.status;
+			console.log(test);
+			return false;
+		});
+
+	if (!userInfo) {
+		return;
+	}
+	console.log("hit");
+	setUserInfo(userInfo);
+}
+
+function setUserInfo(userInfoObj) {
+	for (const [key, value] of Object.entries(userInfoObj)) {
+		if (value === 0 || !!value) {
+			localStorage.setItem(key, JSON.stringify(value));
+		}
+	}
+}
+async function ifSettingsOpenUpdateSyncInfo() {
+	// check if settings are open
+	const settingsContainer = document.getElementById("settings-body");
+	if (!settingsContainer) {
+		return;
+	}
+
+	const syncStateObj = {
+		0: ["Failed", "red"],
+		1: ["In Progress", "yellow"],
+		2: ["Success", "green"],
+	};
+
+	// update sync status message
+	const syncState = localStorage.getItem("syncState");
+	if (!!syncState) {
+		const syncStatusMessage = document.getElementById(
+			"settings-imdb-sync-status"
+		);
+		syncStatusMessage.innerText = `Sync Status: ${syncStateObj[syncState][0]}`;
+		syncStatusMessage.style.color = syncStateObj[syncState][1];
+		syncStatusMessage.hidden = false;
+	}
+
+	// update sync time message
+	const lastSyncTime = JSON.parse(localStorage.getItem("lastSyncTime"));
+	if (!!lastSyncTime) {
+		const lastSyncTimeMessage = document.getElementById(
+			"settings-imdb-sync-time"
+		);
+
+		const lastSyncTimeDate = new Date(lastSyncTime);
+		lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTimeDate.toLocaleString()}`;
+	}
+}
+
+async function userWelcome() {
+	// Welcome user if username is present
+	const username = localStorage.getItem("imdbUsername");
+	if (!!username) {
+		const userWelcomeMessage = document.getElementById("user-welcome-message");
+		userWelcomeMessage.innerHTML = `Hey <strong>${JSON.parse(
+			username
+		)}</strong>, lets find you something to watch! 📺`;
+		userWelcomeMessage.style.color = "#f5c518";
+		userWelcomeMessage.hidden = false;
+	}
+}
+
 async function scrapeImdbWatchlist({ imdbUserId }) {
 	return fetch("/api/imdbratings", {
 		headers: {
@@ -261,10 +334,11 @@ async function scrapeImdbWatchlist({ imdbUserId }) {
 			"request-type": "submit",
 		},
 		method: "POST",
-		body: JSON.stringify({ imdbUserId: imdbUserId }),
+		body: JSON.stringify({ imdbUserId: JSON.stringify(imdbUserId) }),
 	})
 		.then((response) => {
 			if (response.ok) {
+				// call post scrape function here
 				return response.json();
 			}
 		})
@@ -577,7 +651,7 @@ function localStorageObjToSliderValues() {
 	return sliderValueArrOfObj;
 }
 
-function populateSettingsFromLocalStorage() {
+async function populateSettingsFromLocalStorage() {
 	const sliderValueArr = localStorageObjToSliderValues();
 
 	for (const sliderObj of sliderValueArr) {
@@ -586,29 +660,8 @@ function populateSettingsFromLocalStorage() {
 			sliderObj["slider"].noUiSlider.set(sliderValue);
 		}
 	}
-
-	const lastSyncTime = localStorage.getItem("imdbSyncTime");
-	if (!!lastSyncTime) {
-		const lastSyncTimeDate = new Date(JSON.parse(lastSyncTime)).toUTCString();
-
-		const lastSyncTimeMessage = document.getElementById(
-			"settings-imdb-sync-time"
-		);
-
-		lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTimeDate}`;
-	}
-
-	const lastSyncStatus = localStorage.getItem("lastSyncStatus");
-
-	if (lastSyncStatus !== undefined && JSON.parse(lastSyncStatus) === false) {
-		const syncStatusMessage = document.getElementById(
-			"settings-imdb-sync-status"
-		);
-
-		syncStatusMessage.innerText = `Last Sync Status: Failed`;
-		syncStatusMessage.style.color = "red";
-		syncStatusMessage.hidden = false;
-	}
+	await getAndSetSyncInfo();
+	await ifSettingsOpenUpdateSyncInfo();
 }
 
 async function populateResultsToTemplate({
@@ -807,4 +860,5 @@ export {
 	listenToPopState,
 	getAndSetTmdbApiData,
 	addSettingsListener,
+	getAndSetSyncInfo,
 };

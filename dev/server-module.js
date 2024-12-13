@@ -47,17 +47,28 @@ async function retrieveMethod({ tconst, res }) {
 
 async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 	if (imdbUserId !== undefined) {
-		await connection("username_ref")
-			.insert({
-				userId: imdbUserId,
-				syncState: "In Progress",
-			})
-			.onConflict("userId")
-			.merge();
 		try {
+			const userData = await connection("username_ref")
+				.select("imdbUserId", "imdbUsername", "syncState", "lastSyncTime")
+				.where("imdbUserId", imdbUserId);
+			const userDataObj = userData[0];
+			// if there is already an ongoing scraping request deny this one
+			if (userDataObj.syncState === 1) {
+				res.sendStatus(429);
+				return;
+			}
+
+			await connection("username_ref")
+				.insert({
+					imdbUserId: imdbUserId,
+					syncState: 1,
+				})
+				.onConflict("imdbUserId")
+				.merge();
+
 			const imdbScraper = new WatchlistScraper({
 				userId: imdbUserId,
-				timeoutInMs: 180000,
+				timeoutInMs: 1,
 			});
 
 			const imdbScrapeObj = await imdbScraper.watchlistGrabIds();
@@ -69,7 +80,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 
 			const arrOfInsertObj = imdbScrapeObj.idArr.map((id) => {
 				return {
-					userId: imdbUserId,
+					imdbUserId: imdbUserId,
 					tconst: id,
 				};
 			});
@@ -79,37 +90,57 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				.onConflict()
 				.ignore();
 
+			const watchlistSeenCount = await getSeenIdCount(imdbUserId);
+
 			const lastSyncTime = new Date();
 			await connection("username_ref")
 				.insert({
-					userId: imdbUserId,
-					syncState: "Success",
-					username: imdbScrapeObj.username,
-					lastSync: lastSyncTime,
+					imdbUserId: imdbUserId,
+					syncState: 2,
+					imdbUsername: imdbScrapeObj.username,
+					lastSyncTime: lastSyncTime,
 				})
-				.onConflict("userId")
+				.onConflict("imdbUserId")
 				.merge();
 
 			res.json({
-				isSyncSuccess: true,
+				syncState: 2,
 				lastSyncTime: lastSyncTime,
 				imdbUsername: imdbScrapeObj.username,
+				watchlistSeenCount: watchlistSeenCount,
 			});
 		} catch (error) {
 			await connection("username_ref")
 				.insert({
-					userId: imdbUserId,
-					syncState: "Failed",
+					imdbUserId: imdbUserId,
+					syncState: 0,
 				})
-				.onConflict("userId")
+				.onConflict("imdbUserId")
 				.merge();
-			console.log(error);
-			res.json({ isSyncSuccess: false });
+			console.error(error);
+			res.json({ syncState: 0 });
 		}
 	}
 }
 
-async function getHasImdbWatchlistAndSyncDate({ imdbUserId }) {}
+async function getSeenIdCount(imdbUserId) {
+	const idCount = await connection("user_seen_content")
+		.count("imdbUserId AS count")
+		.where("imdbUserId", imdbUserId);
+	return idCount[0].count;
+}
+
+async function getUserImdbInfo({ imdbUserId }) {
+	const userData = await connection("username_ref")
+		.select("imdbUserId", "imdbUsername", "syncState", "lastSyncTime")
+		.where("imdbUserId", imdbUserId);
+	const userDataObj = userData[0];
+
+	const watchlistSeenCount = await getSeenIdCount(imdbUserId);
+	userDataObj["watchlistSeenCount"] = watchlistSeenCount;
+
+	return userDataObj;
+}
 async function submitMethod({ userInput, res }) {
 	// form filters
 	const contentTypes = userInput["content-types"];
@@ -217,7 +248,7 @@ async function submitMethod({ userInput, res }) {
 						"title.tconst",
 						connection("user_seen_content")
 							.select("tconst")
-							.where("userId", imdbUserId)
+							.where("imdbUserId", imdbUserId)
 					);
 				}
 			})
@@ -294,5 +325,5 @@ export {
 	retrieveMethod,
 	getDataFromTmdbApi,
 	scrapeImdbAndSendToSQL,
-	getHasImdbWatchlistAndSyncDate,
+	getUserImdbInfo,
 };

@@ -5,8 +5,10 @@ import {
 	addSubmitListener,
 	listenToPopState,
 	addSettingsListener,
+	getAndSetSyncInfo,
 } from "./module.js";
 
+getAndSetSyncInfo();
 const FORMCONTAINERID = "form-container";
 const SESSIONSTORAGENAME = "formData";
 const RATINGSLIDERID = "rating-slider";
@@ -35,16 +37,6 @@ createSlider({
 	},
 });
 
-// Welcome user if username is present
-const username = localStorage.getItem("imdbUsername");
-if (!!username) {
-	const userWelcomeMessage = document.getElementById("user-welcome-message");
-	userWelcomeMessage.innerHTML = `Hey <strong>${JSON.parse(
-		username
-	)}</strong>, lets find you something to watch! 📺`;
-	userWelcomeMessage.style.color = "#f5c518";
-	userWelcomeMessage.hidden = false;
-}
 // Reset ratingSlider when form is reset
 const resetButton = document.getElementById("reset-button");
 resetButton.addEventListener("click", () => {
