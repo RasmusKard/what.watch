@@ -217,6 +217,8 @@ function addSettingsListener() {
 
 					ifSettingsOpenUpdateSyncInfo();
 
+					userWelcome();
+
 					return;
 				}
 
@@ -237,11 +239,10 @@ function addSettingsListener() {
 async function getAndSetSyncInfo() {
 	// if user has imdb id in localstorage
 	const imdbUserId = localStorage.getItem("imdbUserId");
-	const syncState = localStorage.getItem("syncState");
 
 	// return early if userid isn't present
 	// or if last known syncState isn't "in progress" (meaning that user info is up to date)
-	if (!imdbUserId || (!!imdbUserId && syncState != 1)) {
+	if (!imdbUserId) {
 		return;
 	}
 
@@ -259,16 +260,15 @@ async function getAndSetSyncInfo() {
 			}
 		})
 		.catch((e) => {
-			const test = e.status;
-			console.log(test);
 			return false;
 		});
 
 	if (!userInfo) {
 		return;
 	}
-	console.log("hit");
+
 	setUserInfo(userInfo);
+	userWelcome();
 }
 
 function setUserInfo(userInfoObj) {
@@ -322,8 +322,16 @@ async function userWelcome() {
 		userWelcomeMessage.innerHTML = `Hey <strong>${JSON.parse(
 			username
 		)}</strong>, lets find you something to watch! 📺`;
-		userWelcomeMessage.style.color = "#f5c518";
 		userWelcomeMessage.hidden = false;
+	}
+
+	const seenContentCount = localStorage.getItem("watchlistSeenCount");
+	if (!!seenContentCount) {
+		const seenContentMessage = document.getElementById(
+			"user-seen-content-message"
+		);
+		seenContentMessage.innerHTML += `(you have currently seen ${seenContentCount} movies/tv shows)`;
+		seenContentMessage.hidden = false;
 	}
 }
 

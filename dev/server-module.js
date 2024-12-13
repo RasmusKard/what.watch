@@ -53,7 +53,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				.where("imdbUserId", imdbUserId);
 			const userDataObj = userData[0];
 			// if there is already an ongoing scraping request deny this one
-			if (userDataObj.syncState === 1) {
+			if (!!userDataObj && userDataObj.syncState === 1) {
 				res.sendStatus(429);
 				return;
 			}
@@ -68,7 +68,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 
 			const imdbScraper = new WatchlistScraper({
 				userId: imdbUserId,
-				timeoutInMs: 1,
+				timeoutInMs: 180000,
 			});
 
 			const imdbScrapeObj = await imdbScraper.watchlistGrabIds();

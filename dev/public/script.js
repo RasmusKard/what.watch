@@ -8,11 +8,13 @@ import {
 	getAndSetSyncInfo,
 } from "./module.js";
 
-getAndSetSyncInfo();
 const FORMCONTAINERID = "form-container";
 const SESSIONSTORAGENAME = "formData";
 const RATINGSLIDERID = "rating-slider";
 const RATINGSLIDERVALUEID = "rating-slider-value";
+
+// gets updated user data from SQL and sets it to localStorage
+getAndSetSyncInfo();
 
 // checks if url contains tconst, if so querys db and changes dom (for GET requests with param)
 checkUrlParams({ formContainerId: FORMCONTAINERID });
