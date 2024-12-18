@@ -234,10 +234,7 @@ function addSettingsListener() {
 	);
 }
 
-// if sync state is 1 and localstorage has imdbuserid, get and update syncinfo
-// otherwise use localstorage
 async function getAndSetSyncInfo() {
-	// if user has imdb id in localstorage
 	const imdbUserId = localStorage.getItem("imdbUserId");
 
 	// return early if userid isn't present
@@ -870,4 +867,5 @@ export {
 	getAndSetTmdbApiData,
 	addSettingsListener,
 	getAndSetSyncInfo,
+	userWelcome,
 };
