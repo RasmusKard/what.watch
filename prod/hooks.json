@@ -1,6 +1,30 @@
 [
-    {
-      "id": "redeploy-webhook",
-      "execute-command": "./redeploy.sh"
-    }
-  ]
+	{
+		"id": "redeploy-webhook",
+		"execute-command": "./redeploy.sh",
+		"trigger-rule": {
+			"and": [
+				{
+					"match": {
+						"type": "value",
+						"value": "published",
+						"parameter": {
+							"source": "payload",
+							"name": "action"
+						}
+					}
+				},
+				{
+					"match": {
+						"type": "value",
+						"value": "randwatch-server",
+						"parameter": {
+							"source": "payload",
+							"name": "package.name"
+						}
+					}
+				}
+			]
+		}
+	}
+]
