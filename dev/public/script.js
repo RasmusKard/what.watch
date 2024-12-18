@@ -6,12 +6,16 @@ import {
 	listenToPopState,
 	addSettingsListener,
 	getAndSetSyncInfo,
+	userWelcome,
 } from "./module.js";
 
 const FORMCONTAINERID = "form-container";
 const SESSIONSTORAGENAME = "formData";
 const RATINGSLIDERID = "rating-slider";
 const RATINGSLIDERVALUEID = "rating-slider-value";
+
+// if user has imdb account synced add welcome message to homepage
+userWelcome();
 
 // gets updated user data from SQL and sets it to localStorage
 getAndSetSyncInfo();
