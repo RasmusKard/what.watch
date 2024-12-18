@@ -194,6 +194,14 @@ function addSettingsListener() {
 
 			const imdbSaveButton = document.getElementById("settings-imdb-save");
 			const imdbTextInput = document.getElementById("settings-imdb-url");
+
+			imdbTextInput.addEventListener("keydown", function (event) {
+				if (event.key === "Enter") {
+					event.preventDefault(); // Prevent the default behavior (e.g., form submission)
+					imdbSaveButton.click(); // Trigger the click event
+				}
+			});
+
 			imdbSaveButton.addEventListener("click", async () => {
 				const inputIsValid = imdbTextInput.validity.valid;
 				if (inputIsValid) {
@@ -203,6 +211,7 @@ function addSettingsListener() {
 
 					// change last sync to currently scraping
 					localStorage.setItem("syncState", 1);
+					localStorage.removeItem("errorMessage");
 					ifSettingsOpenUpdateSyncInfo();
 
 					const syncInfoObj = await scrapeImdbWatchlist({
@@ -289,12 +298,13 @@ async function ifSettingsOpenUpdateSyncInfo() {
 		2: ["Success", "green"],
 	};
 
-	// update sync status message
-	const syncState = localStorage.getItem("syncState");
-	if (!!syncState) {
+	const syncState = JSON.parse(localStorage.getItem("syncState"));
+	// check against null because 0 is a valid value
+	if (syncState !== null) {
 		const syncStatusMessage = document.getElementById(
 			"settings-imdb-sync-status"
 		);
+		// get message and color from syncstateobj
 		syncStatusMessage.innerText = `Sync Status: ${syncStateObj[syncState][0]}`;
 		syncStatusMessage.style.color = syncStateObj[syncState][1];
 		syncStatusMessage.hidden = false;
@@ -309,6 +319,18 @@ async function ifSettingsOpenUpdateSyncInfo() {
 
 		const lastSyncTimeDate = new Date(lastSyncTime);
 		lastSyncTimeMessage.innerText = `Last Synced: ${lastSyncTimeDate.toLocaleString()}`;
+	}
+
+	const errorMessage = JSON.parse(localStorage.getItem("errorMessage"));
+	const errorMessageElement = document.getElementById(
+		"settings-imdb-sync-error"
+	);
+	if (!!errorMessage && syncState === 0) {
+		errorMessageElement.textContent = errorMessage;
+		errorMessageElement.style.color = "red";
+		errorMessageElement.hidden = false;
+	} else {
+		errorMessageElement.hidden = true;
 	}
 }
 
@@ -814,6 +836,7 @@ function settingsSaveListener() {
 			const settingsData = new FormData(settingsForm);
 			for (const [key, value] of settingsData.entries()) {
 				localStorage.setItem(key, value);
+				console.log(key);
 			}
 
 			const settingsOverlay = document.getElementById("overlay");

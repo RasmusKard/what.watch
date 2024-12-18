@@ -71,12 +71,8 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				timeoutInMs: 180000,
 			});
 
+			// throws error on empty obj, timeout or private watchlist
 			const imdbScrapeObj = await imdbScraper.watchlistGrabIds();
-
-			// returns null on scrape fail/timeout
-			if (!imdbScrapeObj) {
-				throw new Error("Scraping failed");
-			}
 
 			const arrOfInsertObj = imdbScrapeObj.idArr.map((id) => {
 				return {
@@ -118,7 +114,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				.onConflict("imdbUserId")
 				.merge();
 			console.error(error);
-			res.json({ syncState: 0 });
+			res.json({ syncState: 0, errorMessage: error.name });
 		}
 	}
 }
@@ -137,7 +133,9 @@ async function getUserImdbInfo({ imdbUserId }) {
 	const userDataObj = userData[0];
 
 	const watchlistSeenCount = await getSeenIdCount(imdbUserId);
-	userDataObj["watchlistSeenCount"] = watchlistSeenCount;
+	if (!!watchlistSeenCount && !!userDataObj) {
+		userDataObj["watchlistSeenCount"] = watchlistSeenCount;
+	}
 
 	return userDataObj;
 }
