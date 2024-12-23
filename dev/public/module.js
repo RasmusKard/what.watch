@@ -243,6 +243,19 @@ function addSettingsListener() {
 	);
 }
 
+function addResultsContainerVisibilityEventListener() {
+	const visibilityToggleButton = document.getElementById("visibility-button");
+
+	visibilityToggleButton.addEventListener("click", () => {
+		const resultsContainer = document.getElementById("form-container");
+		if (visibilityToggleButton.checked) {
+			resultsContainer.style.visibility = "hidden";
+		} else {
+			resultsContainer.style.visibility = "visible";
+		}
+	});
+}
+
 async function getAndSetSyncInfo() {
 	const imdbUserId = localStorage.getItem("imdbUserId");
 
@@ -557,6 +570,8 @@ async function fetchWithTconstAndPopulateResults({
 	} else {
 		document.body.style.backgroundImage = `linear-gradient(#504f4f, #070707)`;
 	}
+
+	addResultsContainerVisibilityEventListener();
 
 	return response;
 }
