@@ -123,6 +123,11 @@ fieldset {
 	height: var(--base-big-font);
 }
 
+label:has(#visibility-button) {
+	background-color: #070707;
+	opacity: 0.5;
+	visibility: visible;
+}
 .checkbox-button {
 	padding: 0.3rem;
 	border: 0.05rem solid #f5c518;
