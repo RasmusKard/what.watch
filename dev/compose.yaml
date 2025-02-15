@@ -1,6 +1,5 @@
 services:
   server:
-    container_name: randwatch-server
     build:
       context: .
       target: ${BUILD_TARGET}
@@ -16,7 +15,6 @@ services:
 
 
   db:
-    container_name: randwatch-db
     build:
       context: ./create-testing-db
     image: randwatch-db
