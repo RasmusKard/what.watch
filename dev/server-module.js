@@ -1,11 +1,12 @@
-import { mainDbConnection, infoDbConnection } from "./db.js";
+import { mainDbConnection } from "./db.js";
 import "dotenv/config";
 import { WatchlistScraper } from "imdb-watchlist-scraper";
-import { info } from "node:console";
 const TITLETYPES = {
 	movie: ["movie", "tvMovie", "tvSpecial"],
 	tvSeries: ["tvMiniSeries", "tvSeries"],
 };
+
+const infoDbName = process.env.MYSQL_INFO_DB_NAME;
 
 async function retrieveMethod({ tconst, res }) {
 	try {
@@ -49,7 +50,7 @@ async function retrieveMethod({ tconst, res }) {
 async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 	if (imdbUserId !== undefined) {
 		try {
-			const userData = await infoDbConnection("username_ref")
+			const userData = await mainDbConnection(`${infoDbName}.username_ref`)
 				.select("imdbUserId", "imdbUsername", "syncState", "lastSyncTime")
 				.where("imdbUserId", imdbUserId);
 			const userDataObj = userData[0];
@@ -59,7 +60,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				return;
 			}
 
-			await infoDbConnection("username_ref")
+			await mainDbConnection(`${infoDbName}.username_ref`)
 				.insert({
 					imdbUserId: imdbUserId,
 					syncState: 1,
@@ -82,7 +83,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				};
 			});
 
-			await infoDbConnection("user_seen_content")
+			await mainDbConnection(`${infoDbName}.user_seen_content`)
 				.insert(arrOfInsertObj)
 				.onConflict()
 				.ignore();
@@ -90,7 +91,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 			const watchlistSeenCount = await getSeenIdCount(imdbUserId);
 
 			const lastSyncTime = new Date();
-			await infoDbConnection("username_ref")
+			await mainDbConnection(`${infoDbName}.username_ref`)
 				.insert({
 					imdbUserId: imdbUserId,
 					syncState: 2,
@@ -107,7 +108,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				watchlistSeenCount: watchlistSeenCount,
 			});
 		} catch (error) {
-			await infoDbConnection("username_ref")
+			await mainDbConnection(`${infoDbName}.username_ref`)
 				.insert({
 					imdbUserId: imdbUserId,
 					syncState: 0,
@@ -121,14 +122,14 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 }
 
 async function getSeenIdCount(imdbUserId) {
-	const idCount = await infoDbConnection("user_seen_content")
+	const idCount = await mainDbConnection(`${infoDbName}.user_seen_content`)
 		.count("imdbUserId AS count")
 		.where("imdbUserId", imdbUserId);
 	return idCount[0].count;
 }
 
 async function getUserImdbInfo({ imdbUserId }) {
-	const userData = await infoDbConnection("username_ref")
+	const userData = await mainDbConnection(`${infoDbName}.username_ref`)
 		.select("imdbUserId", "imdbUsername", "syncState", "lastSyncTime")
 		.where("imdbUserId", imdbUserId);
 	const userDataObj = userData[0];
@@ -245,7 +246,7 @@ async function submitMethod({ userInput, res }) {
 				if (imdbUserId !== undefined) {
 					query.whereNotIn(
 						"title.tconst",
-						infoDbConnection("user_seen_content")
+						mainDbConnection(`${infoDbName}.user_seen_content`)
 							.select("tconst")
 							.where("imdbUserId", imdbUserId)
 					);
