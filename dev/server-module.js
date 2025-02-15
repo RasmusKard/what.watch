@@ -1,6 +1,7 @@
-import { connection } from "./db.js";
+import { mainDbConnection, infoDbConnection } from "./db.js";
 import "dotenv/config";
 import { WatchlistScraper } from "imdb-watchlist-scraper";
+import { info } from "node:console";
 const TITLETYPES = {
 	movie: ["movie", "tvMovie", "tvSpecial"],
 	tvSeries: ["tvMiniSeries", "tvSeries"],
@@ -8,7 +9,7 @@ const TITLETYPES = {
 
 async function retrieveMethod({ tconst, res }) {
 	try {
-		const result = await connection("title as t")
+		const result = await mainDbConnection("title as t")
 			.select(
 				"t.tconst",
 				"t.primaryTitle",
@@ -26,7 +27,7 @@ async function retrieveMethod({ tconst, res }) {
 						.where("tg.tconst", tconst)
 						.groupBy("tg.tconst")
 						.select(
-							connection.raw(
+							mainDbConnection.raw(
 								'GROUP_CONCAT(gf.genres_str SEPARATOR ", ") as genres'
 							)
 						)
@@ -48,7 +49,7 @@ async function retrieveMethod({ tconst, res }) {
 async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 	if (imdbUserId !== undefined) {
 		try {
-			const userData = await connection("username_ref")
+			const userData = await infoDbConnection("username_ref")
 				.select("imdbUserId", "imdbUsername", "syncState", "lastSyncTime")
 				.where("imdbUserId", imdbUserId);
 			const userDataObj = userData[0];
@@ -58,7 +59,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				return;
 			}
 
-			await connection("username_ref")
+			await infoDbConnection("username_ref")
 				.insert({
 					imdbUserId: imdbUserId,
 					syncState: 1,
@@ -81,7 +82,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				};
 			});
 
-			await connection("user_seen_content")
+			await infoDbConnection("user_seen_content")
 				.insert(arrOfInsertObj)
 				.onConflict()
 				.ignore();
@@ -89,7 +90,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 			const watchlistSeenCount = await getSeenIdCount(imdbUserId);
 
 			const lastSyncTime = new Date();
-			await connection("username_ref")
+			await infoDbConnection("username_ref")
 				.insert({
 					imdbUserId: imdbUserId,
 					syncState: 2,
@@ -106,7 +107,7 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 				watchlistSeenCount: watchlistSeenCount,
 			});
 		} catch (error) {
-			await connection("username_ref")
+			await infoDbConnection("username_ref")
 				.insert({
 					imdbUserId: imdbUserId,
 					syncState: 0,
@@ -120,14 +121,14 @@ async function scrapeImdbAndSendToSQL({ imdbUserId, res }) {
 }
 
 async function getSeenIdCount(imdbUserId) {
-	const idCount = await connection("user_seen_content")
+	const idCount = await infoDbConnection("user_seen_content")
 		.count("imdbUserId AS count")
 		.where("imdbUserId", imdbUserId);
 	return idCount[0].count;
 }
 
 async function getUserImdbInfo({ imdbUserId }) {
-	const userData = await connection("username_ref")
+	const userData = await infoDbConnection("username_ref")
 		.select("imdbUserId", "imdbUsername", "syncState", "lastSyncTime")
 		.where("imdbUserId", imdbUserId);
 	const userDataObj = userData[0];
@@ -142,7 +143,7 @@ async function getUserImdbInfo({ imdbUserId }) {
 async function submitMethod({ userInput, res }) {
 	// form filters
 	const contentTypes = userInput["content-types"];
-	const minRating = userInput["minrating"][0];
+	const minRating = userInput["minrating"];
 	let genres = userInput["genres"];
 
 	// Already suggested IDs
@@ -194,12 +195,12 @@ async function submitMethod({ userInput, res }) {
 	}
 
 	try {
-		const output = await connection("title")
+		const output = await mainDbConnection("title")
 			.select("title.tconst")
 			.modify((query) => {
 				if (Array.isArray(recommendGenres) && recommendGenres.length) {
 					query.innerJoin(
-						connection("title_genres")
+						mainDbConnection("title_genres")
 							.select("tconst", "genres")
 							.whereIn("title_genres.genres", recommendGenres)
 							.as("matched_genres"),
@@ -211,7 +212,7 @@ async function submitMethod({ userInput, res }) {
 			.modify((query) => {
 				if (Array.isArray(dontRecommendGenres) && dontRecommendGenres.length) {
 					query.whereNotExists(
-						connection("title_genres")
+						mainDbConnection("title_genres")
 							.select("tconst", "genres")
 							.whereIn("title_genres.genres", dontRecommendGenres)
 							.whereRaw("title.tconst = title_genres.tconst")
@@ -229,7 +230,7 @@ async function submitMethod({ userInput, res }) {
 			})
 			.modify((query) => {
 				if (!!minRating && minRating > 0) {
-					query.andWhere("title.averageRating", ">=", minRating);
+					query.andWhere("title.averageRating", ">=", minRating[0]);
 				}
 			})
 			.modify((query) => {
@@ -244,7 +245,7 @@ async function submitMethod({ userInput, res }) {
 				if (imdbUserId !== undefined) {
 					query.whereNotIn(
 						"title.tconst",
-						connection("user_seen_content")
+						infoDbConnection("user_seen_content")
 							.select("tconst")
 							.where("imdbUserId", imdbUserId)
 					);
@@ -298,7 +299,7 @@ function getDataFromTmdbApi({ tconstObj }) {
 
 async function strArrToIDArr({ strArray, refTable }) {
 	try {
-		const output = await connection(refTable).select("*");
+		const output = await mainDbConnection(refTable).select("*");
 		let convertObj = {};
 		for (const obj of output) {
 			const values = Object.values(obj);

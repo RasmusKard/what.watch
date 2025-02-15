@@ -24,7 +24,6 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=dataset_sql
       - MYSQL_ROOT_PASSWORD=1234
     expose:
       - 3306
