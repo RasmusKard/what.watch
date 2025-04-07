@@ -443,7 +443,7 @@ function addSubmitListener({ formContainerId, sessionStorageName }) {
         resultRowCount: resultRowCount,
         fetchObj: randTconstObj,
         animateFunction: animateLoadingOverlay({
-          animationStepCount: 8,
+          animationStepCount: 6,
           maxRowCount: maxRowCount,
           loadingNumber: animationObj["loadingNumber"],
           endNum: resultRowCount,
@@ -603,7 +603,7 @@ async function animateLoadingOverlay({
       await sleep(150);
     }
     loadingNumber.style.color = "green";
-    await sleep(1200);
+    await sleep(1000);
   } else {
     loadingNumber.innerText = endNum;
     loadingNumber.style.color = "green";

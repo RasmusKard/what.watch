@@ -281,7 +281,9 @@ async function submitMethod({ userInput, res }) {
     if (Array.isArray(output) && output.length) {
       const outputArr = output.map(({ tconst }) => tconst);
       if (redisClient.isOpen) {
-        await redisClient.set(userInputHash, JSON.stringify(outputArr));
+        await redisClient.set(userInputHash, JSON.stringify(outputArr), {
+          EX: 1200,
+        });
       }
       res.json(outputArr);
     } else {
